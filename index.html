@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#101827">
+<title>NEGUS AI ASSISTANT</title>
+<style>
+:root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+header{padding:20px 16px;background:#101a2a;border-bottom:1px solid var(--line)}
+.brand{font-size:22px;font-weight:800;letter-spacing:1px;color:var(--gold)}
+.sub{font-size:12px;color:var(--muted);margin-top:5px}
+nav{display:flex;gap:7px;overflow-x:auto;padding:12px;background:#101a2a;position:sticky;top:0;z-index:5}
+nav button{white-space:nowrap;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:10px 13px;border-radius:8px}
+nav button.active{background:var(--gold);color:#151515;font-weight:bold}
+main{padding:15px;max-width:1000px;margin:auto}
+.page{display:none}.page.active{display:block}
+h2{font-size:20px;margin:8px 0 15px}
+h3{font-size:15px;margin:0 0 12px;color:var(--gold)}
+p,.muted{color:var(--muted);font-size:13px;line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:12px}
+.metric{font-size:23px;font-weight:bold;margin-top:8px}
+.gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}
+label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid var(--line);background:#0c1727;color:var(--text);font-size:15px}
+textarea{min-height:75px}
+button{cursor:pointer}
+.action{background:var(--gold);color:#171717;border:0;border-radius:8px;padding:12px 16px;font-weight:bold;margin-top:12px}
+.secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
+.result{background:#0c1727;border:1px solid var(--line);padding:13px;border-radius:8px;margin-top:12px;line-height:1.7}
+.warning{color:var(--red);font-weight:bold}
+.ok{color:var(--green);font-weight:bold}
+.check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+.check input{width:19px;height:19px;margin:0}
+table{width:100%;border-collapse:collapse;font-size:12px}
+td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
+.tablewrap{overflow-x:auto}
+iframe{width:100%;height:430px;border:0;border-radius:10px;background:#fff}
+footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
+.small{font-size:11px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+ <div class="brand">♛ NEGUS AI ASSISTANT</div>
+ <div class="sub">EUR/USD PROFESSIONAL TRADING WORKSPACE · VERSION 1.0</div>
+</header>
+
+<nav>
+ <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+ <button onclick="showPage('analysis',this)">Strategy Analysis</button>
+ <button onclick="showPage('market',this)">Market & Chart</button>
+ <button onclick="showPage('risk',this)">Risk Calculator</button>
+ <button onclick="showPage('checklist',this)">Checklist</button>
+ <button onclick="showPage('journal',this)">Trade Journal</button>
+</nav>
+
+<main>
+<section id="dashboard" class="page active">
+ <h2>Trading Dashboard</h2>
+ <div class="grid">
+  <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
+  <div class="card"><div class="small">ACCOUNT BALANCE</div><div class="metric">$15.00</div><div class="small">Editable in Risk Calculator</div></div>
+  <div class="card"><div class="small">MAX RISK TARGET</div><div class="metric">1%</div><div class="small">$0.15 on a $15 account</div></div>
+  <div class="card"><div class="small">MARKET DATA</div><div class="metric red">Not connected</div><div class="small">No broker feed connected</div></div>
+ </div>
+ <div class="card">
+  <h3>Professional Trading Process</h3>
+  <p>1. D1 / H4 — identify the higher-timeframe direction and important zones.</p>
+  <p>2. H1 — establish intraday structure and directional bias.</p>
+  <p>3. M15 — wait for confirmation: sweep, BOS, CHoCH, displacement or rejection.</p>
+  <p>4. M5 — look for a valid FVG / order-block retest and entry trigger.</p>
+  <p>5. Calculate stop loss, target, costs and cash risk before any trade.</p>
+  <p class="gold">No confirmation = NO TRADE.</p>
+ </div>
+ <div class="card">
+  <h3>Capital Protection</h3>
+  <p>Never widen a stop loss. Never increase lot size to recover a loss. Do not force a trade when the minimum lot exceeds your risk limit.</p>
+  <p class="warning">A $15 account is very small. Protect capital first. Practice and test before depositing or trading live.</p>
+ </div>
+</section>
+
+<section id="analysis" class="page">
+ <h2>Strategy Analysis</h2>
+ <div class="card">
+  <h3>Manual Market Assessment</h3>
+  <p>Enter your observations from your chart. This tool does not receive live broker prices or automatically detect market structure.</p>
+  <label>D1 / H4 Direction</label>
+  <select id="direction"><option value="">Select direction</option><option>Bullish</option><option>Bearish</option><option>Sideways / Unclear</option></select>
+  <label>H1 Intraday Bias</label>
+  <select id="bias"><option value="">Select bias</option><option>Bullish</option><option>Bearish</option><option>Neutral</option></select>
+  <label>Price at a planned key level?</label>
+  <select id="level"><option value="">Select</option><option>Yes</option><option>No</option></select>
+  <label>M15 confirmation</label>
+  <select id="confirm"><option value="">Select</option><option>Liquidity sweep</option><option>BOS</option><option>CHoCH</option><option>Displacement</option><option>Rejection / close</option><option>None</option></select>
+  <label>M5 entry trigger</label>
+  <select id="trigger"><option value="">Select</option><option>FVG retest</option><option>Order block retest</option><option>Price action confirmation</option><option>None</option></select>
+  <label>Important notes / observed price levels</label>
+  <textarea id="analysisNotes" placeholder="Write your chart observations..."></textarea>
+  <button class="action" onclick="analyze()">Evaluate Setup</button>
+  <div id="analysisResult" class="result">Complete the assessment to receive a checklist-based result.</div>
+ </div>
+ <div class="card">
+  <h3>Fundamental News Watch</h3>
+  <p>Monitor US: Fed / FOMC, CPI, PCE, NFP, unemployment, GDP and ISM.</p>
+  <p>Monitor Eurozone: ECB rates, CPI, GDP, PMI, employment and speeches.</p>
+  <p>Compare actual, forecast, previous and market expectations. Avoid impulsive entries around major news and check spreads.</p>
+  <p class="small">No live news feed is connected. Verify releases with a reliable economic calendar.</p>
+ </div>
+</section>
+
+<section id="market" class="page">
+ <h2>Market & Chart</h2>
+ <div class="card">
+  <h3>EUR/USD TradingView Chart</h3>
+  <p>External chart provided by TradingView. This is not an Exness MT5 account connection.</p>
+  <iframe src="https://www.tradingview.com/widgetembed/?frameElementId=tradingview_chart&symbol=FX%3AEURUSD&interval=15&hidesidetoolbar=0&symboledit=1&saveimage=1&toolbarbg=f1f3f6&theme=dark&style=1&timezone=Africa%2FAddis_Ababa&withdateranges=1&hideideas=1&studies=%5B%5D" title="EUR USD chart" allowfullscreen></iframe>
+  <p class="small">Chart data and availability depend on TradingView. Confirm executable prices and spreads in your broker platform.</p>
+ </div>
+ <div class="card">
+  <h3>Timeframe Workflow</h3>
+  <p>D1 / H4: direction and zones</p><p>H1: structure and bias</p><p>M15: confirmation</p><p>M5: entry trigger</p><p>M1: optional refinement only; never overrides higher timeframes.</p>
+ </div>
+</section>
+
+<section id="risk" class="page">
+ <h2>Risk Calculator</h2>
+ <div class="card">
+  <h3>EUR/USD Position Risk</h3>
+  <label>Account balance (USD)</label>
+  <input id="balance" type="number" value="15" min="0" step="0.01">
+  <label>Risk percentage (%)</label>
+  <input id="riskPercent" type="number" value="1" min="0.1" max="5" step="0.1">
+  <label>Lot size</label>
+  <input id="lot" type="number" value="0.01" min="0.01" step="0.01">
+  <label>Stop loss distance (pips)</label>
+  <input id="stopPips" type="number" value="10" min="0.1" step="0.1">
+  <label>Take profit distance (pips)</label>
+  <input id="targetPips" type="number" value="20" min="0.1" step="0.1">
+  <button class="action" onclick="calculateRisk()">Calculate Risk</button>
+  <div id="riskResult" class="result">Enter your trade details and calculate.</div>
+  <p class="small">Approximation for EUR/USD in a USD account: 1.00 lot ≈ $10 per pip; 0.01 lot ≈ $0.10 per pip. Actual costs, contract specifications, conversion and slippage can change results.</p>
+ </div>
+ <div class="card">
+  <h3>Planning Lot Ladder</h3>
+  <p>$15–$49.99 → 0.01 lot</p>
+  <p>$50–$99.99 → 0.02 lot</p>
+  <p>$100–$199.99 → 0.03 lot</p>
+  <p>$200–$500 → 0.04 lot</p>
+  <p class="warning">This is only a planning guide. The 1% risk limit always takes priority. If minimum lot risk is too high, skip the trade.</p>
+ </div>
+</section>
+
+<section id="checklist" class="page">
+ <h2>Pre-Trade Checklist</h2>
+ <div class="card">
+  <h3>Complete before entering a trade</h3>
+  <div id="checks">
+   <label class="check"><input type="checkbox"> D1 / H4 direction identified</label>
+   <label class="check"><input type="checkbox"> H1 structure and bias identified</label>
+   <label class="check"><input type="checkbox"> Price reached a planned key level</label>
+   <label class="check"><input type="checkbox"> M15 confirmation observed</label>
+   <label class="check"><input type="checkbox"> M5 entry trigger confirmed</label>
+   <label class="check"><input type="checkbox"> Stop loss and take profit defined</label>
+   <label class="check"><input type="checkbox"> Risk and trading costs calculated</label>
+   <label class="check"><input type="checkbox"> News and spread checked</label>
+   <label class="check"><input type="checkbox"> Emotionally calm; no revenge trade</label>
+  </div>
+  <div id="checkCount" class="result">0 of 9 completed</div>
+  <button class="secondary" onclick="resetChecks()">Reset Checklist</button>
+ </div>
+</section>
+
+<section id="journal" class="page">
+ <h2>Trade Journal</h2>
+ <div class="card">
+  <h3>Record a Trade</h3>
+  <label>Date</label><input id="tradeDate" type="date">
+  <label>Direction</label><select id="side"><option>BUY</option><option>SELL</option></select>
+  <label>Lot size</label><input id="tradeLot" type="number" step="0.01" value="0.01">
+  <label>Entry price</label><input id="entry" type="number" step="0.00001">
+  <label>Stop loss</label><input id="stop" type="number" step="0.00001">
+  <label>Take profit</label><input id="target" type="number" step="0.00001">
+  <label>Closed P/L (USD)</label><input id="pnl" type="number" step="0.01" value="0">
+  <label>Setup and notes</label><textarea id="notes" placeholder="Why did you take this trade? What did you learn?"></textarea>
+  <button class="action" onclick="saveTrade()">Save Trade</button>
+ </div>
+ <div class="card">
+  <h3>Saved Trades</h3>
+  <div class="tablewrap">
+   <table><thead><tr><th>Date</th><th>Side</th><th>Lot</th><th>P/L</th><th>Action</th></tr></thead><tbody id="tradeRows"></tbody></table>
+  </div>
+  <p id="journalSummary" class="muted">No trades saved yet.</p>
+  <button class="secondary" onclick="exportCSV()">Export CSV</button>
+ </div>
+ <p class="small">Journal records are stored in this browser on this device. Clearing browser data may delete them. Export backups regularly.</p>
+</section>
+</main>
+
+<footer>NEGUS AI ASSISTANT · Decision support only · Human approval required</footer>
+
+<script>
+function showPage(id,btn){
+ document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+ btn.classList.add('active');
+}
+function analyze(){
+ const d=document.getElementById('direction').value;
+ const b=document.getElementById('bias').value;
+ const l=document.getElementById('level').value;
+ const c=document.getElementById('confirm').value;
+ const t=document.getElementById('trigger').value;
+ const out=document.getElementById('analysisResult');
+ if(!d||!b||!l||!c||!t){out.innerHTML='<span class="warning">INCOMPLETE — Complete all assessment fields.</span>';return;}
+ if(d==='Sideways / Unclear'||b==='Neutral'||l==='No'||c==='None'||t==='None'){
+  out.innerHTML='<span class="warning">WAIT — NO TRADE.</span><br>One or more required conditions are missing or unclear. Do not force an entry.';
+  return;
+ }
+ if((d==='Bullish'&&b==='Bearish')||(d==='Bearish'&&b==='Bullish')){
+  out.innerHTML='<span class="warning">CONFLICTING DIRECTION — WAIT.</span><br>Higher timeframe and H1 bias do not agree. Reassess structure.';
+  return;
+ }
+ out.innerHTML='<span class="ok">CHECKLIST CONDITIONS RECORDED.</span><br>Direction, level, confirmation and trigger have been entered. This is not an automatic buy or sell signal. Verify the chart, stop, target, costs and risk before any decision.';
+}
+function calculateRisk(){
+ const bal=Number(document.getElementById('balance').value);
+ const rp=Number(document.getElementById('riskPercent').value);
+ const lot=Number(document.getElementById('lot').value);
+ const sl=Number(document.getElementById('stopPips').value);
+ const tp=Number(document.getElementById('targetPips').value);
+ const out=document.getElementById('riskResult');
+ if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>5||lot<=0||sl<=0||tp<=0){
+  out.innerHTML='<span class="warning">Enter valid positive values. Risk percentage must be 5% or less.</span>';return;
+ }
+ const loss=sl*10*lot;
+ const profit=tp*10*lot;
+ const budget=bal*rp/100;
+ const percent=loss/bal*100;
+ const rr=tp/sl;
+ const maxLot=budget/(sl*10);
+ let status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within the entered risk budget, before costs.</span>';
+ if(lot<0.01)status='<span class="warning">Check broker minimum lot size.</span>';
+ out.innerHTML='Estimated stop loss: <b>$'+loss.toFixed(2)+'</b><br>Risk budget: <b>$'+budget.toFixed(2)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>$'+profit.toFixed(2)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot at this risk: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop just to fit the minimum lot. Include spread, commission and slippage.</span>';
+}
+function updateChecks(){
+ const boxes=[...document.querySelectorAll('#checks input')];
+ const n=boxes.filter(x=>x.checked).length;
+ document.getElementById('checkCount').textContent=n+' of '+boxes.length+' completed';
+}
+document.querySelectorAll('#checks input').forEach(x=>x.addEventListener('change',updateChecks));
+function resetChecks(){
+ document.querySelectorAll('#checks input').forEach(x=>x.checked=false);
+ updateChecks();
+}
+let trades=[];
+try{trades=JSON.parse(localStorage.getItem('negusTrades')||'[]');if(!Array.isArray(trades))trades=[];}catch(e){trades=[];}
+document.getElementById('tradeDate').value=new Date().toISOString().slice(0,10);
+function saveTrade(){
+ const date=document.getElementById('tradeDate').value;
+ const side=document.getElementById('side').value;
+ const lot=Number(document.getElementById('tradeLot').value);
+ const entry=Number(document.getElementById('entry').value);
+ const stop=Number(document.getElementById('stop').value);
+ const target=Number(document.getElementById('target').value);
+ const pnl=Number(document.getElementById('pnl').value);
+ const notes=document.getElementById('notes').value;
+ if(!date||!Number.isFinite(lot)||lot<=0||!Number.isFinite(entry)||entry<=0||!Number.isFinite(stop)||stop<=0||!Number.isFinite(target)||target<=0||!Number.isFinite(pnl)){
+  alert('Please enter a valid date, lot, entry, stop, target and P/L.');return;
+ }
+ trades.unshift({date,side,lot,entry,stop,target,pnl,notes});
+ try{localStorage.setItem('negusTrades',JSON.stringify(trades));}
+ catch(e){alert('Could not save. Browser storage may be unavailable or full.');return;}
+ document.getElementById('notes').value='';
+ renderTrades();
+ alert('Trade saved on this device.');
+}
+function renderTrades(){
+ const body=document.getElementById('tradeRows');
+ body.innerHTML='';
+ let total=0;
+ trades.forEach((tr,i)=>{
+  total+=Number(tr.pnl)||0;
+  const row=document.createElement('tr');
+  [tr.date,tr.side,String(tr.lot),Number(tr.pnl).toFixed(2)].forEach(v=>{
+   const td=document.createElement('td');td.textContent=v;row.appendChild(td);
+  });
+  const td=document.createElement('td');
+  const del=document.createElement('button');del.className='secondary';del.textContent='Delete';
+  del.onclick=()=>{if(confirm('Delete this trade?')){trades.splice(i,1);localStorage.setItem('negusTrades',JSON.stringify(trades));renderTrades();}};
+  td.appendChild(del);row.appendChild(td);body.appendChild(row);
+ });
+ document.getElementById('journalSummary').textContent=trades.length+' trades · Total recorded P/L: $'+total.toFixed(2);
+}
+function exportCSV(){
+ if(!trades.length){alert('No trades to export.');return;}
+ const keys=['date','side','lot','entry','stop','target','pnl','notes'];
+ const lines=[keys.join(',')].concat(trades.map(t=>keys.map(k=>'"'+String(t[k]??'').replace(/"/g,'""')+'"').join(',')));
+ const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');a.href=url;a.download='negus-trade-journal.csv';a.click();
+ URL.revokeObjectURL(url);
+}
+renderTrades();
+calculateRisk();
+updateChecks();
+</script>
+</body>
+</html>
