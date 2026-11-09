@@ -46,7 +46,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 <body>
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD PROFESSIONAL TRADING WORKSPACE · VERSION 1.0</div>
+ <div class="sub">EUR/USD PROFESSIONAL TRADING WORKSPACE · VERSION 2.0</div>
 </header>
 
 <nav>
@@ -63,13 +63,13 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <h2>Trading Dashboard</h2>
  <div class="grid">
   <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
-  <div class="card"><div class="small">ACCOUNT BALANCE</div><div class="metric">$15.00</div><div class="small">Editable in Risk Calculator</div></div>
-  <div class="card"><div class="small">MAX RISK TARGET</div><div class="metric">1%</div><div class="small">$0.15 on a $15 account</div></div>
+  <div class="card"><div class="small">ACCOUNT BALANCE</div><div class="metric" id="dashBalance">$15.00</div><div class="small">Editable in Risk Calculator</div></div>
+  <div class="card"><div class="small">MAX RISK TARGET</div><div class="metric">1%</div><div class="small">Maximum account risk per trade</div></div>
   <div class="card"><div class="small">MARKET DATA</div><div class="metric red">Not connected</div><div class="small">No broker feed connected</div></div>
  </div>
  <div class="card">
   <h3>Professional Trading Process</h3>
-  <p>1. D1 / H4 — identify the higher-timeframe direction and important zones.</p>
+  <p>1. D1 / H4 — identify higher-timeframe direction and important zones.</p>
   <p>2. H1 — establish intraday structure and directional bias.</p>
   <p>3. M15 — wait for confirmation: sweep, BOS, CHoCH, displacement or rejection.</p>
   <p>4. M5 — look for a valid FVG / order-block retest and entry trigger.</p>
@@ -78,8 +78,8 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  </div>
  <div class="card">
   <h3>Capital Protection</h3>
-  <p>Never widen a stop loss. Never increase lot size to recover a loss. Do not force a trade when the minimum lot exceeds your risk limit.</p>
-  <p class="warning">A $15 account is very small. Protect capital first. Practice and test before depositing or trading live.</p>
+  <p>Never widen a stop loss. Never increase lot size to recover a loss. Never force a trade when minimum lot exceeds your risk limit.</p>
+  <p class="warning">A $15 account is very small. Practice and test before depositing or trading live.</p>
  </div>
 </section>
 
@@ -87,7 +87,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <h2>Strategy Analysis</h2>
  <div class="card">
   <h3>Manual Market Assessment</h3>
-  <p>Enter your observations from your chart. This tool does not receive live broker prices or automatically detect market structure.</p>
+  <p>Enter observations from your chart. This tool does not receive live broker prices or automatically detect market structure.</p>
   <label>D1 / H4 Direction</label>
   <select id="direction"><option value="">Select direction</option><option>Bullish</option><option>Bearish</option><option>Sideways / Unclear</option></select>
   <label>H1 Intraday Bias</label>
@@ -131,9 +131,9 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <div class="card">
   <h3>EUR/USD Position Risk</h3>
   <label>Account balance (USD)</label>
-  <input id="balance" type="number" value="15" min="0" step="0.01">
-  <label>Risk percentage (%)</label>
-  <input id="riskPercent" type="number" value="1" min="0.1" max="5" step="0.1">
+  <input id="balance" type="number" value="15" min="0.01" step="0.01">
+  <label>Risk percentage (%) — maximum 1%</label>
+  <input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1">
   <label>Lot size</label>
   <input id="lot" type="number" value="0.01" min="0.01" step="0.01">
   <label>Stop loss distance (pips)</label>
@@ -216,7 +216,10 @@ function analyze(){
  const c=document.getElementById('confirm').value;
  const t=document.getElementById('trigger').value;
  const out=document.getElementById('analysisResult');
- if(!d||!b||!l||!c||!t){out.innerHTML='<span class="warning">INCOMPLETE — Complete all assessment fields.</span>';return;}
+ if(!d||!b||!l||!c||!t){
+  out.innerHTML='<span class="warning">INCOMPLETE — Complete all assessment fields.</span>';
+  return;
+ }
  if(d==='Sideways / Unclear'||b==='Neutral'||l==='No'||c==='None'||t==='None'){
   out.innerHTML='<span class="warning">WAIT — NO TRADE.</span><br>One or more required conditions are missing or unclear. Do not force an entry.';
   return;
@@ -225,7 +228,26 @@ function analyze(){
   out.innerHTML='<span class="warning">CONFLICTING DIRECTION — WAIT.</span><br>Higher timeframe and H1 bias do not agree. Reassess structure.';
   return;
  }
- out.innerHTML='<span class="ok">CHECKLIST CONDITIONS RECORDED.</span><br>Direction, level, confirmation and trigger have been entered. This is not an automatic buy or sell signal. Verify the chart, stop, target, costs and risk before any decision.';
+ const bal=Number(document.getElementById('balance').value);
+ const rp=Number(document.getElementById('riskPercent').value);
+ const lot=Number(document.getElementById('lot').value);
+ const sl=Number(document.getElementById('stopPips').value);
+ const tp=Number(document.getElementById('targetPips').value);
+ if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>1||lot<0.01||sl<=0||tp<=0){
+  out.innerHTML='<span class="warning">RISK DETAILS INVALID — Use a valid balance, risk up to 1%, lot, stop and target in Risk Calculator.</span>';
+  return;
+ }
+ const estimatedLoss=sl*10*lot;
+ const hardRiskLimit=bal*0.01;
+ if(estimatedLoss>hardRiskLimit){
+  out.innerHTML='<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop loss is $'+estimatedLoss.toFixed(2)+'; 1% account limit is $'+hardRiskLimit.toFixed(2)+'. If minimum lot is still too risky, do not trade.';
+  return;
+ }
+ if(tp/sl<1){
+  out.innerHTML='<span class="warning">REWARD/RISK BELOW 1:1 — WAIT.</span><br>Target distance is smaller than stop distance. Reassess the setup; do not force a trade.';
+  return;
+ }
+ out.innerHTML='<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Direction, level, M15 confirmation, M5 trigger and 1% risk gate have been recorded. Estimated stop risk: $'+estimatedLoss.toFixed(2)+' before spread, commission and slippage. Verify actual chart, news, spread and broker prices. Human decision required.';
 }
 function calculateRisk(){
  const bal=Number(document.getElementById('balance').value);
@@ -234,8 +256,9 @@ function calculateRisk(){
  const sl=Number(document.getElementById('stopPips').value);
  const tp=Number(document.getElementById('targetPips').value);
  const out=document.getElementById('riskResult');
- if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>5||lot<=0||sl<=0||tp<=0){
-  out.innerHTML='<span class="warning">Enter valid positive values. Risk percentage must be 5% or less.</span>';return;
+ if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>1||lot<0.01||sl<=0||tp<=0){
+  out.innerHTML='<span class="warning">Invalid values. Enter positive values and keep risk at or below 1%.</span>';
+  return;
  }
  const loss=sl*10*lot;
  const profit=tp*10*lot;
@@ -243,9 +266,9 @@ function calculateRisk(){
  const percent=loss/bal*100;
  const rr=tp/sl;
  const maxLot=budget/(sl*10);
- let status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within the entered risk budget, before costs.</span>';
- if(lot<0.01)status='<span class="warning">Check broker minimum lot size.</span>';
+ const status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within the entered risk budget, before costs.</span>';
  out.innerHTML='Estimated stop loss: <b>$'+loss.toFixed(2)+'</b><br>Risk budget: <b>$'+budget.toFixed(2)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>$'+profit.toFixed(2)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot at this risk: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop just to fit the minimum lot. Include spread, commission and slippage.</span>';
+ document.getElementById('dashBalance').textContent='$'+bal.toFixed(2);
 }
 function updateChecks(){
  const boxes=[...document.querySelectorAll('#checks input')];
