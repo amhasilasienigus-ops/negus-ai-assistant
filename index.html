@@ -1,10 +1,11 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.4</title>
+<title>NEGUS AI ASSISTANT v6.5</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -68,7 +69,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <body>
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.4 · LIVE EUR/USD + SMART CHART OVERLAYS + MARKET STRUCTURE + S/R</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.5 · LIVE EUR/USD + SMART CHART OVERLAYS + MARKET STRUCTURE + S/R</div>
 </header>
 
 <nav>
@@ -387,7 +388,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <section id="market" class="page">
  <h2>Market & Chart</h2>
  <div class="card">
-  <h3>EUR/USD Smart TradingView Chart · V6.4</h3>
+  <h3>EUR/USD Smart TradingView Chart · V6.5</h3>
   <p>TradingView Lightweight Charts powered by the app's external BiQuote candle feed. Overlays are calculated by NEGUS; this is not an Exness MT5 connection or the hosted TradingView website widget.</p>
   <label>Chart timeframe</label>
   <select id="chartTF" onchange="changeChart()"><option value="M5">M5</option><option value="M15" selected>M15</option><option value="H1">H1</option><option value="H4">H4</option><option value="D1">D1</option></select>
@@ -481,7 +482,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 </section>
 </main>
 
-<footer>NEGUS AI ASSISTANT v6.4 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v6.5 · Decision support only · Human approval required · No broker connection</footer>
 
 <script>
 function showPage(id,btn){
@@ -673,7 +674,7 @@ async function refreshLiveMarket(){
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
   const framePromises=TF_CONFIG.map(async([name,interval])=>{const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');return [name,inspectFrame(data.bars)];});
   const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
-  liveQuote=q;liveFrames=Object.fromEntries(frames);lastLiveError='';renderLiveMarket();
+  liveQuote=q;liveFrames=Object.fromEntries(frames);lastLiveError='';renderLiveMarket();renderSmartChart();
  }catch(err){lastLiveError=String(err&&err.message?err.message:err);setText('feedStatus','ERROR');setText('feedUpdated','Market data could not be loaded: '+lastLiveError+'. Tap Refresh to try again.');setText('autoSignal','WAIT — LIVE DATA UNAVAILABLE. Do not use an old signal.');}
  finally{liveFetchBusy=false;}
 }
@@ -689,7 +690,7 @@ function renderLiveMarket(){
  for(const [name] of TF_CONFIG){const f=liveFrames[name];setText('tf'+name,!f||!f.ok?'NO DATA':f.trend);}
  const m15=liveFrames.M15,m5=liveFrames.M5;setText('liveRSI',m15&&m15.ok&&m5&&m5.ok?m15.rsi.toFixed(1)+' / '+m5.rsi.toFixed(1):'--');renderV63();evaluateLiveSignal();
 }
-/* V6.3 MARKET STRUCTURE, ENTRY PATTERNS AND SUPPORT/RESISTANCE — rendered in V6.4 chart */
+/* V6.3 MARKET STRUCTURE, ENTRY PATTERNS AND SUPPORT/RESISTANCE — rendered in V6.5 chart */
 function swingPoints(bars,left=2,right=2){
  const highs=[],lows=[];
  for(let i=left;i<bars.length-right;i++){
@@ -920,3 +921,4 @@ refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLive
 </script>
 </body>
 </html>
+
