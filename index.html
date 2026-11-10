@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.5</title>
+<title>NEGUS AI ASSISTANT v6.6</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -40,6 +40,9 @@ table{width:100%;border-collapse:collapse;font-size:12px}
 td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .tablewrap{overflow-x:auto}
 .chart-shell{position:relative;width:100%;height:430px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b1220}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
+.chart-price-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.chart-price-cell{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:10px;min-width:0}.chart-price-label{font-size:10px;color:var(--muted);letter-spacing:.4px}.chart-price-value{font-size:clamp(15px,3.4vw,22px);font-weight:800;margin-top:5px;overflow-wrap:anywhere}.chart-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.chart-toggle{display:flex;align-items:center;gap:7px;background:#0c1727;border:1px solid var(--line);border-radius:20px;padding:8px 11px;font-size:12px;color:var(--text);margin:0}.chart-toggle input{width:17px;height:17px;margin:0;accent-color:var(--gold)}.mtf-wrap{overflow-x:auto}.mtf-table{min-width:680px}.mtf-table th{color:var(--gold);font-size:11px}.mtf-table td{font-size:11px;vertical-align:top}.mtf-bull{color:var(--green);font-weight:bold}.mtf-bear{color:var(--red);font-weight:bold}.mtf-neutral{color:var(--gold);font-weight:bold}.chart-note{font-size:11px;color:var(--muted);line-height:1.5}
+@media(max-width:600px){.chart-shell{height:390px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+
 footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 .strategy details{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:12px}
 .strategy summary{color:var(--gold);font-weight:bold;cursor:pointer;padding:5px 0}
@@ -69,7 +72,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <body>
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.5 · LIVE EUR/USD + SMART CHART OVERLAYS + MARKET STRUCTURE + S/R</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.6 · LIVE PRICE PANEL + MULTI-TIMEFRAME OVERLAYS + CLEAN CHART</div>
 </header>
 
 <nav>
@@ -388,16 +391,37 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <section id="market" class="page">
  <h2>Market & Chart</h2>
  <div class="card">
-  <h3>EUR/USD Smart TradingView Chart · V6.5</h3>
-  <p>TradingView Lightweight Charts powered by the app's external BiQuote candle feed. Overlays are calculated by NEGUS; this is not an Exness MT5 connection or the hosted TradingView website widget.</p>
-  <label>Chart timeframe</label>
-  <select id="chartTF" onchange="changeChart()"><option value="M5">M5</option><option value="M15" selected>M15</option><option value="H1">H1</option><option value="H4">H4</option><option value="D1">D1</option></select>
-  <div class="chart-shell"><div id="chartHost" class="chart-host"></div><canvas id="chartOverlay" class="chart-overlay"></canvas></div>
-  <div class="chart-legend"><span><i class="legend-dot" style="background:#35c995"></i>Bullish / Support</span><span><i class="legend-dot" style="background:#ff6878"></i>Bearish / Resistance</span><span><i class="legend-dot" style="background:#e5b94f"></i>BOS / CHoCH / PDH / PDL</span><span><i class="legend-dot" style="background:#5ba7ff"></i>FVG</span><span><i class="legend-dot" style="background:#b18cff"></i>Candidate OB</span></div>
-  <div id="chartStatus" class="chart-status">Waiting for live candle data and chart library...</div>
-  <p class="small">Chart data is supplied by BiQuote and may differ from Exness. Lines and boxes are approximate rule-based analysis; verify all levels on your broker chart before acting.</p>
- </div>
- <div class="card">
+   <h3>EUR/USD Smart TradingView Chart · V6.6</h3>
+   <p>Live BiQuote price and candles with selectable NEGUS overlays. External market data only; not an Exness MT5 connection.</p>
+   <div class="chart-price-strip">
+    <div class="chart-price-cell"><div class="chart-price-label">LIVE MID PRICE</div><div id="chartLiveMid" class="chart-price-value gold">--</div></div>
+    <div class="chart-price-cell"><div class="chart-price-label">BID</div><div id="chartLiveBid" class="chart-price-value">--</div></div>
+    <div class="chart-price-cell"><div class="chart-price-label">ASK</div><div id="chartLiveAsk" class="chart-price-value">--</div></div>
+    <div class="chart-price-cell"><div class="chart-price-label">SPREAD</div><div id="chartLiveSpread" class="chart-price-value">--</div></div>
+   </div>
+   <label>Chart timeframe</label>
+   <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
+   <div class="small" style="margin-top:10px">CHART OVERLAYS · Switch each layer independently</div>
+   <div class="chart-controls">
+    <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> Support / Resistance</label>
+    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG</label>
+    <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" checked onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
+    <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH</label>
+    <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> Candidate OB</label>
+   </div>
+   <div class="chart-shell"><div id="chartHost" class="chart-host"></div><canvas id="chartOverlay" class="chart-overlay"></canvas></div>
+   <div class="chart-legend"><span><i class="legend-dot" style="background:#35c995"></i>Support / Bullish</span><span><i class="legend-dot" style="background:#ff6878"></i>Resistance / Bearish</span><span><i class="legend-dot" style="background:#e5b94f"></i>Liquidity / Structure</span><span><i class="legend-dot" style="background:#5ba7ff"></i>FVG</span><span><i class="legend-dot" style="background:#b18cff"></i>Candidate OB</span><span><i class="legend-dot" style="background:#38bdf8"></i>Live price</span></div>
+   <div id="chartStatus" class="chart-status">Waiting for live candle data and chart library...</div>
+   <p class="chart-note">Only the selected timeframe's FVG, structure and candidate OB are drawn. Higher-timeframe H4/H1 support and resistance and D1 liquidity references are optional overlays. The multi-timeframe panel below keeps the other timeframes visible without crowding the chart.</p>
+  </div>
+  <div class="card">
+   <h3>Multi-Timeframe Analysis · All Timeframes</h3>
+   <p>D1 → H4 → H1 → M15 → M5. Every row is calculated from that timeframe's available closed BiQuote candles. This is rules-based decision support, not a prediction.</p>
+   <div id="mtfStatus" class="result">Waiting for all timeframe candles...</div>
+   <div class="mtf-wrap"><table class="mtf-table"><thead><tr><th>TF</th><th>Trend</th><th>Structure</th><th>Support / Resistance</th><th>FVG</th><th>Liquidity / Sweep</th></tr></thead><tbody id="mtfRows"><tr><td colspan="6">Waiting for live data...</td></tr></tbody></table></div>
+   <p class="chart-note">FVG, BOS/CHoCH and liquidity sweep labels are approximate pattern checks on the latest closed candles. Candidate zones must be manually verified; a detected pattern is not an entry signal.</p>
+  </div>
+  <div class="card">
   <h3>Timeframe Workflow</h3><p>D1 / H4: direction and zones</p><p>H1: structure and bias</p><p>M15: confirmation</p><p>M5: entry trigger</p><p>M1: optional refinement only; never overrides higher timeframes.</p>
  </div>
 </section>
@@ -482,7 +506,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 </section>
 </main>
 
-<footer>NEGUS AI ASSISTANT v6.5 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v6.6 · Decision support only · Human approval required · No broker connection</footer>
 
 <script>
 function showPage(id,btn){
@@ -491,7 +515,7 @@ function showPage(id,btn){
  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
  if(id==='performance')renderPerformance();
- if(id==='market'){setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
+ if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
 }
 
 async function subscribeToNegusNotifications(){
@@ -514,7 +538,7 @@ async function subscribeToNegusNotifications(){
 function changeChart(){
  const tf=document.getElementById('chartTF').value;
  renderSmartChart(true);
- setText('chartStatus','Chart timeframe: '+tf+' · overlays recalculated from available BiQuote candles.');
+ setText('chartStatus','Chart timeframe: '+tf+' · selected-timeframe overlays refreshed.');
 }
 function localDateString(date=new Date()){
  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
@@ -687,6 +711,7 @@ function renderLiveMarket(){
  setText('feedStatus',stale?'STALE':state.toUpperCase());
  const age=Number(q.quoteAgeSeconds);
  setText('feedUpdated','Source: BiQuote · '+(Number.isFinite(age)?'Quote age '+age+' sec':'Quote age unavailable')+' · '+new Date().toLocaleTimeString());
+ updateChartQuote();renderMultiTimeframePanel();
  for(const [name] of TF_CONFIG){const f=liveFrames[name];setText('tf'+name,!f||!f.ok?'NO DATA':f.trend);}
  const m15=liveFrames.M15,m5=liveFrames.M5;setText('liveRSI',m15&&m15.ok&&m5&&m5.ok?m15.rsi.toFixed(1)+' / '+m5.rsi.toFixed(1):'--');renderV63();evaluateLiveSignal();
 }
@@ -702,7 +727,7 @@ function swingPoints(bars,left=2,right=2){
  return {highs,lows};
 }
 function analyzeStructure(frame){
- if(!frame||!frame.ok||!frame.bars||frame.bars.length<12)return {ok:false,reason:'Not enough closed M15 candles'};
+ if(!frame||!frame.ok||!frame.bars||frame.bars.length<12)return {ok:false,reason:'Not enough closed candles'};
  const bars=frame.bars,sw=swingPoints(bars,2,2),last=bars[bars.length-1],prev=bars[bars.length-2];
  const priorHigh=sw.highs.filter(x=>x.index<bars.length-1).slice(-1)[0],priorLow=sw.lows.filter(x=>x.index<bars.length-1).slice(-1)[0];
  const range=last.high-last.low,body=Math.abs(last.close-last.open),atrValue=frame.atr||0,displacement=atrValue>0&&body>=atrValue*0.65;
@@ -719,7 +744,7 @@ function analyzeStructure(frame){
  return {ok:true,last,prev,priorTrend,bos,choch,sweep,displacement,direction,body,atr:atrValue,range,swings:sw,priorHigh,priorLow};
 }
 function analyzeEntry(frame){
- if(!frame||!frame.ok||!frame.bars||frame.bars.length<10)return {ok:false,reason:'Not enough closed M5 candles'};
+ if(!frame||!frame.ok||!frame.bars||frame.bars.length<10)return {ok:false,reason:'Not enough closed candles'};
  const b=frame.bars,last=b[b.length-1],prev=b[b.length-2],dir=last.close>last.open?'BULLISH':last.close<last.open?'BEARISH':'NEUTRAL';
  let fvg=null;
  for(let i=b.length-2;i>=2&&i>=b.length-12;i--){const a=b[i-2],c=b[i];if(c.low>a.high) {fvg={side:'BULLISH',low:a.high,high:c.low,time:a.time,endTime:c.time};break;}if(c.high<a.low){fvg={side:'BEARISH',low:c.high,high:a.low,time:a.time,endTime:c.time};break;}}
@@ -764,10 +789,38 @@ function renderV63(){
  document.getElementById('srRows').innerHTML=html.length?html.map(escapeNewsText).join('<br>'):'No nearby support/resistance pivots identified. Need more data.';
 }
 
-/* V6.4 SMART CHART OVERLAYS — TradingView Lightweight Charts + BiQuote data */
-let smartChart=null,smartCandleSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='';
+function renderMultiTimeframePanel(){
+ const body=document.getElementById('mtfRows'),status=document.getElementById('mtfStatus');if(!body)return;
+ const frames=liveFrames||{},price=chartPrice(),rows=[];
+ for(const [tf] of TF_CONFIG){
+  const f=frames[tf];
+  if(!f||!f.ok){rows.push('<tr><td><b>'+tf+'</b></td><td colspan="5" class="warning">NO DATA</td></tr>');continue;}
+  const st=analyzeStructure(f),en=analyzeEntry(f),trend=f.trend||'NEUTRAL';
+  const trendClass=trend==='BULLISH'?'mtf-bull':trend==='BEARISH'?'mtf-bear':'mtf-neutral';
+  const structure=st.ok?(st.choch!=='NONE'?st.choch:st.bos!=='NONE'?st.bos:'No BOS / CHoCH'):'Not enough candles';
+  const sw=swingPoints(f.bars,2,2),ref=Number.isFinite(price)?price:f.last.close;
+  const nearestLow=sw.lows.filter(x=>x.price<=ref).sort((a,b)=>b.price-a.price)[0],nearestHigh=sw.highs.filter(x=>x.price>=ref).sort((a,b)=>a.price-b.price)[0];
+  const sr=(nearestLow?'S '+fmtPrice(nearestLow.price):'S --')+' / '+(nearestHigh?'R '+fmtPrice(nearestHigh.price):'R --');
+  const fvg=en.ok&&en.fvg?en.fvg.side+' · '+fmtPrice(en.fvg.low)+'–'+fmtPrice(en.fvg.high):'Not detected';
+  const liq=st.ok&&st.sweep!=='NONE'?st.sweep:(tf==='D1'&&f.bars.length>1?'PDH / PDL reference':'No sweep');
+  rows.push('<tr><td><b>'+tf+'</b></td><td class="'+trendClass+'">'+escapeNewsText(trend)+'</td><td>'+escapeNewsText(structure)+'</td><td>'+escapeNewsText(sr)+'</td><td>'+escapeNewsText(fvg)+'</td><td>'+escapeNewsText(liq)+'</td></tr>');
+ }
+ body.innerHTML=rows.join('');
+ const ready=TF_CONFIG.filter(([tf])=>frames[tf]&&frames[tf].ok).length;
+ if(status)status.innerHTML='<b>'+ready+'/5 timeframes ready</b> · Current reference price: <b>'+fmtPrice(price)+'</b> · Each row uses closed candles only.';
+}
+/* V6.6 SMART CHART — clean selectable overlays + live price + MTF panel */
+let smartChart=null,smartCandleSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null;
 function chartTime(value){const n=Math.floor(new Date(value).getTime()/1000);return Number.isFinite(n)&&n>0?n:null;}
 function chartBars(tf){const frame=liveFrames&&liveFrames[tf];if(!frame||!frame.ok||!Array.isArray(frame.bars))return [];return frame.bars.map(b=>({time:chartTime(b.time),open:b.open,high:b.high,low:b.low,close:b.close})).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite));}
+function chartPrice(){const q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask);return Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);}
+function updateChartQuote(){
+ const q=liveQuote||{},bid=Number(q.bid),ask=Number(q.ask),price=chartPrice(),spread=Number.isFinite(bid)&&Number.isFinite(ask)?(ask-bid)*10000:Number(q.spread)*10000;
+ setText('chartLiveMid',fmtPrice(price));setText('chartLiveBid',fmtPrice(bid));setText('chartLiveAsk',fmtPrice(ask));setText('chartLiveSpread',Number.isFinite(spread)?spread.toFixed(1)+' pips':'--');
+ if(smartCandleSeries&&Number.isFinite(price)&&price>0){try{if(smartLivePriceLine)smartCandleSeries.removePriceLine(smartLivePriceLine);smartLivePriceLine=smartCandleSeries.createPriceLine({price,color:'#38bdf8',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'LIVE'});}catch(e){console.warn('Live price line update failed',e);}}
+ if(smartChartReady)drawSmartOverlays();
+}
+function overlayOn(id){const el=document.getElementById(id);return !!(el&&el.checked);}
 function initSmartChart(){
  const host=document.getElementById('chartHost');if(!host)return;
  if(!window.LightweightCharts){setText('chartStatus','Chart library is unavailable. Check internet connection and reload.');return;}
@@ -775,44 +828,37 @@ function initSmartChart(){
  try{
   smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#0b1220'},textColor:'#aab8ca'},grid:{vertLines:{color:'#182638'},horzLines:{color:'#182638'}},rightPriceScale:{borderColor:'#29394e'},timeScale:{borderColor:'#29394e',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
   smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#35c995',downColor:'#ff6878',borderUpColor:'#35c995',borderDownColor:'#ff6878',wickUpColor:'#35c995',wickDownColor:'#ff6878'});
-  smartChart.subscribeCrosshairMove(()=>{});
-  const canvas=document.getElementById('chartOverlay');
   if(window.ResizeObserver){smartChartResizeObserver=new ResizeObserver(entries=>{for(const e of entries){const w=Math.max(1,Math.floor(e.contentRect.width)),h=Math.max(1,Math.floor(e.contentRect.height));smartChart.applyOptions({width:w,height:h});resizeOverlayCanvas();drawSmartOverlays();}});smartChartResizeObserver.observe(host);}
   smartChart.timeScale().subscribeVisibleLogicalRangeChange(()=>drawSmartOverlays());
-  smartChartReady=true;resizeOverlayCanvas();renderSmartChart(true);
+  smartChartReady=true;resizeOverlayCanvas();renderSmartChart(true);updateChartQuote();
  }catch(err){console.error('Smart chart initialization failed',err);setText('chartStatus','Chart initialization failed: '+String(err.message||err));}
 }
 function resizeOverlayCanvas(){const c=document.getElementById('chartOverlay'),host=document.getElementById('chartHost');if(!c||!host)return;const dpr=window.devicePixelRatio||1,w=host.clientWidth||1,h=host.clientHeight||1;c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.width=w+'px';c.style.height=h+'px';const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);}
 function drawSmartOverlays(){
  if(!smartChart||!smartCandleSeries)return;
  const canvas=document.getElementById('chartOverlay'),host=document.getElementById('chartHost');if(!canvas||!host)return;
- const w=host.clientWidth,h=host.clientHeight,dpr=window.devicePixelRatio||1,ctx=canvas.getContext('2d');
- if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr))resizeOverlayCanvas();
+ const w=host.clientWidth,h=host.clientHeight,dpr=window.devicePixelRatio||1,ctx=canvas.getContext('2d');if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr))resizeOverlayCanvas();
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
  const ts=smartChart.timeScale(),xFor=t=>{const sec=typeof t==='number'?t:chartTime(t);return sec?ts.timeToCoordinate(sec):null;},yFor=p=>Number.isFinite(p)?smartCandleSeries.priceToCoordinate(p):null;
  const line=(price,color,label,dash=[5,4],startTime=null)=>{const y=yFor(price);if(y===null||y<-20||y>h+20)return;const x0=startTime?xFor(startTime):0;ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1.2;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x0===null?0:Math.max(0,x0),y);ctx.lineTo(w,y);ctx.stroke();ctx.setLineDash([]);ctx.font='11px Arial';const tw=ctx.measureText(label).width;ctx.fillStyle='rgba(8,16,28,.86)';ctx.fillRect(Math.max(0,w-tw-12),Math.max(0,y-15),tw+10,14);ctx.fillStyle=color;ctx.fillText(label,Math.max(4,w-tw-7),Math.max(11,y-4));ctx.restore();};
  const zone=(low,high,color,label,startTime=null,endTime=null)=>{const y1=yFor(high),y2=yFor(low);if(y1===null||y2===null)return;let x1=startTime?xFor(startTime):0,x2=endTime?xFor(endTime):w;if(x1===null)x1=0;if(x2===null)x2=w;x1=Math.max(0,Math.min(w,x1));x2=Math.max(x1+8,Math.min(w,x2));const top=Math.max(0,Math.min(y1,y2)),bottom=Math.min(h,Math.max(y1,y2));if(bottom<=0||top>=h)return;ctx.save();ctx.fillStyle=color+'22';ctx.strokeStyle=color+'bb';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='11px Arial';ctx.fillText(label,Math.min(w-90,x1+5),Math.max(11,top+12));ctx.restore();};
- const frames=liveFrames||{},q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask),price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
- const zones=buildZones(frames,price);
- zones.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.012).forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878',z.type+' · '+z.tfs));
- const d1=frames.D1;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];line(prior.high,'#e5b94f','PDH');line(prior.low,'#e5b94f','PDL');}
- const st=analyzeStructure(frames.M15);if(st.ok){if(st.bos!=='NONE'&&st.priorHigh&&st.bos.includes('BULLISH'))line(st.priorHigh.price,'#e5b94f','M15 BOS', [3,3],st.priorHigh.time);if(st.bos!=='NONE'&&st.priorLow&&st.bos.includes('BEARISH'))line(st.priorLow.price,'#e5b94f','M15 BOS',[3,3],st.priorLow.time);if(st.choch!=='NONE'){const lv=st.choch.includes('BULLISH')?st.priorHigh:st.priorLow;if(lv)line(lv.price,'#ffd166','M15 CHoCH',[2,3],lv.time);}if(st.sweep!=='NONE'){const y=yFor(st.sweep.includes('BULLISH')?st.last.low:st.last.high),x=xFor(st.last.time);if(y!==null&&x!==null){ctx.save();ctx.fillStyle=st.sweep.includes('BULLISH')?'#35c995':'#ff6878';ctx.font='bold 12px Arial';ctx.fillText(st.sweep.includes('BULLISH')?'▲ SWEEP':'▼ SWEEP',Math.max(2,x-28),Math.max(14,Math.min(h-4,y+(st.sweep.includes('BULLISH')?18:-8))));ctx.restore();}}}
- const en=analyzeEntry(frames.M5);if(en.ok){if(en.fvg)zone(en.fvg.low,en.fvg.high,'#5ba7ff','M5 '+en.fvg.side+' FVG',en.fvg.time,null);if(en.ob)zone(en.ob.low,en.ob.high,'#b18cff','M5 '+en.ob.side+' OB*',en.ob.time,null);}
- const tf=document.getElementById('chartTF')?.value||'M15';if(tf==='M15'&&st.ok){const bars=chartBars('M15');const last=bars[bars.length-1];if(last){const x=xFor(last.time);if(x!==null){ctx.save();ctx.fillStyle='#e5b94f';ctx.font='bold 11px Arial';ctx.fillText(st.bos!=='NONE'?st.bos:st.choch!=='NONE'?st.choch:'M15 latest closed candle',Math.max(3,Math.min(w-170,x+5)),18);ctx.restore();}}}
+ const frames=liveFrames||{},price=chartPrice(),tf=document.getElementById('chartTF')?.value||'M15';
+ if(overlayOn('overlaySR')){const zones=buildZones(frames,price),near=zones.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.012),sup=near.filter(z=>z.type==='SUPPORT').sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,3),res=near.filter(z=>z.type==='RESISTANCE').sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,3);sup.concat(res).forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878',z.type+' · '+z.tfs));}
+ if(overlayOn('overlayLiquidity')){const d1=frames.D1;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];line(prior.high,'#e5b94f','D1 PDH');line(prior.low,'#e5b94f','D1 PDL');}const liq=analyzeStructure(frames[tf]);if(liq.ok&&liq.sweep!=='NONE'){const bull=liq.sweep.includes('BULLISH'),y=yFor(bull?liq.last.low:liq.last.high),x=xFor(liq.last.time);if(y!==null&&x!==null){ctx.save();ctx.fillStyle=bull?'#35c995':'#ff6878';ctx.font='bold 12px Arial';ctx.fillText(bull?'▲ '+tf+' SWEEP':'▼ '+tf+' SWEEP',Math.max(2,x-30),Math.max(14,Math.min(h-4,y+(bull?18:-8))));ctx.restore();}}}
+ if(overlayOn('overlayStructure')){const st=analyzeStructure(frames[tf]);if(st.ok){if(st.bos!=='NONE'&&st.priorHigh&&st.bos.includes('BULLISH'))line(st.priorHigh.price,'#e5b94f',tf+' BOS',[3,3],st.priorHigh.time);if(st.bos!=='NONE'&&st.priorLow&&st.bos.includes('BEARISH'))line(st.priorLow.price,'#e5b94f',tf+' BOS',[3,3],st.priorLow.time);if(st.choch!=='NONE'){const lv=st.choch.includes('BULLISH')?st.priorHigh:st.priorLow;if(lv)line(lv.price,'#ffd166',tf+' CHoCH',[2,3],lv.time);}}}
+ if(overlayOn('overlayFVG')||overlayOn('overlayOB')){const en=analyzeEntry(frames[tf]);if(en.ok){if(overlayOn('overlayFVG')&&en.fvg)zone(en.fvg.low,en.fvg.high,'#5ba7ff',tf+' '+en.fvg.side+' FVG',en.fvg.time,en.fvg.endTime);if(overlayOn('overlayOB')&&en.ob)zone(en.ob.low,en.ob.high,'#b18cff',tf+' '+en.ob.side+' OB*',en.ob.time,en.ob.endTime);}}
 }
 function renderSmartChart(forceFit=false){
  if(!smartChartReady){if(document.getElementById('chartHost'))initSmartChart();if(!smartChartReady)return;}
- const tf=document.getElementById('chartTF')?.value||'M15',bars=chartBars(tf);
- if(!bars.length){setText('chartStatus','Waiting for '+tf+' closed candles from BiQuote...');return;}
+ const tf=document.getElementById('chartTF')?.value||'M15',bars=chartBars(tf);if(!bars.length){setText('chartStatus','Waiting for '+tf+' closed candles from BiQuote...');return;}
  try{
-  const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;
-  smartCandleSeries.setData(bars);
-  const marks=[];
-  if(tf==='M15'){const st=analyzeStructure(liveFrames.M15);if(st.ok){if(st.bos!=='NONE')marks.push({time:chartTime(st.last.time),position:st.bos.includes('BULLISH')?'aboveBar':'belowBar',color:'#e5b94f',shape:st.bos.includes('BULLISH')?'arrowUp':'arrowDown',text:st.bos});if(st.choch!=='NONE')marks.push({time:chartTime(st.last.time),position:st.choch.includes('BULLISH')?'belowBar':'aboveBar',color:'#ffd166',shape:'circle',text:st.choch});if(st.sweep!=='NONE')marks.push({time:chartTime(st.last.time),position:st.sweep.includes('BULLISH')?'belowBar':'aboveBar',color:st.sweep.includes('BULLISH')?'#35c995':'#ff6878',shape:'arrowUp',text:'SWEEP'});}}
-  if(tf==='M5'){const en=analyzeEntry(liveFrames.M5);if(en.ok&&en.paBull)marks.push({time:chartTime(en.last.time),position:'belowBar',color:'#35c995',shape:'arrowUp',text:'PA BUY'});if(en.ok&&en.paBear)marks.push({time:chartTime(en.last.time),position:'aboveBar',color:'#ff6878',shape:'arrowDown',text:'PA SELL'});}
+  const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;smartCandleSeries.setData(bars);
+  const marks=[],st=analyzeStructure(liveFrames[tf]),en=analyzeEntry(liveFrames[tf]);
+  if(st.ok){if(st.bos!=='NONE')marks.push({time:chartTime(st.last.time),position:st.bos.includes('BULLISH')?'belowBar':'aboveBar',color:'#e5b94f',shape:st.bos.includes('BULLISH')?'arrowUp':'arrowDown',text:st.bos});if(st.choch!=='NONE')marks.push({time:chartTime(st.last.time),position:st.choch.includes('BULLISH')?'belowBar':'aboveBar',color:'#ffd166',shape:'circle',text:st.choch});if(st.sweep!=='NONE')marks.push({time:chartTime(st.last.time),position:st.sweep.includes('BULLISH')?'belowBar':'aboveBar',color:st.sweep.includes('BULLISH')?'#35c995':'#ff6878',shape:'arrowUp',text:'SWEEP'});}
+  if(en.ok){if(en.paBull)marks.push({time:chartTime(en.last.time),position:'belowBar',color:'#35c995',shape:'arrowUp',text:'PA BUY'});if(en.paBear)marks.push({time:chartTime(en.last.time),position:'aboveBar',color:'#ff6878',shape:'arrowDown',text:'PA SELL'});}
   if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time));
   if(oldRange){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}else smartChart.timeScale().fitContent();
-  smartChartLastTF=tf;drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' closed candles · BiQuote feed · '+new Date().toLocaleTimeString());
+  smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' closed candles · Live price line · BiQuote · '+new Date().toLocaleTimeString());
  }catch(err){console.error('Smart chart render failed',err);setText('chartStatus','Chart update error: '+String(err.message||err));}
 }
 window.addEventListener('resize',()=>{resizeOverlayCanvas();drawSmartOverlays();});
@@ -921,4 +967,3 @@ refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLive
 </script>
 </body>
 </html>
-
