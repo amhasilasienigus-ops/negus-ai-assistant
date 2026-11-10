@@ -1,971 +1,1940 @@
 <!DOCTYPE html>
+
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.7</title>
+
+<title>NEGUS AI ASSISTANT v8</title>
+
 <style>
+
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
+
 *{box-sizing:border-box}
+
 body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+
 header{padding:20px 16px;background:#101a2a;border-bottom:1px solid var(--line)}
+
 .brand{font-size:22px;font-weight:800;color:var(--gold)}
+
 .sub,.small{font-size:11px;color:var(--muted);margin-top:5px}
+
 nav{display:flex;gap:7px;overflow-x:auto;padding:12px;background:#101a2a;position:sticky;top:0;z-index:5}
+
 nav button{white-space:nowrap;background:var(--panel2);color:var(--text);border:1px solid var(--line);padding:10px 13px;border-radius:8px}
+
 nav button.active{background:var(--gold);color:#151515;font-weight:bold}
+
 main{padding:15px;max-width:1000px;margin:auto}
+
 .page{display:none}.page.active{display:block}
+
 h2{font-size:20px;margin:8px 0 15px}
+
 h3{font-size:15px;color:var(--gold)}
+
 h4{font-size:13px;color:var(--gold);margin:15px 0 7px}
+
 p{color:var(--muted);font-size:13px;line-height:1.6}
+
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+
 .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:15px;margin-bottom:12px}
+
 .metric{font-size:23px;font-weight:bold;margin-top:8px}
+
 .gold{color:var(--gold)}.green{color:var(--green)}.red{color:var(--red)}
+
 label{display:block;font-size:12px;color:var(--muted);margin:12px 0 5px}
+
 input,select,textarea{width:100%;padding:12px;border-radius:8px;border:1px solid var(--line);background:#0c1727;color:var(--text);font-size:15px}
+
 textarea{min-height:75px}
+
 button{cursor:pointer}
+
 .action{background:var(--gold);color:#171717;border:0;border-radius:8px;padding:12px 16px;font-weight:bold;margin-top:12px}
+
 .secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
+
 .result{background:#0c1727;border:1px solid var(--line);padding:13px;border-radius:8px;margin-top:12px;line-height:1.7;overflow-wrap:anywhere}
+
 .warning{color:var(--red);font-weight:bold}.ok{color:var(--green);font-weight:bold}
+
 .check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
+
 .check input{width:19px;height:19px;margin:0}
+
 table{width:100%;border-collapse:collapse;font-size:12px}
+
 td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
+
 .tablewrap{overflow-x:auto}
+
 .chart-shell{position:relative;width:100%;height:430px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b1220}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
+
 .chart-price-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.chart-price-cell{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:10px;min-width:0}.chart-price-label{font-size:10px;color:var(--muted);letter-spacing:.4px}.chart-price-value{font-size:clamp(15px,3.4vw,22px);font-weight:800;margin-top:5px;overflow-wrap:anywhere}.chart-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.chart-toggle{display:flex;align-items:center;gap:7px;background:#0c1727;border:1px solid var(--line);border-radius:20px;padding:8px 11px;font-size:12px;color:var(--text);margin:0}.chart-toggle input{width:17px;height:17px;margin:0;accent-color:var(--gold)}.mtf-wrap{overflow-x:auto}.mtf-table{min-width:680px}.mtf-table th{color:var(--gold);font-size:11px}.mtf-table td{font-size:11px;vertical-align:top}.mtf-bull{color:var(--green);font-weight:bold}.mtf-bear{color:var(--red);font-weight:bold}.mtf-neutral{color:var(--gold);font-weight:bold}.chart-note{font-size:11px;color:var(--muted);line-height:1.5}
+
 @media(max-width:600px){.chart-shell{height:390px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+
  
+
 footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
+
 .strategy details{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:12px}
+
 .strategy summary{color:var(--gold);font-weight:bold;cursor:pointer;padding:5px 0}
+
 .strategy h4{margin-top:18px}
+
 .strategy ul,.strategy ol{color:var(--muted);font-size:13px;line-height:1.7;padding-left:22px}
+
 .strategy table{margin:10px 0 15px;min-width:420px}
+
 .strategy .tablewrap{margin:8px 0 14px}
+
 .strategy .quote{border-left:3px solid var(--gold);padding:8px 12px;color:var(--gold);background:#111d2e}
+
 .strategy .chapter{border-top:1px solid var(--line);padding-top:8px;margin-top:16px}
+
 @media(max-width:600px){main{padding:10px}.card{padding:12px}.chart-shell{height:360px}.brand{font-size:20px}}
+
 </style>
+
  
+
 <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js" defer></script>
+
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+
 <script>
+
 window.OneSignalDeferred=window.OneSignalDeferred||[];
+
 window.negusOneSignalReady=new Promise(resolve=>{
+
  OneSignalDeferred.push(async function(OneSignal){
+
   try{
+
    await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6"});
+
    resolve(OneSignal);
+
   }catch(error){console.error("OneSignal initialization failed:",error);resolve(null);}
+
  });
+
 });
+
 </script>
+
 </head>
+
 <body>
+
 <header>
+
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.7 · LIVE PRICE PANEL + MULTI-TIMEFRAME OVERLAYS + CLEAN CHART</div>
+
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 8 · LIVE PRICE PANEL + MULTI-TIMEFRAME OVERLAYS + CLEAN CHART</div>
+
 </header>
+
  
+
 <nav>
+
  <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+
  <button onclick="showPage('analysis',this)">Strategy Analysis</button>
+
  <button onclick="showPage('market',this)">Market & Chart</button>
+
  <button onclick="showPage('risk',this)">Risk Calculator</button>
+
  <button onclick="showPage('checklist',this)">Checklist</button>
+
  <button onclick="showPage('journal',this)">Trade Journal</button>
+
  <button onclick="showPage('strategy',this)">Nigus's trading Strategy</button>
+
  <button onclick="showPage('performance',this)">Performance</button>
+
 </nav>
+
  
+
 <main>
+
 <section id="dashboard" class="page active">
+
  <h2>Trading Dashboard</h2>
+
  
+
  <div class="card">
+
   <h3>Push Notifications</h3>
+
   <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
+
   <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button>
+
   <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
+
  </div>
+
  
+
  <div class="grid">
+
   <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
+
   <div class="card"><div class="small">ACCOUNT BALANCE (MANUAL)</div><div class="metric" id="dashBalance">$15.00</div></div>
+
   <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
+
   <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.80</div></div>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Daily Loss Guard</h3>
+
   <div id="dailyGuard" class="result">Loading daily results...</div>
+
   <p class="small">Based on closed trades manually saved in this browser. It does not block orders in MT5.</p>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Trading Sessions · Ethiopia time (EAT)</h3>
+
   <div class="grid">
+
    <div><div class="small">LOCAL CLOCK</div><div class="metric" id="localClock">--:--:--</div></div>
+
    <div><div class="small">LONDON</div><div class="metric" id="londonClock">--</div><div id="londonStatus" class="small">--</div></div>
+
    <div><div class="small">NEW YORK</div><div class="metric" id="newYorkClock">--</div><div id="newYorkStatus" class="small">--</div></div>
+
   </div>
+
   <p class="small">Session status uses London and New York local market clocks, including daylight-saving changes. Approximate session hours: 08:00–17:00 local time.</p>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Professional Trading Process</h3>
+
   <p>D1 / H4: direction and key zones → H1: structure and bias → M15: confirmation → M5: entry trigger.</p>
+
   <p>M1 is optional refinement only and never overrides higher timeframes.</p>
+
   <p class="gold">No strong confirmation = NO TRADE.</p>
+
   <p>Never widen SL, average down, revenge trade, or force a trade because of minimum lot size.</p>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Capital Protection</h3>
+
   <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
+
   <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
+
  </div>
+
 </section>
+
  
+
 <!-- COMPLETE STRATEGY PLAYBOOK PAGE -->
+
 <section id="strategy" class="page">
+
  <h2>Nigus's trading Strategy</h2>
+
  <div class="card strategy">
+
   <h3>NEGUS STRATEGY – PROFESSIONAL TRADING PLAYBOOK v1.2</h3>
+
   <p>EUR/USD · PRICE ACTION · MARKET STRUCTURE · RISK MANAGEMENT</p>
+
   <details open>
+
    <summary>Open / close the complete Professional Trading Playbook</summary>
+
    <div class="quote">“AMBITION WITH DISCIPLINE. GROWTH WITH CONTROL”</div>
+
    <p><b>VERSION 1.2 | 07 NOVEMBER 2026</b></p>
+
    <p>A structured trading framework for disciplined EUR/USD day trading.</p>
+
    <h4>Core Philosophy</h4>
+
    <p class="quote">“Set the goal. Prepare professionally. Stay alert to opportunities. Accept with gratitude what the market gives.” (Nigus Tilahun)</p>
+
  
+
    <div class="chapter">
+
     <h4>1. STRATEGY MANDATE</h4>
+
     <h4>1.1 Mission</h4>
+
     <p>NEGUS STRATEGY is a structured EUR/USD trading methodology designed to identify high-quality opportunities through price action, market structure, liquidity analysis, fundamental awareness, and disciplined risk management.</p>
+
     <p>The primary objective is not to predict every market movement. It is to identify repeatable trading opportunities, manage exposure, and improve execution through continuous learning.</p>
+
     <h4>1.2 Core Principles</h4>
+
     <ol><li>Preparation before execution.</li><li>Confirmation before entry.</li><li>Risk management before profit expectations.</li><li>Patience over impulsive trading.</li><li>Consistency over emotional decisions.</li><li>Continuous improvement through documentation and testing.</li></ol>
+
     <h4>1.3 Trading Motto</h4>
+
     <p class="quote">“I don't trade to recover. I trade to execute my plan.”</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>2. MULTI-TIMEFRAME ANALYSIS</h4>
+
     <p>NEGUS STRATEGY uses a top-down analysis model.</p>
+
     <div class="tablewrap"><table><thead><tr><th>Timeframe</th><th>Primary Purpose</th></tr></thead><tbody>
+
      <tr><td>D1 / H4</td><td>Overall market direction and major zones</td></tr>
+
      <tr><td>H1</td><td>Intraday directional bias and structure</td></tr>
+
      <tr><td>M15</td><td>Setup development and confirmation</td></tr>
+
      <tr><td>M5</td><td>Entry trigger and execution</td></tr>
+
      <tr><td>M1</td><td>Optional entry refinement</td></tr>
+
     </tbody></table></div>
+
     <h4>Analysis Rules</h4>
+
     <ul><li>Higher timeframes determine the broader market context.</li><li>H1 establishes the primary intraday bias.</li><li>M15 confirms the trading setup.</li><li>M5 identifies the entry opportunity.</li><li>M1 must never override higher-timeframe structure.</li></ul>
+
     <p>If timeframes conflict, wait for clarity instead of forcing a trade.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>3. NEGUS STRATEGY ENTRY MODEL</h4>
+
     <p>Every trade must follow a structured sequence.</p>
+
     <h4>Step 1 – Establish Market Direction</h4>
+
     <p>Analyze D1, H4, and H1. Identify whether the market is Bullish, Bearish, Ranging, or Transitioning.</p>
+
     <h4>Step 2 – Identify Key Levels</h4>
+
     <ul><li>Major support and resistance</li><li>Previous Day High (PDH)</li><li>Previous Day Low (PDL)</li><li>Session Highs and Lows</li><li>Supply and Demand zones</li><li>Important liquidity areas</li></ul>
+
     <h4>Step 3 – Wait for Price to Reach the Planned Area</h4>
+
     <p>Do not chase price. Allow the market to reach a meaningful level before considering an entry.</p>
+
     <h4>Step 4 – Confirm on M15</h4>
+
     <ul><li>Liquidity Sweep</li><li>Break of Structure (BOS)</li><li>Change of Character (CHoCH)</li><li>Strong displacement</li><li>Clear candle rejection or closing confirmation</li></ul>
+
     <h4>Step 5 – Execute on M5</h4>
+
     <ul><li>Fair Value Gap (FVG) retest</li><li>Order Block (OB) retest</li><li>Price-action confirmation</li><li>Clear structural invalidation</li></ul>
+
     <h4>Step 6 – Define SL and TP</h4>
+
     <p>Before entering, identify the Stop Loss and Take Profit; calculate potential financial loss; evaluate the reward-to-risk ratio; and check spread and transaction costs.</p>
+
     <h4>Step 7 – Execute or Wait</h4>
+
     <p>If confirmation is missing, do not enter. <b>No confirmation = No trade.</b></p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>4. MARKET STRUCTURE AND SMC CONCEPTS</h4>
+
     <h4>4.1 Break of Structure (BOS)</h4><p>A break of a meaningful previous swing high or low, generally supporting continuation in the current direction.</p>
+
     <h4>4.2 Change of Character (CHoCH)</h4><p>An early indication that market behavior may be changing. CHoCH is not automatic proof of a full trend reversal.</p>
+
     <h4>4.3 Liquidity Sweep</h4><p>Price moves beyond a visible high or low and then rejects or returns through the level. A sweep becomes more meaningful when followed by displacement and structural confirmation.</p>
+
     <h4>4.4 Fair Value Gap (FVG)</h4><p>A three-candle imbalance where price moves strongly enough to leave an inefficient price area between the first and third candles. A revisit may offer a trading opportunity, but not every FVG must be filled.</p>
+
     <h4>4.5 Order Block (OB)</h4><p>A selected opposing candle or candle cluster before a strong displacement that breaks market structure. The zone is a trading hypothesis and must be validated through testing.</p>
+
     <h4>4.6 Premium and Discount</h4><ul><li>Premium: Upper half of the range.</li><li>Discount: Lower half of the range.</li><li>Equilibrium: Midpoint of the range.</li></ul><p>Use the same swing-selection rules consistently.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>5. FUNDAMENTAL AND NEWS ANALYSIS</h4>
+
     <p>EUR/USD is influenced by economic conditions and monetary-policy expectations in both the United States and the Eurozone.</p>
+
     <h4>5.1 USD News</h4><ul><li>Federal Reserve (Fed)</li><li>FOMC Interest Rate Decisions</li><li>Consumer Price Index (CPI)</li><li>Personal Consumption Expenditures (PCE)</li><li>Non-Farm Payrolls (NFP)</li><li>Unemployment Rate</li><li>GDP</li><li>ISM Manufacturing and Services PMI</li></ul>
+
     <h4>5.2 EUR News</h4><ul><li>European Central Bank (ECB)</li><li>ECB Interest Rate Decisions</li><li>Eurozone CPI</li><li>GDP</li><li>PMI</li><li>Employment Data</li><li>ECB Speeches</li></ul>
+
     <h4>5.3 News Evaluation</h4><ol><li>Actual data</li><li>Forecast</li><li>Previous reading</li><li>Market expectations</li><li>Actual price reaction</li></ol>
+
     <p>A positive headline does not automatically mean the currency will rise. Market expectations and positioning also matter.</p>
+
     <h4>5.4 News Protection</h4><ul><li>Avoid impulsive entries immediately before major releases.</li><li>Watch spread expansion and volatility.</li><li>Wait for price action to stabilize.</li><li>Verify the publication time from a reliable economic calendar.</li></ul>
+
     <p>Time convention: Ethiopia uses UTC+3. Session and news schedules should be recorded in Ethiopian local time and UTC. Ethiopian traditional clock notation should be labelled separately from international 12/24-hour time. MT5/Exness server time may differ from UTC; verify the platform clock before converting.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>6. RISK MANAGEMENT</h4>
+
     <p>Risk management is the foundation of long-term trading survival.</p>
+
     <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li></ol>
+
     <h4>6.2 Risk Calculation</h4><p>Approximate formula: <b>Cash Risk = Stop Distance (Pips) × Pip Value × Lot Size</b></p>
+
     <div class="tablewrap"><table><thead><tr><th>Lot Size</th><th>Approximate Value per Pip</th></tr></thead><tbody><tr><td>0.01</td><td>$0.10</td></tr><tr><td>0.02</td><td>$0.20</td></tr><tr><td>0.03</td><td>$0.30</td></tr><tr><td>0.04</td><td>$0.40</td></tr><tr><td>0.10</td><td>$1.00</td></tr></tbody></table></div>
+
     <p>Actual values depend on contract specifications and account currency.</p>
+
     <h4>6.3 Example</h4><p>At 0.01 lot: 10-pip SL ≈ $1; 20-pip SL ≈ $2. With a $15 account: $1 risk ≈ 6.67% of balance; $2 risk ≈ 13.33% of balance.</p>
+
     <p>This demonstrates why small accounts face significant risk when the broker's minimum lot is 0.01.</p>
+
     <p><b>Important:</b> Never make a structural Stop Loss artificially tight just to fit the account. If the risk is too high, skip the trade or continue practising on demo.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>7. CAPITAL PLAN AND LOT-SIZE LADDER</h4>
+
     <p>The following is the preferred capital-planning ladder.</p>
-    <di
-v class="tablewrap"><table><thead><tr><th>Account Balance</th><th>Preferred Lot Size</th></tr></thead><tbody><tr><td>$15–$49.99</td><td>0.01</td></tr><tr><td>$50–$99.99</td><td>0.02</td></tr><tr><td>$100–$199.99</td><td>0.03</td></tr><tr><td>$200–$249.99</td><td>0.04</td></tr><tr><td>$250–$500</td><td>0.04</td></tr></tbody></table></div>
+
+    <div class="tablewrap"><table><thead><tr><th>Account Balance</th><th>Preferred Lot Size</th></tr></thead><tbody><tr><td>$15–$49.99</td><td>0.01</td></tr><tr><td>$50–$99.99</td><td>0.02</td></tr><tr><td>$100–$199.99</td><td>0.03</td></tr><tr><td>$200–$249.99</td><td>0.04</td></tr><tr><td>$250–$500</td><td>0.04</td></tr></tbody></table></div>
+
     <p>This ladder is a planning preference, not an automatic trading instruction. Actual position size must be evaluated against the structural SL, account equity, margin, and trading costs.</p>
+
     <h4>7.1 Aspirational Weekly Growth Targets</h4>
+
     <div class="tablewrap"><table><thead><tr><th>Starting Balance</th><th>Weekly Target</th></tr></thead><tbody>
+
      <tr><td>$15 to below $50</td><td>50%</td></tr><tr><td>$50 to below $100</td><td>55%</td></tr><tr><td>$100 to below $200</td><td>60%</td></tr><tr><td>$200 to below $250</td><td>65%</td></tr><tr><td>$250–$500</td><td>70%</td></tr>
+
     </tbody></table></div>
+
     <p><b>High-risk aspirational targets.</b> These percentages are ambitious mathematical goals, not expected returns or guarantees. They must never become a reason to overtrade, increase risk, or force a setup.</p>
+
     <h4>7.2 Illustrative Eight-Week Projection</h4>
+
     <p>Starting balance: $15</p>
+
     <div class="tablewrap"><table><thead><tr><th>Week</th><th>Starting Balance</th><th>Rate</th><th>Illustrative Profit</th><th>Ending Balance</th></tr></thead><tbody>
+
      <tr><td>1</td><td>$15.00</td><td>50%</td><td>$7.50</td><td>$22.50</td></tr><tr><td>2</td><td>$22.50</td><td>50%</td><td>$11.25</td><td>$33.75</td></tr><tr><td>3</td><td>$33.75</td><td>50%</td><td>$16.88</td><td>$50.63</td></tr><tr><td>4</td><td>$50.63</td><td>55%</td><td>$27.84</td><td>$78.47</td></tr><tr><td>5</td><td>$78.47</td><td>55%</td><td>$43.16</td><td>$121.63</td></tr><tr><td>6</td><td>$121.63</td><td>60%</td><td>$72.98</td><td>$194.61</td></tr><tr><td>7</td><td>$194.61</td><td>60%</td><td>$116.77</td><td>$311.38</td></tr><tr><td>8</td><td>$311.38</td><td>70%</td><td>$217.97</td><td>$529.35</td></tr>
+
     </tbody></table></div>
+
     <p>Formula: B<sub>n</sub> = B<sub>n−1</sub>(1 + r<sub>n</sub>)</p>
+
     <p>This projection assumes the target is achieved every week, with no losses, withdrawals, deposits, fees, or other costs. It is a mathematical illustration—not a forecast or promise.</p>
+
     <h4>7.3 Milestone Rewards</h4><ul><li>Keep personal rewards separate from trading capital.</li><li>Reward discipline, not only profit.</li><li>Never open an unnecessary trade to reach a milestone.</li><li>A week without a valid setup can still be a successful week.</li></ul>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>8. INDICATORS AND SUPPORTING TOOLS</h4>
+
     <div class="tablewrap"><table><thead><tr><th>Indicator</th><th>Purpose</th></tr></thead><tbody><tr><td>EMA 20</td><td>Short-term trend context</td></tr><tr><td>EMA 50</td><td>Intermediate trend context</td></tr><tr><td>EMA 200</td><td>Long-term trend context</td></tr><tr><td>RSI 14</td><td>Momentum and divergence context</td></tr><tr><td>ATR 14</td><td>Volatility and stop-distance context</td></tr><tr><td>Previous Day High/Low</td><td>Liquidity and structure</td></tr><tr><td>Session High/Low</td><td>Intraday reference levels</td></tr></tbody></table></div>
+
     <p>Indicators are supporting tools. Price action and market structure remain the primary decision framework.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>9. TRADING PSYCHOLOGY</h4>
+
     <p>Professional trading requires emotional discipline.</p>
+
     <h4>NEGUS Psychological Rules</h4>
+
     <ul><li>No revenge trading.</li><li>No chasing missed entries.</li><li>No trading out of boredom.</li><li>No unprotected positions.</li><li>No impulsive lot-size increases.</li><li>No emotional decisions after losses.</li><li>No pressure to achieve weekly targets.</li></ul>
+
     <h4>Before Every Trade, Ask:</h4>
+
     <ol><li>Is the market direction clear?</li><li>Is price at a planned area?</li><li>Is confirmation present?</li><li>Is the Stop Loss logical?</li><li>Is the potential loss acceptable?</li><li>Is there major news risk?</li><li>Am I following my system?</li></ol>
+
     <p>If the answers are unclear, wait.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>10. TRADE JOURNAL</h4>
+
     <p>Every trade must be documented.</p>
+
     <div class="tablewrap"><table><thead><tr><th>Journal Field</th><th>Information</th></tr></thead><tbody><tr><td>Date</td><td>Trading date</td></tr><tr><td>Session</td><td>London / New York / Other</td></tr><tr><td>Direction</td><td>BUY / SELL</td></tr><tr><td>Entry</td><td>Entry price</td></tr><tr><td>Stop Loss</td><td>SL price</td></tr><tr><td>Take Profit</td><td>TP price</td></tr><tr><td>Lot Size</td><td>Position volume</td></tr><tr><td>Risk</td><td>Potential cash loss</td></tr><tr><td>Result</td><td>Profit / Loss</td></tr><tr><td>Setup</td><td>BOS / CHoCH / FVG / OB / Sweep</td></tr><tr><td>Lesson</td><td>What was learned?</td></tr></tbody></table></div>
+
     <h4>Performance Metrics</h4><ul><li>Win rate</li><li>Average winning trade</li><li>Average losing trade</li><li>Risk-to-reward ratio</li><li>Expectancy</li><li>Profit factor</li><li>Maximum drawdown</li><li>Rule adherence</li></ul>
+
     <p>Do not judge a strategy based on only a few trades.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>11. BACKTESTING AND VALIDATION</h4>
+
     <ol><li>Define exact entry and exit rules.</li><li>Test different market conditions.</li><li>Include realistic spreads and commissions.</li><li>Record every valid setup.</li><li>Separate development data from out-of-sample data.</li><li>Measure performance consistently.</li><li>Forward-test on demo.</li><li>Refine rules based on evidence.</li></ol>
+
     <p>The goal is to discover whether the system has a repeatable statistical edge.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>12. NEGUS AI ASSISTANT – DEVELOPMENT ROADMAP</h4>
+
     <div class="tablewrap"><table><thead><tr><th>Phase</th><th>Module</th><th>Main Function</th></tr></thead><tbody><tr><td>1</td><td>Risk Calculator</td><td>Calculate lot size, pip value, SL risk</td></tr><tr><td>2</td><td>Trade Journal</td><td>Record and analyze trades</td></tr><tr><td>3</td><td>Chart Assistant</td><td>Analyze supplied charts and identify scenarios</td></tr><tr><td>4</td><td>News Dashboard</td><td>Track verified EUR/USD news</td></tr><tr><td>5</td><td>Trading Alerts</td><td>Monitor planned levels</td></tr><tr><td>6</td><td>Performance Analytics</td><td>Evaluate strategy statistics</td></tr></tbody></table></div>
+
     <h4>AI Assistant Rules</h4>
+
     <ul><li>Never invent live market prices.</li><li>Never invent economic news.</li><li>Show data timestamps and sources.</li><li>Separate observations from interpretations.</li><li>Explain uncertainty.</li><li>Request updated chart information when necessary.</li><li>Never execute live trades autonomously in the initial version.</li><li>Keep human approval for all trading decisions.</li></ul>
+
     <h4>First Development Priority</h4><p>Build a EUR/USD risk and lot-size calculator compatible with Exness MT5 Standard specifications, then develop the trade journal.</p>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>13. DAILY TRADING CHECKLIST</h4>
+
     <h4>Before Trading</h4><ul><li>Check EUR/USD economic calendar.</li><li>Analyze D1/H4/H1.</li><li>Establish market bias.</li><li>Mark important liquidity levels.</li><li>Identify support and resistance.</li><li>Define the session plan.</li><li>Establish the maximum acceptable loss.</li></ul>
+
     <h4>Before Entry</h4><ul><li>Price reaches the planned area.</li><li>M15 confirmation appears.</li><li>M5 entry trigger is clear.</li><li>SL and TP are defined.</li><li>Lot size is calculated.</li><li>Spread and costs are acceptable.</li><li>News risk is checked.</li><li>The trade follows the strategy.</li></ul>
+
     <h4>After Trading</h4><ul><li>Record the trade.</li><li>Save chart screenshots.</li><li>Review the result.</li><li>Identify mistakes.</li><li>Record one lesson.</li><li>Avoid immediate revenge trading.</li></ul>
+
    </div>
+
  
+
    <div class="chapter">
+
     <h4>14. FINAL COMMITMENT</h4>
+
     <p>NEGUS STRATEGY is not built around excitement, predictions, or unrealistic promises.</p>
+
     <p>It is built around:</p>
+
     <ul><li>Preparation</li><li>Patience</li><li>Confirmation</li><li>Risk awareness</li><li>Professional execution</li><li>Continuous improvement</li></ul>
+
     <p>We do not force the market. We prepare for opportunities.</p>
+
     <p>We do not trade to recover. We trade to execute our plan.</p>
+
     <p>We accept with gratitude what the market gives.</p>
+
     <div class="quote"><b>NEGUS STRATEGY<br>AMBITION WITH DISCIPLINE.<br>GROWTH WITH CONTROL.</b></div>
+
    </div>
+
   </details>
+
  </div>
+
 </section>
+
  
+
 <section id="analysis" class="page">
+
  <h2>Strategy Analysis</h2>
+
  <div class="card">
+
   <h3>Live EUR/USD Market Feed</h3>
+
   <p>Free BiQuote market feed. External data, not an Exness MT5 connection; prices may differ from your broker.</p>
+
   <div class="grid">
+
    <div><div class="small">LIVE MID PRICE</div><div class="metric gold" id="liveMid">Loading...</div></div>
+
    <div><div class="small">BID / ASK</div><div id="liveBidAsk">-- / --</div></div>
+
    <div><div class="small">SPREAD</div><div class="metric" id="liveSpread">--</div></div>
+
    <div><div class="small">FEED STATUS</div><div id="feedStatus" class="metric">Connecting</div></div>
+
   </div>
+
   <p class="small" id="feedUpdated">Waiting for market data...</p>
+
   <button class="action" onclick="refreshLiveMarket()">Refresh Market Data</button>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Automatic Multi-Timeframe Analysis</h3>
+
   <p>D1 / H4 direction → H1 bias → M15 confirmation → M5 trigger. Indicators: EMA 20/50/200 (where enough bars exist), RSI 14 and ATR 14. Rules-based decision support, not AI prediction.</p>
+
   <div class="grid">
+
    <div><div class="small">D1 DIRECTION</div><div id="tfD1" class="metric">--</div></div>
+
    <div><div class="small">H4 DIRECTION</div><div id="tfH4" class="metric">--</div></div>
+
    <div><div class="small">H1 BIAS</div><div id="tfH1" class="metric">--</div></div>
+
    <div><div class="small">M15 CONFIRMATION</div><div id="tfM15" class="metric">--</div></div>
+
    <div><div class="small">M5 TRIGGER</div><div id="tfM5" class="metric">--</div></div>
+
    <div><div class="small">RSI M15 / M5</div><div id="liveRSI" class="metric">--</div></div>
+
   </div>
+
   <div id="autoSignal" class="result">Connecting to the live market feed...</div>
+
   <p class="small">Only closed candles are analyzed. Stale data, closed market, disagreement, high spread or unchecked news means WAIT.</p>
+
   <div class="result" id="newsGateStatus">WAIT — economic calendar has not been verified.</div>
+
   <p class="small">Automatic calendar checks scheduled high-impact EUR/USD events. Always verify independently; this public feed may be incomplete or unavailable.</p>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>V6.3 · Automatic Market Structure & Entry Analysis</h3>
+
   <p>Uses closed BiQuote candles only. BOS/CHoCH, liquidity sweeps, FVG, candidate OB and candle confirmation are transparent rule-based approximations, not institutional-grade pattern recognition.</p>
+
   <div class="result" id="structureSummary">Waiting for M15/M5 candle data...</div>
+
   <div id="structureRows" class="result">M15 structure details will appear here.</div>
+
   <h3>Automatic Support & Resistance Zones</h3>
+
   <div class="grid">
+
    <div><div class="small">NEAREST SUPPORT</div><div id="nearestSupport" class="metric">--</div></div>
+
    <div><div class="small">NEAREST RESISTANCE</div><div id="nearestResistance" class="metric">--</div></div>
+
    <div><div class="small">PREVIOUS AVAILABLE D1 HIGH</div><div id="pdhValue" class="metric">--</div></div>
+
    <div><div class="small">PREVIOUS AVAILABLE D1 LOW</div><div id="pdlValue" class="metric">--</div></div>
+
   </div>
+
   <div id="srRows" class="result">Support and resistance zones will appear when enough candles are available.</div>
+
   <p class="small">Zones are clustered from confirmed H4/H1 swing pivots and are also drawn as approximate chart overlays. PDH/PDL use the previous available D1 candle; the feed's daily boundary may differ from Exness MT5 broker time. These levels are references, not guaranteed reversal points.</p>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Manual Market Assessment</h3>
+
   <p>Enter observations from your chart. Automatic analysis is separate BiQuote decision support and is not connected to Exness MT5.</p>
+
   <label>D1 / H4 Direction</label>
+
   <select id="direction"><option value="">Select direction</option><option>Bullish</option><option>Bearish</option><option>Sideways / Unclear</option></select>
+
   <label>H1 Intraday Bias</label>
+
   <select id="bias"><option value="">Select bias</option><option>Bullish</option><option>Bearish</option><option>Neutral</option></select>
+
   <label>Price at a planned key level?</label>
+
   <select id="level"><option value="">Select</option><option>Yes</option><option>No</option></select>
+
   <label>M15 confirmation</label>
+
   <select id="confirm"><option value="">Select</option><option>Liquidity sweep</option><option>BOS</option><option>CHoCH</option><option>Displacement</option><option>Rejection / close</option><option>None</option></select>
+
   <label>M5 entry trigger</label>
+
   <select id="trigger"><option value="">Select</option><option>FVG retest</option><option>Order block retest</option><option>Price action confirmation</option><option>None</option></select>
+
   <label>News risk</label>
+
   <select id="newsRisk"><option value="">Select news condition</option><option value="clear">No major news nearby</option><option value="caution">Major news approaching</option><option value="high">Major news now / just released</option></select>
+
   <label>Important notes / observed price levels</label>
+
   <textarea id="analysisNotes" placeholder="Write chart observations..."></textarea>
+
   <button class="action" onclick="analyze()">Evaluate Setup</button>
+
   <div id="analysisResult" class="result">Complete the assessment to receive a result.</div>
+
  </div>
+
  
+
  <div class="card">
+
   <h3>Automatic EUR/USD Economic Calendar</h3>
+
   <p>Public Forex Factory weekly calendar export. Only USD and EUR events are used. High-impact events block the automatic signal for 30 minutes before and after the scheduled time.</p>
+
   <div class="grid">
+
    <div><div class="small">CALENDAR STATUS</div><div class="metric" id="newsFeedStatus">Checking...</div></div>
+
    <div><div class="small">NEXT HIGH-IMPACT EVENT</div><div id="newsNextEvent">--</div></div>
+
   </div>
+
   <div id="newsRows" class="result">Loading this week's USD/EUR events...</div>
+
   <button class="action" onclick="refreshEconomicNews()">Refresh Economic Calendar</button>
+
   <p class="small">Not an official guaranteed API. Feed coverage, timing and browser access can fail. If unavailable, the app stays on WAIT. Check a trusted calendar before every trade.</p>
+
  </div>
+
 </section>
+
  
+
 <section id="market" class="page">
+
  <h2>Market & Chart</h2>
+
  <div class="card">
-   <h3>EUR/USD Smart TradingView Chart · v6.7</h3>
+
+   <h3>EUR/USD Smart TradingView Chart · v8</h3>
+
    <p>Live BiQuote price and candles with selectable NEGUS overlays. External market data only; not an Exness MT5 connection.</p>
+
    <div class="chart-price-strip">
+
     <div class="chart-price-cell"><div class="chart-price-label">LIVE MID PRICE</div><div id="chartLiveMid" class="chart-price-value gold">--</div></div>
+
     <div class="chart-price-cell"><div class="chart-price-label">BID</div><div id="chartLiveBid" class="chart-price-value">--</div></div>
+
     <div class="chart-price-cell"><div class="chart-price-label">ASK</div><div id="chartLiveAsk" class="chart-price-value">--</div></div>
+
     <div class="chart-price-cell"><div class="chart-price-label">SPREAD</div><div id="chartLiveSpread" class="chart-price-value">--</div></div>
+
    </div>
+
    <label>Chart timeframe</label>
+
    <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
+
    <div class="small" style="margin-top:10px">CHART OVERLAYS · Switch each layer independently</div>
+
    <div class="chart-controls">
+
     <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> Support / Resistance</label>
+
     <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG</label>
+
     <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" checked onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
+
     <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH</label>
+
     <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> Candidate OB</label>
+
    </div>
+
    <div class="chart-shell"><div id="chartHost" class="chart-host"></div><canvas id="chartOverlay" class="chart-overlay"></canvas></div>
+
    <div class="chart-legend"><span><i class="legend-dot" style="background:#35c995"></i>Support / Bullish</span><span><i class="legend-dot" style="background:#ff6878"></i>Resistance / Bearish</span><span><i class="legend-dot" style="background:#e5b94f"></i>Liquidity / Structure</span><span><i class="legend-dot" style="background:#5ba7ff"></i>FVG</span><span><i class="legend-dot" style="background:#b18cff"></i>Candidate OB</span><span><i class="legend-dot" style="background:#38bdf8"></i>Live price</span></div>
+
    <div id="chartStatus" class="chart-status">Waiting for live candle data and chart library...</div>
+
    <p class="chart-note">Only the selected timeframe's FVG, structure and candidate OB are drawn. Higher-timeframe H4/H1 support and resistance and D1 liquidity references are optional overlays. The multi-timeframe panel below keeps the other timeframes visible without crowding the chart.</p>
+
   </div>
+
   <div class="card">
+
    <h3>Multi-Timeframe A
+
 nalysis · All Timeframes</h3>
+
    <p>D1 → H4 → H1 → M15 → M5. Every row is calculated from that timeframe's available closed BiQuote candles. This is rules-based decision support, not a prediction.</p>
+
    <div id="mtfStatus" class="result">Waiting for all timeframe candles...</div>
+
    <div class="mtf-wrap"><table class="mtf-table"><thead><tr><th>TF</th><th>Trend</th><th>Structure</th><th>Support / Resistance</th><th>FVG</th><th>Liquidity / Sweep</th></tr></thead><tbody id="mtfRows"><tr><td colspan="6">Waiting for live data...</td></tr></tbody></table></div>
+
    <p class="chart-note">FVG, BOS/CHoCH and liquidity sweep labels are approximate pattern checks on the latest closed candles. Candidate zones must be manually verified; a detected pattern is not an entry signal.</p>
+
   </div>
+
   <div class="card">
+
   <h3>Timeframe Workflow</h3><p>D1 / H4: direction and zones</p><p>H1: structure and bias</p><p>M15: confirmation</p><p>M5: entry trigger</p><p>M1: optional refinement only; never overrides higher timeframes.</p>
+
  </div>
+
 </section>
+
  
+
 <section id="risk" class="page">
+
  <h2>Risk Calculator</h2>
+
  <div class="card">
+
   <h3>EUR/USD Position Risk</h3>
+
   <label>Account balance (USD)</label><input id="balance" type="number" value="15" min="0.01" step="0.01" oninput="updateDashboard()">
+
   <label>Risk mode</label>
+
   <select id="riskMode" onchange="updateRiskMode()"><option value="standard">Standard mode — maximum 1%</option><option value="high">High-risk mode — 4% to 8% (dangerous)</option></select>
+
   <label>Risk percentage (%)</label><input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1">
+
   <label>Lot size</label><input id="lot" type="number" value="0.01" min="0.01" step="0.01">
+
   <label>Stop loss distance (pips)</label><input id="stopPips" type="number" value="10" min="0.1" step="0.1">
+
   <label>Take profit distance (pips)</label><input id="targetPips" type="number" value="20" min="0.1" step="0.1">
+
   <button class="action" onclick="calculateRisk()">Calculate Risk</button>
+
   <div id="riskResult" class="result">Enter trade details and calculate.</div>
+
   <p class="small">Approximation for EUR/USD USD account: 1.00 lot ≈ $10 per pip; 0.01 lot ≈ $0.10 per pip. Actual costs, conversion and slippage can change results.</p>
+
  </div>
+
  <div class="card">
+
   <h3>Planning Lot Ladder</h3><p>$15–$49.99 → 0.01 lot</p><p>$50–$99.99 → 0.02 lot</p><p>$100–$199.99 → 0.03 lot</p><p>$200–$500 → 0.04 lot</p>
+
   <p class="warning">Planning guide only. Never override risk limits. If minimum lot risk is too high, skip the trade.</p>
+
  </div>
+
 </section>
+
  
+
 <section id="checklist" class="page">
+
  <h2>Pre-Trade Checklist</h2>
+
  <div class="card">
+
   <h3>Complete before entering a trade</h3>
+
   <div id="checks">
+
    <label class="check"><input type="checkbox"> D1 / H4 direction identified</label>
+
    <label class="check"><input type="checkbox"> H1 structure and bias identified</label>
+
    <label class="check"><input type="checkbox"> Price reached a planned key level</label>
+
    <label class="check"><input type="checkbox"> M15 confirmation observed</label>
+
    <label class="check"><input type="checkbox"> M5 entry trigger confirmed</label>
+
    <label class="check"><input type="checkbox"> Stop loss and take profit defined</label>
+
    <label class="check"><input type="checkbox"> Risk and trading costs calculated</label>
+
    <label class="check"><input type="checkbox"> News and spread checked</label>
+
    <label class="check"><input type="checkbox"> Emotionally calm; no revenge trade</label>
+
   </div>
+
   <div id="checkCount" class="result">0 of 9 completed</div>
+
   <button class="secondary" onclick="resetChecks()">Reset Checklist</button>
+
  </div>
+
 </section>
+
  
+
 <section id="journal" class="page">
+
  <h2>Trade Journal</h2>
+
  <div class="card">
+
   <h3>Record a Trade</h3>
+
   <label>Date</label><input id="tradeDate" type="date">
+
   <label>Direction</label><select id="side"><option>BUY</option><option>SELL</option></select>
+
   <label>Lot size</label><input id="tradeLot" type="number" step="0.01" value="0.01">
+
   <label>Entry price</label><input id="entry" type="number" step="0.00001">
+
   <label>Stop loss</label><input id="stop" type="number" step="0.00001">
+
   <label>Take profit</label><input id="target" type="number" step="0.00001">
+
   <label>Closed P/L (USD)</label><input id="pnl" type="number" step="0.01" value="0">
+
   <label>Setup and notes</label><textarea id="notes" placeholder="Why did you take this trade? What did you learn?"></textarea>
+
   <button class="action" onclick="saveTrade()">Save Trade</button>
+
  </div>
+
  <div class="card">
+
   <h3>Saved Trades</h3>
+
   <div class="tablewrap"><table><thead><tr><th>Date</th><th>Side</th><th>Lot</th><th>P/L</th><th>Action</th></tr></thead><tbody id="tradeRows"></tbody></table></div>
+
   <p id="journalSummary">No trades saved yet.</p>
+
   <button class="secondary" onclick="exportCSV()">Export CSV</button>
+
  </div>
+
  <p class="small">Journal records are stored in this browser on this device. Clearing browser data may delete them. Export backups regularly.</p>
+
 </section>
+
  
+
 <section id="performance" class="page">
+
  <h2>Trading Performance</h2>
+
  <div class="grid">
+
   <div class="card"><div class="small">TOTAL TRADES</div><div class="metric" id="totalTrades">0</div></div>
+
   <div class="card"><div class="small">WIN RATE</div><div class="metric" id="winRate">0%</div></div>
+
   <div class="card"><div class="small">TOTAL P/L</div><div class="metric" id="totalPL">$0.00</div></div>
+
   <div class="card"><div class="small">PROFIT FACTOR</div><div class="metric" id="profitFactor">--</div></div>
+
   <div class="card"><div class="small">WEEKLY P/L</div><div class="metric" id="weeklyPL">$0.00</div></div>
+
   <div class="card"><div class="small">MAX DRAWDOWN</div><div class="metric" id="maxDrawdown">$0.00</div></div>
+
  </div>
+
  <div class="card">
+
   <h3>Performance Notes</h3><p>Metrics are calculated from closed trades saved in this browser. They do not predict future results.</p><p>Profit factor = gross winning P/L divided by gross losing P/L.</p><p>Drawdown is calculated from the recorded sequence of trade results, not from live account equity.</p>
+
  </div>
+
 </section>
+
 </main>
+
  
-<footer>NEGUS AI ASSISTANT v6.7 · Decision support only · Human approval required · No broker connection</footer>
+
+<footer>NEGUS AI ASSISTANT v8 · Decision support only · Human approval required · No broker connection</footer>
+
  
+
 <script>
+
 function showPage(id,btn){
+
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+
  document.getElementById(id).classList.add('active');
+
  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
+
  btn.classList.add('active');
+
  if(id==='performance')renderPerformance();
+
  if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
+
 }
+
  
+
 async function subscribeToNegusNotifications(){
+
  const status=document.getElementById('pushStatus'),button=document.getElementById('pushSubscribeButton');
+
  button.disabled=true;button.textContent='Connecting...';
+
  status.textContent='Connecting to OneSignal notification service...';
+
  try{
+
   const OneSignal=await window.negusOneSignalReady;
+
   if(!OneSignal)throw new Error('OneSignal initialization failed.');
+
   await OneSignal.Slidedown.promptPush();
+
   status.textContent='Notification prompt opened. If Chrome asks for permission, tap ALLOW. Subscription is not confirmed until the browser and OneSignal show it as subscribed.';
+
   button.textContent='Notification Setup Requested';
+
  }catch(error){
+
   console.error('Notification subscription error:',error);
+
   status.textContent='Could not open the notification prompt. Check Chrome site notification permission and internet connection, then reload this page.';
+
   button.textContent='Try Again';button.disabled=false;
+
  }
+
 }
+
  
+
 function changeChart(){
+
  const tf=document.getElementById('chartTF').value;
+
  renderSmartChart(true);
+
  setText('chartStatus','Chart timeframe: '+tf+' · selected-timeframe overlays refreshed.');
+
 }
+
 function localDateString(date=new Date()){
+
  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
+
  return y+'-'+m+'-'+d;
+
 }
+
 function dailyLimit(balance){
+
  if(balance<=15)return 0.80;if(balance<=20)return 1.00;if(balance<=40)return 1.10;
+
  if(balance<=50)return 1.20;if(balance<=70)return 3.00;if(balance<=90)return 4.00;
+
  if(balance<=200)return 5.00;return 10.00;
+
 }
+
 function money(n){return (n<0?'-$':'$')+Math.abs(n).toFixed(2);}
+
 function getTodayTrades(){const today=localDateString();return trades.filter(t=>t.date===today);}
+
 function updateDashboard(){
+
  const balance=Number(document.getElementById('balance').value)||15,limit=dailyLimit(balance),today=getTodayTrades();
+
  const pnl=today.reduce((s,t)=>s+(Number(t.pnl)||0),0);
+
  document.getElementById('dashBalance').textContent=money(balance);
+
  document.getElementById('todayPL').textContent=money(pnl);
+
  document.getElementById('dailyLimit').textContent=money(limit);
+
  const guard=document.getElementById('dailyGuard');
+
  if(pnl<=-limit)guard.innerHTML='<span class="warning">DAILY LOSS LIMIT REACHED — STOP TRADING TODAY.</span><br>Recorded loss: '+money(pnl)+'<br>Daily limit: '+money(limit);
+
  else guard.innerHTML='<span class="ok">No daily loss limit reached in the journal.</span><br>Recorded P/L today: '+money(pnl)+'<br>Remaining loss allowance: '+money(Math.max(0,limit+pnl));
+
 }
+
 function updateRiskMode(){
+
  const mode=document.getElementById('riskMode').value,input=document.getElementById('riskPercent');
+
  if(mode==='high'){input.min='4';input.max='8';input.value='4';}
+
  else{input.min='0.1';input.max='1';input.value='1';}
+
 }
+
 function getRiskCap(){return document.getElementById('riskMode').value==='high'?8:1;}
+
 function analyze(){
+
  const d=document.getElementById('direction').value,b=document.getElementById('bias').value,l=document.getElementById('level').value;
+
  const c=document.getElementById('confirm').value,t=document.getElementById('trigger').value,news=document.getElementById('newsRisk').value;
+
  const out=document.getElementById('analysisResult'),bal=Number(document.getElementById('balance').value),rp=Number(document.getElementById('riskPercent').value);
+
  const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value),cap=getRiskCap();
+
  const aligned=(d==='Bullish'&&b==='Bullish')||(d==='Bearish'&&b==='Bearish');
+
  const valid=[bal,rp,lot,sl,tp].every(Number.isFinite)&&bal>0&&rp>0&&rp<=cap&&lot>=0.01&&sl>0&&tp>0;
+
  const loss=valid?sl*10*lot:Infinity,budget=valid?bal*rp/100:0,riskOK=valid&&loss<=budget,rrOK=valid&&tp/sl>=1;
+
  const checks=[aligned,l==='Yes',!!c&&c!=='None',!!t&&t!=='None',riskOK,rrOK],score=checks.filter(Boolean).length;
+
  const heading='<b>Setup completeness: '+score+'/6</b><br><span class="small">Rule-check score only. It is NOT a probability of winning.</span><br><br>';
+
  if(!d||!b||!l||!c||!t||!news){out.innerHTML=heading+'<span class="warning">INCOMPLETE — Complete all assessment fields.</span>';return;}
+
  if(news==='high'){out.innerHTML=heading+'<span class="warning">HIGH NEWS RISK — NO TRADE.</span><br>Wait for the release and for spreads and price action to stabilize.';return;}
+
  if(news==='caution'){out.innerHTML=heading+'<span class="warning">NEWS CAUTION — WAIT.</span><br>A major release is approaching. Avoid impulsive entries.';return;}
+
  if(d==='Sideways / Unclear'||b==='Neutral'||l==='No'||c==='None'||t==='None'){out.innerHTML=heading+'<span class="warning">WAIT — NO TRADE.</span><br>One or more required conditions are missing or unclear.';return;}
+
  if(!aligned){out.innerHTML=heading+'<span class="warning">CONFLICTING DIRECTION — WAIT.</span><br>Higher timeframe and H1 bias do not agree.';return;}
+
  if(!valid){out.innerHTML=heading+'<span class="warning">INVALID RISK DETAILS.</span><br>Enter valid balance, lot, stop and target. Risk cap for selected mode: '+cap+'%.';return;}
+
  if(!riskOK){out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop loss '+money(loss)+'; selected risk budget '+money(budget)+'.';return;}
+
  if(!rrOK){out.innerHTML=heading+'<span class="warning">REWARD/RISK BELOW 1:1 — WAIT.</span>';return;}
+
  out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk: '+money(loss)+' before costs. Verify chart, news, spread and broker prices. Human decision required.';
+
 }
+
 function calculateRisk(){
+
  const bal=Number(document.getElementById('balance').value),rp=Number(document.getElementById('riskPercent').value);
+
  const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value);
+
  const mode=document.getElementById('riskMode').value,cap=getRiskCap(),out=document.getElementById('riskResult');
+
  if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>cap||lot<0.01||sl<=0||tp<=0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and risk percentage. Maximum for selected mode: '+cap+'%.</span>';return;}
+
  if(mode==='high'&&rp<4){out.innerHTML='<span class="warning">High-risk mode requires a setting between 4% and 8%. This mode is dangerous.</span>';return;}
+
  const loss=sl*10*lot,profit=tp*10*lot,budget=bal*rp/100,percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*10);
+
  const status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within selected risk budget, before costs.</span>';
+
  out.innerHTML='Estimated stop loss: <b>'+money(loss)+'</b><br>Risk budget: <b>'+money(budget)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>'+money(profit)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop to fit minimum lot. Include spread, commission and slippage. High-risk mode can cause rapid account loss.</span>';
+
  updateDashboard();
+
 }
+
 function updateChecks(){
+
  const boxes=[...document.querySelectorAll('#checks input')];
+
  document.getElementById('checkCount').textContent=boxes.filter(x=>x.checked).length+' of '+boxes.length+' completed';
+
 }
+
 document.querySelectorAll('#checks input').forEach(x=>x.addEventListener('change',updateChecks));
+
 function resetChecks(){document.querySelectorAll('#checks input').forEach(x=>x.checked=false);updateChecks();}
+
  
+
 let trades=[];
+
 try{trades=JSON.parse(localStorage.getItem('negusTrades')||'[]');if(!Array.isArray(trades))trades=[];}catch(e){trades=[];}
+
 document.getElementById('tradeDate').value=localDateString();
+
 function saveTrade(){
+
  const date=document.getElementById('tradeDate').value,side=document.getElementById('side').value,lot=Number(document.getElementById('tradeLot').value);
+
  const entry=Number(document.getElementById('entry').value),stop=Number(document.getElementById('stop').value),target=Number(document.getElementById('target').value);
+
  const pnl=Number(document.getElementById('pnl').value),notes=document.getElementById('notes').value;
+
  if(!date||!Number.isFinite(lot)||lot<=0||!Number.isFinite(entry)||entry<=0||!Number.isFinite(stop)||stop<=0||!Number.isFinite(target)||target<=0||!Number.isFinite(pnl)){alert('Please enter valid trade details.');return;}
+
  trades.unshift({date,side,lot,entry,stop,target,pnl,notes});
+
  try{localStorage.setItem('negusTrades',JSON.stringify(trades));}catch(e){alert('Could not save. Browser storage may be unavailable or full.');return;}
+
  document.getElementById('notes').value='';renderTrades();updateDashboard();renderPerformance();alert('Trade saved on this device.');
+
 }
+
 function renderTrades(){
+
  const body=document.getElementById('tradeRows');body.innerHTML='';let total=0;
+
  trades.forEach((tr,i)=>{
+
   total+=Number(tr.pnl)||0;const row=document.createElement('tr');
+
   [tr.date,tr.side,String(tr.lot),Number(tr.pnl).toFixed(2)].forEach(v=>{const td=document.createElement('td');td.textContent=v;row.appendChild(td);});
+
   const td=document.createElement('td'),del=document.createElement('button');del.className='secondary';del.textContent='Delete';
+
   del.onclick=()=>{if(confirm('Delete this trade?')){trades.splice(i,1);localStorage.setItem('negusTrades',JSON.stringify(trades));renderTrades();updateDashboard();renderPerformance();}};
+
   td.appendChild(del);row.appendChild(td);body.appendChild(row);
+
  });
+
  document.getElementById('journalSummary').textContent=trades.length+' trades · Total recorded P/L: '+money(total);
+
 }
+
 function exportCSV(){
+
  if(!trades.length){alert('No trades to export.');return;}
+
  const keys=['date','side','lot','entry','stop','target','pnl','notes'];
+
  const lines=[keys.join(',')].concat(trades.map(t=>keys.map(k=>'"'+String(t[k]??'').replace(/"/g,'""')+'"').join(',')));
+
  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'}),url=URL.createObjectURL(blob),a=document.createElement('a');
+
  a.href=url;a.download='negus-trade-journal.csv';a.click();URL.revokeObjectURL(url);
+
 }
+
 function renderPerformance(){
+
  const total=trades.length,wins=trades.filter(t=>Number(t.pnl)>0),losses=trades.filter(t=>Number(t.pnl)<0);
+
  const grossWin=wins.reduce((s,t)=>s+Number(t.pnl),0),grossLoss=Math.abs(losses.reduce((s,t)=>s+Number(t.pnl),0));
+
  const net=trades.reduce((s,t)=>s+(Number(t.pnl)||0),0),rate=total?wins.length/total*100:0;
+
  const pf=grossLoss===0?(grossWin>0?'∞':'--'):(grossWin/grossLoss).toFixed(2);
+
  const now=new Date(),day=now.getDay(),monday=new Date(now);
+
  monday.setDate(now.getDate()-(day===0?6:day-1));monday.setHours(0,0,0,0);
+
  const weekly=trades.filter(t=>{const d=new Date(t.date+'T12:00:00');return d>=monday&&d<=now;}).reduce((s,t)=>s+(Number(t.pnl)||0),0);
+
  let running=0,peak=0,maxDD=0;[...trades].reverse().forEach(t=>{running+=Number(t.pnl)||0;peak=Math.max(peak,running);maxDD=Math.max(maxDD,peak-running);});
+
  document.getElementById('totalTrades').textConten
+
 t=total;document.getElementById('winRate').textContent=rate.toFixed(1)+'%';
+
  document.getElementById('totalPL').textContent=money(net);document.getElementById('profitFactor').textContent=pf;
+
  document.getElementById('weeklyPL').textContent=money(weekly);document.getElementById('maxDrawdown').textContent=money(maxDD);
+
 }
+
 function sessionStatus(time){const parts=time.split(':').map(Number),minutes=parts[0]*60+parts[1];return minutes>=480&&minutes<1020?'OPEN':'CLOSED';}
+
 function updateClocks(){
+
  const now=new Date();
+
  document.getElementById('localClock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(now);
+
  const london=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);
+
  const ny=new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false}).format(now);
+
  document.getElementById('londonClock').textContent=london;document.getElementById('newYorkClock').textContent=ny;
+
  document.getElementById('londonStatus').textContent='Market: '+sessionStatus(london);document.getElementById('newYorkStatus').textContent='Market: '+sessionStatus(ny);
+
 }
+
 renderTrades();updateDashboard();renderPerformance();calculateRisk();updateChecks();updateClocks();setInterval(updateClocks,1000);
+
  
+
 /* LIVE MARKET DATA + MULTI-TIMEFRAME RULE ENGINE */
+
 const LIVE_API='https://biquote.io/api';
+
 let liveQuote=null,liveFrames={},liveFetchBusy=false,lastLiveError='';
+
 const TF_CONFIG=[['D1','1d'],['H4','4h'],['H1','1h'],['M15','15m'],['M5','5m']];
+
 function fmtPrice(n){return Number.isFinite(n)?n.toFixed(5):'--';}
+
 function setText(id,value){const el=document.getElementById(id);if(el)el.textContent=value;}
+
 function ema(values,period){
+
  if(values.length<period)return null;const k=2/(period+1);let v=values.slice(0,period).reduce((a,b)=>a+b,0)/period;
+
  for(let i=period;i<values.length;i++)v=values[i]*k+v*(1-k);return v;
+
 }
+
 function rsi(values,period=14){
+
  if(values.length<=period)return null;let gain=0,loss=0;
+
  for(let i=1;i<=period;i++){const d=values[i]-values[i-1];if(d>0)gain+=d;else loss-=d;}
+
  let avgG=gain/period,avgL=loss/period;
+
  for(let i=period+1;i<values.length;i++){const d=values[i]-values[i-1];avgG=(avgG*(period-1)+Math.max(d,0))/period;avgL=(avgL*(period-1)+Math.max(-d,0))/period;}
+
  if(avgL===0)return 100;return 100-(100/(1+avgG/avgL));
+
 }
+
 function atr(bars,period=14){
+
  if(bars.length<=period)return null;const trs=[];
+
  for(let i=1;i<bars.length;i++){const b=bars[i],p=bars[i-1];trs.push(Math.max(b.high-b.low,Math.abs(b.high-p.close),Math.abs(b.low-p.close)));}
+
  if(trs.length<period)return null;let a=trs.slice(0,period).reduce((x,y)=>x+y,0)/period;
+
  for(let i=period;i<trs.length;i++)a=(a*(period-1)+trs[i])/period;return a;
+
 }
+
 function inspectFrame(bars){
+
  const closed=(Array.isArray(bars)?bars:[]).filter(b=>b&&b.isOpen!==true&&Number.isFinite(Number(b.close))&&Number.isFinite(Number(b.high))&&Number.isFinite(Number(b.low)))
+
  .map(b=>({open:Number(b.open),high:Number(b.high),low:Number(b.low),close:Number(b.close),time:b.openTime})).sort((a,b)=>new Date(a.time)-new Date(b.time));
+
  if(closed.length<30)return {ok:false,count:closed.length,error:'Need at least 30 closed candles'};
+
  const closes=closed.map(b=>b.close),last=closed[closed.length-1],prev=closed[closed.length-2];
+
  const e20=ema(closes,20),e50=ema(closes,50),e200=ema(closes,200),rv=rsi(closes),av=atr(closed);
+
  let trend='NEUTRAL';if(e20!==null&&e50!==null){if(last.close>e20&&e20>e50)trend='BULLISH';else if(last.close<e20&&e20<e50)trend='BEARISH';}
+
  return {ok:true,count:closed.length,bars:closed,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
+
 }
+
 async function fetchJSON(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}
+
 async function refreshLiveMarket(){
+
  if(liveFetchBusy)return;liveFetchBusy=true;setText('feedStatus','Updating');
+
  try{
+
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
+
   const framePromises=TF_CONFIG.map(async([name,interval])=>{const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');return [name,inspectFrame(data.bars)];});
+
   const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
+
   liveQuote=q;liveFrames=Object.fromEntries(frames);lastLiveError='';renderLiveMarket();renderSmartChart();
+
  }catch(err){lastLiveError=String(err&&err.message?err.message:err);setText('feedStatus','ERROR');setText('feedUpdated','Market data could not be loaded: '+lastLiveError+'. Tap Refresh to try again.');setText('autoSignal','WAIT — LIVE DATA UNAVAILABLE. Do not use an old signal.');}
+
  finally{liveFetchBusy=false;}
+
 }
+
 function renderLiveMarket(){
+
  const q=liveQuote||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
+
  const usableMid=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
+
  const spread=Number.isFinite(bid)&&Number.isFinite(ask)?(ask-bid)*10000:Number(q.spread)*10000;
+
  setText('liveMid',fmtPrice(usableMid));setText('liveBidAsk',fmtPrice(bid)+' / '+fmtPrice(ask));setText('liveSpread',Number.isFinite(spread)?spread.toFixed(1)+' pips':'--');
+
  const state=String(q.marketState||'unknown').toLowerCase(),stale=q.stale===true;
+
  setText('feedStatus',stale?'STALE':state.toUpperCase());
+
  const age=Number(q.quoteAgeSeconds);
+
  setText('feedUpdated','Source: BiQuote · '+(Number.isFinite(age)?'Quote age '+age+' sec':'Quote age unavailable')+' · '+new Date().toLocaleTimeString());
+
  updateChartQuote();renderMultiTimeframePanel();
+
  for(const [name] of TF_CONFIG){const f=liveFrames[name];setText('tf'+name,!f||!f.ok?'NO DATA':f.trend);}
+
  const m15=liveFrames.M15,m5=liveFrames.M5;setText('liveRSI',m15&&m15.ok&&m5&&m5.ok?m15.rsi.toFixed(1)+' / '+m5.rsi.toFixed(1):'--');renderV63();evaluateLiveSignal();
+
 }
+
 /* V6.3 MARKET STRUCTURE, ENTRY PATTERNS AND SUPPORT/RESISTANCE — rendered in V6.5 chart */
+
 function swingPoints(bars,left=2,right=2){
+
  const highs=[],lows=[];
+
  for(let i=left;i<bars.length-right;i++){
+
   let isHigh=true,isLow=true;
+
   for(let j=i-left;j<=i+right;j++){if(j===i)continue;if(bars[j].high>=bars[i].high)isHigh=false;if(bars[j].low<=bars[i].low)isLow=false;}
+
   if(isHigh)highs.push({price:bars[i].high,index:i,time:bars[i].time});
+
   if(isLow)lows.push({price:bars[i].low,index:i,time:bars[i].time});
+
  }
+
  return {highs,lows};
+
 }
+
 function analyzeStructure(frame){
+
  if(!frame||!frame.ok||!frame.bars||frame.bars.length<12)return {ok:false,reason:'Not enough closed candles'};
+
  const bars=frame.bars,sw=swingPoints(bars,2,2),last=bars[bars.length-1],prev=bars[bars.length-2];
+
  const priorHigh=sw.highs.filter(x=>x.index<bars.length-1).slice(-1)[0],priorLow=sw.lows.filter(x=>x.index<bars.length-1).slice(-1)[0];
+
  const range=last.high-last.low,body=Math.abs(last.close-last.open),atrValue=frame.atr||0,displacement=atrValue>0&&body>=atrValue*0.65;
+
  const bullishSweep=!!priorLow&&last.low<priorLow.price&&last.close>priorLow.price;
+
  const bearishSweep=!!priorHigh&&last.high>priorHigh.price&&last.close<priorHigh.price;
+
  const bullishBOS=!!priorHigh&&last.close>priorHigh.price,bearishBOS=!!priorLow&&last.close<priorLow.price;
+
  const priorBars=bars.slice(0,-1),recentCloses=priorBars.slice(-8);
+
  let priorTrend='UNKNOWN';
+
  if(recentCloses.length>=6){const first=recentCloses[0].close,lastPrior=recentCloses[recentCloses.length-1].close;if(lastPrior>first)priorTrend='BULLISH';else if(lastPrior<first)priorTrend='BEARISH';}
+
  let choch='NONE';if(priorTrend==='BEARISH'&&bullishBOS)choch='BULLISH CHoCH';else if(priorTrend==='BULLISH'&&bearishBOS)choch='BEARISH CHoCH';
+
  let bos='NONE';if(bullishBOS)bos='BULLISH BOS';else if(bearishBOS)bos='BEARISH BOS';
+
  let sweep='NONE';if(bullishSweep)sweep='BULLISH LIQUIDITY SWEEP';else if(bearishSweep)sweep='BEARISH LIQUIDITY SWEEP';
+
  const direction=last.close>last.open?'BULLISH':last.close<last.open?'BEARISH':'NEUTRAL';
+
  return {ok:true,last,prev,priorTrend,bos,choch,sweep,displacement,direction,body,atr:atrValue,range,swings:sw,priorHigh,priorLow};
+
 }
+
 function analyzeEntry(frame){
+
  if(!frame||!frame.ok||!frame.bars||frame.bars.length<10)return {ok:false,reason:'Not enough closed candles'};
+
  const b=frame.bars,last=b[b.length-1],prev=b[b.length-2],dir=last.close>last.open?'BULLISH':last.close<last.open?'BEARISH':'NEUTRAL';
+
  let fvg=null;
+
  for(let i=b.length-2;i>=2&&i>=b.length-12;i--){const a=b[i-2],c=b[i];if(c.low>a.high) {fvg={side:'BULLISH',low:a.high,high:c.low,time:a.time,endTime:c.time};break;}if(c.high<a.low){fvg={side:'BEARISH',low:c.high,high:a.low,time:a.time,endTime:c.time};break;}}
+
  const price=liveQuote?Number(liveQuote.mid):NaN;
+
  if(fvg&&Number.isFinite(price))fvg.retest=price>=fvg.low&&price<=fvg.high;
+
  let ob=null;
+
  for(let i=b.length-2;i>=Math.max(1,b.length-8);i--){const impulse=b[i+1],candidate=b[i];if(impulse.close>impulse.open&&candidate.close<candidate.open){ob={side:'BULLISH',low:candidate.low,high:candidate.open,time:candidate.time,endTime:impulse.time};break;}if(impulse.close<impulse.open&&candidate.close>candidate.open){ob={side:'BEARISH',low:candidate.open,high:candidate.high,time:candidate.time,endTime:impulse.time};break;}}
+
  if(ob&&Number.isFinite(price))ob.retest=price>=ob.low&&price<=ob.high;
+
  const paBull=dir==='BULLISH'&&last.close>prev.high,paBear=dir==='BEARISH'&&last.close<prev.low;
+
  return {ok:true,last,prev,direction:dir,fvg,ob,paBull,paBear};
+
 }
+
 function buildZones(frames,price){
+
  const candidates=[];
+
  ['H4','H1'].forEach(tf=>{const f=frames[tf];if(!f||!f.ok)return;const sw=swingPoints(f.bars,2,2);sw.lows.slice(-12).forEach(x=>candidates.push({type:'SUPPORT',price:x.price,tf}));sw.highs.slice(-12).forEach(x=>candidates.push({type:'RESISTANCE',price:x.price,tf}));});
+
  const atrValues=['H4','H1'].map(t=>frames[t]&&frames[t].ok?frames[t].atr:0).filter(x=>x>0),tol=(atrValues.length?Math.max(...atrValues)*0.22:0.00025);
+
  const groups=[];candidates.sort((a,b)=>a.price-b.price).forEach(x=>{let g=groups.find(z=>z.type===x.type&&Math.abs(z.mean-x.price)<=tol);if(!g){g={type:x.type,values:[x.price],tfs:[x.tf],mean:x.price};groups.push(g);}else{g.values.push(x.price);g.tfs.push(x.tf);g.mean=g.values.reduce((a,b)=>a+b,0)/g.values.length;}});
+
  const zones=groups.map(g=>({type:g.type,low:Math.min(...g.values)-tol/2,high:Math.max(...g.values)+tol/2,mid:g.mean,count:g.values.length,tfs:[...new Set(g.tfs)].join('/')}));
+
  const supports=zones.filter(z=>z.type==='SUPPORT'&&z.mid<=price).sort((a,b)=>b.mid-a.mid),resistances=zones.filter(z=>z.type==='RESISTANCE'&&z.mid>=price).sort((a,b)=>a.mid-b.mid);
+
  return {zones,support:supports[0]||null,resistance:resistances[0]||null};
+
 }
+
 function renderV63(){
+
  const frames=liveFrames||{},q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask),price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
+
  const st=analyzeStructure(frames.M15),en=analyzeEntry(frames.M5),structure=document.getElementById('structureSummary'),details=document.getElementById('structureRows');
+
  if(!structure||!details)return;
+
  if(!st.ok||!en.ok){structure.textContent='WAIT — '+(!st.ok?st.reason:en.reason);details.textContent='M15/M5 data is incomplete. No pattern confirmation.';return;}
+
  const pipDist=(v)=>Number.isFinite(price)?Math.abs(price-v)*10000:null;
+
  const m15Lines=['M15 trend context: '+st.priorTrend,'BOS: '+st.bos,'CHoCH: '+st.choch,'Liquidity sweep: '+st.sweep,'Displacement candle (body ≥ 0.65 × ATR14): '+(st.displacement?'YES':'NO')];
+
  const entryLines=['M5 candle direction: '+en.direction,'FVG: '+(en.fvg?en.fvg.side+' zone '+fmtPrice(en.fvg.low)+'–'+fmtPrice(en.fvg.high)+(en.fvg.retest?' · RETEST':' · no retest'):'Not detected in recent 10 candles'),'Candidate OB: '+(en.ob?en.ob.side+' zone '+fmtPrice(en.ob.low)+'–'+fmtPrice(en.ob.high)+(en.ob.retest?' · RETEST':' · no retest'):'Not detected in recent candles'),'Price action: '+(en.paBull?'Bullish close above previous high':en.paBear?'Bearish close below previous low':'No strict break confirmation')];
+
  structure.innerHTML='<b>M15 STRUCTURE</b><br>'+m15Lines.map(escapeNewsText).join('<br>')+'<br><br><b>M5 ENTRY CHECK</b><br>'+entryLines.map(escapeNewsText).join('<br>');
+
  details.innerHTML='<span class="small">Patterns are calculated from the latest closed candles. FVG is a three-candle gap. OB is only a candidate opposing candle before a directional candle, not a verified institutional order block.</span>';
+
  const zones=buildZones(frames,price),support=zones.support,resistance=zones.resistance;
+
  setText('nearestSupport',support?fmtPrice(support.mid)+' · '+pipDist(support.mid).toFixed(1)+' pips':'--');
+
  setText('nearestResistance',resistance?fmtPrice(resistance.mid)+' · '+pipDist(resistance.mid).toFixed(1)+' pips':'--');
+
  const d1=frames.D1;let pdh=null,pdl=null;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];pdh=prior.high;pdl=prior.low;}
+
  setText('pdhValue',pdh===null?'--':fmtPrice(pdh));setText('pdlValue',pdl===null?'--':fmtPrice(pdl));
+
  const zoneRows=zones.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.012).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,8);
+
  const html=[];
+
  if(support)html.push('Nearest support: '+fmtPrice(support.low)+'–'+fmtPrice(support.high)+' · '+pipDist(support.mid).toFixed(1)+' pips away · '+support.count+' pivots ('+support.tfs+')');
+
  if(resistance)html.push('Nearest resistance: '+fmtPrice(resistance.low)+'–'+fmtPrice(resistance.high)+' · '+pipDist(resistance.mid).toFixed(1)+' pips away · '+resistance.count+' pivots ('+resistance.tfs+')');
+
  if(pdh!==null)html.push('Previous available D1 candle high/low: '+fmtPrice(pdh)+' / '+fmtPrice(pdl));
+
  zoneRows.forEach(z=>html.push(z.type+' zone: '+fmtPrice(z.low)+'–'+fmtPrice(z.high)+' · '+z.count+' pivots ('+z.tfs+')'));
+
  document.getElementById('srRows').innerHTML=html.length?html.map(escapeNewsText).join('<br>'):'No nearby support/resistance pivots identified. Need more data.';
+
 }
+
  
+
 function renderMultiTimeframePanel(){
+
  const body=document.getElementById('mtfRows'),status=document.getElementById('mtfStatus');if(!body)return;
+
  const frames=liveFrames||{},price=chartPrice(),rows=[];
+
  for(const [tf] of TF_CONFIG){
+
   const f=frames[tf];
+
   if(!f||!f.ok){rows.push('<tr><td><b>'+tf+'</b></td><td colspan="5" class="warning">NO DATA</td></tr>');continue;}
+
   const st=analyzeStructure(f),en=analyzeEntry(f),trend=f.trend||'NEUTRAL';
+
   const trendClass=trend==='BULLISH'?'mtf-bull':trend==='BEARISH'?'mtf-bear':'mtf-neutral';
+
   const structure=st.ok?(st.choch!=='NONE'?st.choch:st.bos!=='NONE'?st.bos:'No BOS / CHoCH'):'Not enough candles';
+
   const sw=swingPoints(f.bars,2,2),ref=Number.isFinite(price)?price:f.last.close;
+
   const nearestLow=sw.lows.filter(x=>x.price<=ref).sort((a,b)=>b.price-a.price)[0],nearestHigh=sw.highs.filter(x=>x.price>=ref).sort((a,b)=>a.price-b.price)[0];
+
   const sr=(nearestLow?'S '+fmtPrice(nearestLow.price):'S --')+' / '+(nearestHigh?'R '+fmtPrice(nearestHigh.price):'R --');
+
   const fvg=en.ok&&en.fvg?en.fvg.side+' · '+fmtPrice(en.fvg.low)+'–'+fmtPrice(en.fvg.high):'Not detected';
+
   const liq=st.ok&&st.sweep!=='NONE'?st.sweep:(tf==='D1'&&f.bars.length>1?'PDH / PDL reference':'No sweep');
+
   rows.push('<tr><td><b>'+tf+'</b></td><td class="'+trendClass+'">'+escapeNewsText(trend)+'</td><td>'+escapeNewsText(structure)+'</td><td>'+escapeNewsText(sr)+'</td><td>'+escapeNewsText(fvg)+'</td><td>'+escapeNewsText(liq)+'</td></tr>');
+
  }
+
  body.innerHTML=rows.join('');
+
  const ready=TF_CONFIG.filter(([tf])=>frames[tf]&&frames[tf].ok).length;
+
  if(status)status.innerHTML='<b>'+ready+'/5 timeframes ready</b> · Current reference price: <b>'+fmtPrice(price)+'</b> · Each row uses closed candles only.';
+
 }
-/* v6.7 SMART CHART — clean selectable overlays + live price + MTF panel */
+
+/* v8 SMART CHART — clean selectable overlays + live price + MTF panel */
+
 let smartChart=null,smartCandleSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null;
+
 function chartTime(value){const n=Math.floor(new Date(value).getTime()/1000);return Number.isFinite(n)&&n>0?n:null;}
+
 function chartBars(tf){const frame=liveFrames&&liveFrames[tf];if(!frame||!frame.ok||!Array.isArray(frame.bars))return [];return frame.bars.map(b=>({time:chartTime(b.time),open:b.open,high:b.high,low:b.low,close:b.close})).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite));}
+
 function chartPrice(){const q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask);return Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);}
+
 function updateChartQuote(){
+
  const q=liveQuote||{},bid=Number(q.bid),ask=Number(q.ask),price=chartPrice(),spread=Number.isFinite(bid)&&Number.isFinite(ask)?(ask-bid)*10000:Number(q.spread)*10000;
+
  setText('chartLiveMid',fmtPrice(price));setText('chartLiveBid',fmtPrice(bid));setText('chartLiveAsk',fmtPrice(ask));setText('chartLiveSpread',Number.isFinite(spread)?spread.toFixed(1)+' pips':'--');
+
  if(smartCandleSeries&&Number.isFinite(price)&&price>0){try{if(smartLivePriceLine)smartCandleSeries.removePriceLine(smartLivePriceLine);smartLivePriceLine=smartCandleSeries.createPriceLine({price,color:'#38bdf8',lineWidth:2,lineStyle:0,axisLabelVisible:true,title:'LIVE'});}catch(e){console.warn('Live price line update failed',e);}}
+
  if(smartChartReady)drawSmartOverlays();
+
 }
+
 function overlayOn(id){const el=document.getElementById(id);return !!(el&&el.checked);}
+
 function initSmartChart(){
+
  const host=document.getElementById('chartHost');if(!host)return;
+
  if(!window.LightweightCharts){setText('chartStatus','Chart library is unavailable. Check internet connection and reload.');return;}
+
  if(smartChart)return;
+
  try{
+
   smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#0b1220'},textColor:'#aab8ca'},grid:{vertLines:{color:'#182638'},horzLines:{color:'#182638'}},rightPriceScale:{borderColor:'#29394e'},timeScale:{borderColor:'#29394e',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
+
   smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#35c995',downColor:'#ff6878',borderUpColor:'#35c995',borderDownColor:'#ff6878',wickUpColor:'#35c995',wickDownColor:'#ff6878'});
+
   if(window.ResizeObserver){smartChartResizeObserver=new ResizeObserver(entries=>{for(const e of entries){const w=Math.max(1,Math.floor(e.contentRect.width)),h=Math.max(1,Math.floor(e.contentRect.height));smartChart.applyOptions({width:w,height:h});resizeOverlayCanvas();drawSmartOverlays();}});smartChartResizeObserver.observe(host);}
+
   smartChart.timeScale().subscribeVisibleLogicalRangeChange(()=>drawSmartOverlays());
+
   smartChartReady=true;resizeOverlayCanvas();renderSmartChart(true);updateChartQuote();
+
  }catch(err){console.error('Smart chart initialization failed',err);setText('chartStatus','Chart initialization failed: '+String(err.message||err));}
+
 }
+
 function resizeOverlayCanvas(){const c=document.getElementById('chartOverlay'),host=document.getElementById('chartHost');if(!c||!host)return;const dpr=window.devicePixelRatio||1,w=host.clientWidth||1,h=host.clientHeight||1;c.width=Math.round(w*dpr);c.height=Math.round(h*dpr);c.style.width=w+'px';c.style.height=h+'px';const ctx=c.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);}
+
 function drawSmartOverlays(){
+
  if(!smartChart||!smartCandleSeries)return;
+
  const canvas=document.getElementById('chartOverlay'),host=document.getElementById('chartHost');if(!canvas||!host)return;
+
  const w=host.clientWidth,h=host.clientHeight,dpr=window.devicePixelRatio||1,ctx=canvas.getContext('2d');if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr))resizeOverlayCanvas();
+
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+
  const ts=smartChart.timeScale(),xFor=t=>{const sec=typeof t==='number'?t:chartTime(t);return sec?ts.timeToCoordinate(sec):null;},yFor=p=>Number.isFinite(p)?smartCandleSeries.priceToCoordinate(p):null;
+
  const line=(price,color,label,dash=[5,4],startTime=null)=>{const y=yFor(price);if(y===null||y<-20||y>h+20)return;const x0=startTime?xFor(startTime):0;ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1.2;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x0===null?0:Math.max(0,x0),y);ctx.lineTo(w,y);ctx.stroke();ctx.setLineDash([]);ctx.font='11px Arial';const tw=ctx.measureText(label).width;ctx.fillStyle='rgba(8,16,28,.86)';ctx.fillRect(Math.max(0,w-tw-12),Math.max(0,y-15),tw+10,14);ctx.fillStyle=color;ctx.fillText(label,Math.max(4,w-tw-7),Math.max(11,y-4));ctx.restore();};
+
  const zone=(low,high,color,label,startTime=null,endTime=null)=>{const y1=yFor(high),y2=yFor(low);if(y1===null||y2===null)return;let x1=startTime?xFor(startTime):0,x2=endTime?xFor(endTime):w;if(x1===null)x1=0;if(x2===null)x2=w;x1=Math.max(0,Math.min(w,x1));x2=Math.max(x1+8,Math.min(w,x2));const top=Math.max(0,Math.min(y1,y2)),bottom=Math.min(h,Math.max(y1,y2));if(bottom<=0||top>=h)return;ctx.save();ctx.fillStyle=color+'22';ctx.strokeStyle=color+'bb';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='11px Arial';ctx.fillText(label,Math.min(w-90,x1+5),Math.max(11,top+12));ctx.restore();};
+
  const frames=liveFrames||{},price=chartPrice(),tf=document.getElementById('chartTF')?.value||'M15';
+
  if(overlayOn('overlaySR')){const zones=buildZones(frames,price),near=zones.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.012),sup=near.filter(z=>z.type==='SUPPORT').sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,3),res=near.filter(z=>z.type==='RESISTANCE').sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,3);sup.concat(res).forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878',z.type+' · '+z.tfs));}
+
  if(overlayOn('overlayLiquidity')){const d1=frames.D1;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];line(prior.high,'#e5b94f','D1 PDH');line(prior.low,'#e5b94f','D1 PDL');}const liq=analyzeStructure(frames[tf]);if(liq.ok&&liq.sweep!=='NONE'){const bull=liq.sweep.includes('BULLISH'),y=yFor(bull?liq.last.low:liq.last.high),x=xFor(liq.last.time);if(y!==null&&x!==null){ctx.save();ctx.fillStyle=bull?'#35c995':'#ff6878';ctx.font='bold 12px Arial';ctx.fillText(bull?'▲ '+tf+' SWEEP':'▼ '+tf+' SWEEP',Math.max(2,x-30),Math.max(14,Math.min(h-4,y+(bull?18:-8))));ctx.restore();}}}
+
  if(overlayOn('overlayStructure')){const st=analyzeStructure(frames[tf]);if(st.ok){if(st.bos!=='NONE'&&st.priorHigh&&st.bos.includes('BULLISH'))line(st.priorHigh.price,'#e5b94f',tf+' BOS',[3,3],st.priorHigh.time);if(st.bos!=='NONE'&&st.priorLow&&st.bos.includes('BEARISH'))line(st.priorLow.price,'#e5b94f',tf+' BOS',[3,3],st.priorLow.time);if(st.choch!=='NONE'){const lv=st.choch.includes('BULLISH')?st.priorHigh:st.priorLow;if(lv)line(lv.price,'#ffd166',tf+' CHoCH',[2,3],lv.time);}}}
+
  if(overlayOn('overlayFVG')||overlayOn('overlayOB')){const en=analyzeEntry(frames[tf]);if(en.ok){if(overlayOn('overlayFVG')&&en.fvg)zone(en.fvg.low,en.fvg.high,'#5ba7ff',tf+' '+en.fvg.side+' FVG',en.fvg.time,en.fvg.endTime);if(overlayOn('overlayOB')&&en.ob)zone(en.ob.low,en.ob.high,'#b18cff',tf+' '+en.ob.side+' OB*',en.ob.time,en.ob.endTime);}}
+
 }
+
 function renderSmartChart(forceFit=false){
+
  if(!smartChartReady){if(document.getElementById('chartHost'))initSmartChart();if(!smartChartReady)return;}
+
  const tf=document.getElementById('chartTF')?.value||'M15',bars=chartBars(tf);if(!bars.length){setText('chartStatus','Waiting for '+tf+' closed candles from BiQuote...');return;}
+
  try{
+
   const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;smartCandleSeries.setData(bars);
+
   const marks=[],st=analyzeStructure(liveFrames[tf]),en=analyzeEntry(liveFrames[tf]);
+
   if(st.ok){if(st.bos!=='NONE')marks.push({time:chartTime(st.last.time),position:st.bos.includes('BULLISH')?'belowBar':'aboveBar',color:'#e5b94f',shape:st.bos.includes('BULLISH')?'arrowUp':'arrowDown',text:st.bos});if(st.choch!=='NONE')marks.push({time:chartTime(st.last.time),position:st.choch.includes('BULLISH')?'belowBar':'aboveBar',color:'#ffd166',shape:'circle',text:st.choch});if(st.sweep!=='NONE')marks.push({time:chartTime(st.last.time),position:st.sweep.includes('BULLISH')?'belowBar':'aboveBar',color:st.sweep.includes('BULLISH')?'#35c995':'#ff6878',shape:'arrowUp',text:'SWEEP'});}
+
   if(en.ok){if(en.paBull)marks.push({time:chartTime(en.last.time),position:'belowBar',color:'#35c995',shape:'arrowUp',text:'PA BUY'});if(en.paBear)marks.push({time:chartTime(en.last.time),position:'aboveBar',color:'#ff6878',shape:'arrowDown',text:'PA SELL'});}
+
   if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time));
+
   if(oldRange){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}else smartChart.timeScale().fitContent();
+
   smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' closed candles · Live price line · BiQuote · '+new Date().toLocaleTimeString());
+
  }catch(err){console.error('Smart chart render failed',err);setText('chartStatus','Chart update error: '+String(err.message||err));}
+
 }
+
 window.addEventListener('resize',()=>{resizeOverlayCanvas();drawSmartOverlays();});
+
 document.addEventListener('DOMContentLoaded',()=>{initSmartChart();});
+
  
+
 function evaluateLiveSignal(){
+
  const out=document.getElementById('autoSignal');if(!out)return;
+
  const q=liveQuote||{},frames=liveFrames||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
+
  const price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
+
  const spread=Number.isFinite(bid)&&Number.isFinite(ask)?(ask-bid)*10000:Number(q.spread)*10000,age=Number(q.quoteAgeSeconds);
+
  const dataOK=TF_CONFIG.every(([n])=>frames[n]&&frames[n].ok),reasons=[];
+
  if(!Number.isFinite(price))reasons.push('No valid live quote');
+
  if(String(q.marketState||'').toLowerCase()!=='open')reasons.push('Market is not confirmed open');
+
  if(q.stale!==false)reasons.push('Quote is stale or freshness is unconfirmed');
+
  if(Number.isFinite(age)&&age>60)reasons.push('Quote is older than 60 seconds');
+
  if(!dataOK)reasons.push('One or more timeframes have insufficient candle data');
+
  if(!Number.isFinite(spread)||spread>1.5)reasons.push('Spread unavailable or above 1.5 pips');
+
  if(newsCalendarState.status!=='clear')reasons.push(newsCalendarState.status==='blocked'?'High-impact EUR/USD news window':'Economic calendar not verified');
+
  if(!reasons.length){
+
   const d=frames.D1.trend,h4=frames.H4.trend,h1=frames.H1.trend,m15=frames.M15,m5=frames.M5;
+
   const sameBull=d==='BULLISH'&&h4==='BULLISH'&&h1==='BULLISH',sameBear=d==='BEARISH'&&h4==='BEARISH'&&h1==='BEARISH';
+
   const m15Bull=m15.trend==='BULLISH'&&m15.rsi>=50&&m15.rsi<75,m15Bear=m15.trend==='BEARISH'&&m15.rsi<=50&&m15.rsi>25;
+
   const m5Bull=m5.trend==='BULLISH'&&m5.last.close>m5.prev.close&&m5.rsi>=50&&m5.rsi<80,m5Bear=m5.trend==='BEARISH'&&m5.last.close<m5.prev.close&&m5.rsi<=50&&m5.rsi>20;
+
   const structure=analyzeStructure(m15),entry=analyzeEntry(m5);
+
   const m15ConfirmBull=structure.ok&&((structure.bos==='BULLISH BOS'||structure.choch==='BULLISH CHoCH'||structure.sweep==='BULLISH LIQUIDITY SWEEP')&&structure.displacement);
+
   const m15ConfirmBear=structure.ok&&((structure.bos==='BEARISH BOS'||structure.choch==='BEARISH CHoCH'||structure.sweep==='BEARISH LIQUIDITY SWEEP')&&structure.displacement);
+
   const m5ConfirmBull=entry.ok&&((entry.fvg&&entry.fvg.side==='BULLISH'&&entry.fvg.retest)||(entry.ob&&entry.ob.side==='BULLISH'&&entry.ob.retest)||entry.paBull);
+
   const m5ConfirmBear=entry.ok&&((entry.fvg&&entry.fvg.side==='BEARISH'&&entry.fvg.retest)||(entry.ob&&entry.ob.side==='BEARISH'&&entry.ob.retest)||entry.paBear);
+
   let direction='';if(sameBull&&m15Bull&&m5Bull&&m15ConfirmBull&&m5ConfirmBull)direction='BUY';else if(sameBear&&m15Bear&&m5Bear&&m15ConfirmBear&&m5ConfirmBear)direction='SELL';else reasons.push('Timeframes, M15 structure/displacement or M5 retest/price action are not fully aligned');
+
   if(direction){
+
    const atr5=m5.atr,slPips=atr5?Math.max(5,(atr5*1.5)*10000):0,tpPips=slPips*2;
+
    const bal=Number(document.getElementById('balance').value)||15,riskPct=Math.min(1,Math.max(0.1,Number(document.getElementById('riskPercent').value)||1));
+
    const riskBudget=bal*riskPct/100,maxLot=slPips>0?riskBudget/(slPips*10):0,allowed=maxLot>=0.01;
+
    if(!allowed)reasons.push('Minimum 0.01 lot exceeds the selected risk budget');
+
    else{
+
     const entry=price,sl=direction==='BUY'?entry-slPips/10000:entry+slPips/10000,tp=direction==='BUY'?entry+tpPips/10000:entry-tpPips/10000;
+
     out.innerHTML='<span class="ok">RULES ALIGN: '+direction+'</span><br>Reference entry: <b>'+fmtPrice(entry)+'</b><br>Illustrative stop: <b>'+fmtPrice(sl)+'</b> ('+slPips.toFixed(1)+' pips)<br>Illustrative target: <b>'+fmtPrice(tp)+'</b> ('+tpPips.toFixed(1)+' pips)<br>Maximum theoretical lot at '+riskPct.toFixed(1)+'% risk: <b>'+maxLot.toFixed(4)+'</b><br><br><span class="warning">Not an instruction to trade.</span> Verify the setup and exact prices on Exness MT5. Never round lot size upward. The app does not place orders.';return;
+
    }
+
   }
+
  }
+
  out.innerHTML='<span class="warning">WAIT — NO TRADE.</span><br>'+reasons.map(x=>'• '+x).join('<br>')+'<br><br>Do not force an entry. This is a conservative rule check, not a prediction.';
+
 }
+
 function startLiveUpdates(){
+
  refreshLiveMarket();setInterval(refreshLiveMarket,60000);
+
  setInterval(async()=>{try{const q=await fetchJSON(LIVE_API+'/EURUSD');liveQuote=q;if(!lastLiveError)renderLiveMarket();}catch(e){setText('feedStatus','ERROR');}},10000);
+
 }
+
  
+
 /* Automatic economic calendar: Forex Factory weekly JSON */
+
 const NEWS_API='./calendar.json',NEWS_REFRESH_MS=5*60*1000,NEWS_BLOCK_MS=30*60*1000;
+
 let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false;
+
 function newsTimeEAT(date){
+
  return new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}).format(date)+' EAT';
+
 }
+
 function escapeNewsText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
+
 function renderEconomicNews(){
+
  const now=Date.now(),high=newsEvents.filter(e=>String(e.impact||'').toLowerCase().includes('high')).sort((a,b)=>a.time-b.time);
+
  const active=high.find(e=>Math.abs(e.time-now)<=NEWS_BLOCK_MS),next=high.find(e=>e.time>now);
+
  const status=document.getElementById('newsFeedStatus'),rows=document.getElementById('newsRows'),gate=document.getElementById('newsGateStatus'),nextEl=document.getElementById('newsNextEvent');
+
  if(newsCalendarState.status==='error'){
+
   if(status)status.textContent='ERROR';if(rows)rows.textContent='Calendar unavailable: '+newsCalendarState.message;
+
   if(gate)gate.innerHTML='<span class="warning">WAIT — NEWS CALENDAR UNAVAILABLE.</span> '+escapeNewsText(newsCalendarState.message);return;
+
  }
+
  if(!newsEvents.length){
+
   newsCalendarState={status:'error',message:'No valid USD/EUR events found in the weekly feed'};
+
   if(status)status.textContent='ERROR';if(rows)rows.textContent=newsCalendarState.message;
+
   if(gate)gate.innerHTML='<span class="warning">WAIT — NO VERIFIED CALENDAR EVENTS.</span>';return;
+
  }
+
  if(active){
+
   newsCalendarState={status:'blocked',message:'High-impact event within 30 minutes'};
+
   if(status)status.textContent='NEWS WINDOW';
+
   if(gate)gate.innerHTML='<span class="warning">WAIT — HIGH-IMPACT NEWS WINDOW.</span> '+escapeNewsText(active.currency+' · '+active.title+' · '+newsTimeEAT(new Date(active.time)));
+
  }else{
+
   newsCalendarState={status:'clear',message:'No listed high-impact event within 30 minutes'};
+
   if(status)status.textContent='CHECKED';
+
   if(gate)gate.innerHTML='<span class="ok">No listed high-impact USD/EUR event within ±30 minutes.</span> This does not guarantee the calendar is complete.';
+
  }
+
  if(nextEl)nextEl.textContent=next?next.currency+' · '+next.title+' · '+newsTimeEAT(new Date(next.time)):'No upcoming high-impact event in this feed';
+
  if(rows){
+
   const shown=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>now).slice(0,18);
+
   rows.innerHTML=shown.length?shown.map(e=>{
+
    const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small';
+
    return '<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br>'+escapeNewsText(e.title)+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+'</div>';
+
   }).join(''):'No upcoming USD/EUR events in this weekly feed. Past events are hidden.';
+
  }
+
 }
+
 async function refreshEconomicNews(){
+
  if(newsFetchBusy)return;newsFetchBusy=true;const status=document.getElementById('newsFeedStatus');if(status)status.textContent='UPDATING';
+
  try{
+
   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);let response;
+
   try{response=await fetch(NEWS_API,{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timeout);}
+
   if(!response.ok)throw new Error('Calendar HTTP '+response.status);
+
   const data=await response.json();if(!Array.isArray(data)||!data.length)throw new Error('Calendar response was empty or invalid');
+
   const parsed=data.filter(e=>e&&['USD','EUR'].includes(String(e.country||'').toUpperCase())).map(e=>{
+
    const raw=String(e.date||'').trim();if(!raw||!/(Z|[+-]\d{2}:?\d{2})$/i.test(raw))return null;
+
    const time=Date.parse(raw);if(!Number.isFinite(time)||!e.title)return null;
+
    return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),forecast:String(e.forecast||''),previous:String(e.previous||'')};
+
   }).filter(Boolean).sort((a,b)=>a.time-b.time);
+
   if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
+
   newsEvents=parsed;newsCalendarState={status:'clear',message:'Calendar loaded'};renderEconomicNews();evaluateLiveSignal();
+
  }catch(err){
+
   newsEvents=[];newsCalendarState={status:'error',message:String(err&&err.name==='AbortError'?'Calendar request timed out':(err&&err.message?err.message:err))};
+
   renderEconomicNews();evaluateLiveSignal();
+
  }finally{newsFetchBusy=false;}
+
 }
+
 refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLiveUpdates();
+
 </script>
+
 </body>
+
 </html>
+
