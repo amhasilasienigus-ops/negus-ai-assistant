@@ -40,6 +40,17 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 iframe{width:100%;height:430px;border:0;border-radius:10px;background:#fff}
 footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 </style>
+
+<!-- OneSignal Web Push SDK -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+window.OneSignalDeferred = window.OneSignalDeferred || [];
+OneSignalDeferred.push(async function(OneSignal) {
+  await OneSignal.init({
+    appId: "fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6"
+  });
+});
+</script>
 </head>
 <body>
 
@@ -895,7 +906,7 @@ function startLiveUpdates(){
 /* V6 AUTOMATIC ECONOMIC CALENDAR
    Public Forex Factory weekly JSON export; not an official guaranteed API. */
 const NEWS_API='./calendar.json';
-const NEWS_REFRESH_MS=60*60*1000;
+const NEWS_REFRESH_MS=5*60*1000;
 const NEWS_BLOCK_MS=30*60*1000;
 let newsEvents=[];
 let newsCalendarState={status:'loading',message:'Calendar has not loaded'};
