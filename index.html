@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v3.0</title>
+<title>NEGUS AI ASSISTANT v4.0</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -31,7 +30,7 @@ textarea{min-height:75px}
 button{cursor:pointer}
 .action{background:var(--gold);color:#171717;border:0;border-radius:8px;padding:12px 16px;font-weight:bold;margin-top:12px}
 .secondary{background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:8px;padding:10px}
-.result{background:#0c1727;border:1px solid var(--line);padding:13px;border-radius:8px;margin-top:12px;line-height:1.7}
+.result{background:#0c1727;border:1px solid var(--line);padding:13px;border-radius:8px;margin-top:12px;line-height:1.7;overflow-wrap:anywhere}
 .warning{color:var(--red);font-weight:bold}.ok{color:var(--green);font-weight:bold}
 .check{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px}
 .check input{width:19px;height:19px;margin:0}
@@ -43,9 +42,10 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 </style>
 </head>
 <body>
+
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 3.0</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 4.0</div>
 </header>
 
 <nav>
@@ -55,30 +55,49 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <button onclick="showPage('risk',this)">Risk Calculator</button>
  <button onclick="showPage('checklist',this)">Checklist</button>
  <button onclick="showPage('journal',this)">Trade Journal</button>
+ <button onclick="showPage('performance',this)">Performance</button>
 </nav>
 
 <main>
+
 <section id="dashboard" class="page active">
  <h2>Trading Dashboard</h2>
+
  <div class="grid">
   <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
-  <div class="card"><div class="small">ACCOUNT BALANCE</div><div class="metric" id="dashBalance">$15.00</div></div>
-  <div class="card"><div class="small">MAX RISK TARGET</div><div class="metric">1%</div></div>
-  <div class="card"><div class="small">MARKET DATA</div><div class="metric red">Not connected</div></div>
+  <div class="card"><div class="small">ACCOUNT BALANCE (MANUAL)</div><div class="metric" id="dashBalance">$15.00</div></div>
+  <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
+  <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.80</div></div>
  </div>
+
+ <div class="card">
+  <h3>Daily Loss Guard</h3>
+  <div id="dailyGuard" class="result">Loading daily results...</div>
+  <p class="small">Based on closed trades manually saved in this browser. It does not block orders in MT5.</p>
+ </div>
+
+ <div class="card">
+  <h3>Trading Sessions · Ethiopia time (EAT)</h3>
+  <div class="grid">
+   <div><div class="small">LOCAL CLOCK</div><div class="metric" id="localClock">--:--:--</div></div>
+   <div><div class="small">LONDON</div><div class="metric" id="londonClock">--</div><div id="londonStatus" class="small">--</div></div>
+   <div><div class="small">NEW YORK</div><div class="metric" id="newYorkClock">--</div><div id="newYorkStatus" class="small">--</div></div>
+  </div>
+  <p class="small">Session status uses London and New York local market clocks, including daylight-saving changes. Approximate session hours: 08:00–17:00 local time.</p>
+ </div>
+
  <div class="card">
   <h3>Professional Trading Process</h3>
-  <p>D1 / H4 — higher-timeframe direction and zones.</p>
-  <p>H1 — intraday structure and bias.</p>
-  <p>M15 — wait for sweep, BOS, CHoCH, displacement or rejection.</p>
-  <p>M5 — FVG / order-block retest and entry trigger.</p>
-  <p>Calculate stop, target, costs and cash risk before any trade.</p>
-  <p class="gold">No confirmation = NO TRADE.</p>
+  <p>D1 / H4: direction and key zones → H1: structure and bias → M15: confirmation → M5: entry trigger.</p>
+  <p>M1 is optional refinement only and never overrides higher timeframes.</p>
+  <p class="gold">No strong confirmation = NO TRADE.</p>
+  <p>Never widen SL, average down, revenge trade, or force a trade because of minimum lot size.</p>
  </div>
+
  <div class="card">
   <h3>Capital Protection</h3>
-  <p>Never widen a stop loss, average down, revenge trade or force a trade when minimum lot exceeds your risk limit.</p>
-  <p class="warning">A $15 account is very small. Practice and test before trading live.</p>
+  <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
+  <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  </div>
 </section>
 
@@ -87,21 +106,61 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <div class="card">
   <h3>Manual Market Assessment</h3>
   <p>Enter observations from your chart. No live broker prices or automatic market-structure detection are connected.</p>
+
   <label>D1 / H4 Direction</label>
-  <select id="direction"><option value="">Select direction</option><option>Bullish</option><option>Bearish</option><option>Sideways / Unclear</option></select>
+  <select id="direction">
+   <option value="">Select direction</option>
+   <option>Bullish</option>
+   <option>Bearish</option>
+   <option>Sideways / Unclear</option>
+  </select>
+
   <label>H1 Intraday Bias</label>
-  <select id="bias"><option value="">Select bias</option><option>Bullish</option><option>Bearish</option><option>Neutral</option></select>
+  <select id="bias">
+   <option value="">Select bias</option>
+   <option>Bullish</option>
+   <option>Bearish</option>
+   <option>Neutral</option>
+  </select>
+
   <label>Price at a planned key level?</label>
   <select id="level"><option value="">Select</option><option>Yes</option><option>No</option></select>
+
   <label>M15 confirmation</label>
-  <select id="confirm"><option value="">Select</option><option>Liquidity sweep</option><option>BOS</option><option>CHoCH</option><option>Displacement</option><option>Rejection / close</option><option>None</option></select>
+  <select id="confirm">
+   <option value="">Select</option>
+   <option>Liquidity sweep</option>
+   <option>BOS</option>
+   <option>CHoCH</option>
+   <option>Displacement</option>
+   <option>Rejection / close</option>
+   <option>None</option>
+  </select>
+
   <label>M5 entry trigger</label>
-  <select id="trigger"><option value="">Select</option><option>FVG retest</option><option>Order block retest</option><option>Price action confirmation</option><option>None</option></select>
+  <select id="trigger">
+   <option value="">Select</option>
+   <option>FVG retest</option>
+   <option>Order block retest</option>
+   <option>Price action confirmation</option>
+   <option>None</option>
+  </select>
+
+  <label>News risk</label>
+  <select id="newsRisk">
+   <option value="">Select news condition</option>
+   <option value="clear">No major news nearby</option>
+   <option value="caution">Major news approaching</option>
+   <option value="high">Major news now / just released</option>
+  </select>
+
   <label>Important notes / observed price levels</label>
   <textarea id="analysisNotes" placeholder="Write chart observations..."></textarea>
+
   <button class="action" onclick="analyze()">Evaluate Setup</button>
   <div id="analysisResult" class="result">Complete the assessment to receive a result.</div>
  </div>
+
  <div class="card">
   <h3>Fundamental News Watch</h3>
   <p>US: Fed / FOMC, CPI, PCE, NFP, unemployment, GDP and ISM.</p>
@@ -116,6 +175,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <div class="card">
   <h3>EUR/USD TradingView Chart</h3>
   <p>External TradingView chart. This is not an Exness MT5 account connection.</p>
+
   <label>Chart timeframe</label>
   <select id="chartTF" onchange="changeChart()">
    <option value="5">M5</option>
@@ -124,9 +184,11 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
    <option value="240">H4</option>
    <option value="1D">D1</option>
   </select>
+
   <iframe id="chartFrame" src="https://www.tradingview.com/widgetembed/?symbol=FX%3AEURUSD&interval=15&theme=dark&style=1&timezone=Africa%2FAddis_Ababa&hideideas=1" title="EUR USD chart" allowfullscreen></iframe>
   <p class="small">Confirm executable prices and spreads in your broker platform.</p>
  </div>
+
  <div class="card">
   <h3>Timeframe Workflow</h3>
   <p>D1 / H4: direction and zones</p>
@@ -141,27 +203,41 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  <h2>Risk Calculator</h2>
  <div class="card">
   <h3>EUR/USD Position Risk</h3>
+
   <label>Account balance (USD)</label>
-  <input id="balance" type="number" value="15" min="0.01" step="0.01">
-  <label>Risk percentage (%) — maximum 1%</label>
+  <input id="balance" type="number" value="15" min="0.01" step="0.01" oninput="updateDashboard()">
+
+  <label>Risk mode</label>
+  <select id="riskMode" onchange="updateRiskMode()">
+   <option value="standard">Standard mode — maximum 1%</option>
+   <option value="high">High-risk mode — 4% to 8% (dangerous)</option>
+  </select>
+
+  <label>Risk percentage (%)</label>
   <input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1">
+
   <label>Lot size</label>
   <input id="lot" type="number" value="0.01" min="0.01" step="0.01">
+
   <label>Stop loss distance (pips)</label>
   <input id="stopPips" type="number" value="10" min="0.1" step="0.1">
+
   <label>Take profit distance (pips)</label>
   <input id="targetPips" type="number" value="20" min="0.1" step="0.1">
+
   <button class="action" onclick="calculateRisk()">Calculate Risk</button>
   <div id="riskResult" class="result">Enter trade details and calculate.</div>
+
   <p class="small">Approximation for EUR/USD USD account: 1.00 lot ≈ $10 per pip; 0.01 lot ≈ $0.10 per pip. Actual costs, conversion and slippage can change results.</p>
  </div>
+
  <div class="card">
   <h3>Planning Lot Ladder</h3>
   <p>$15–$49.99 → 0.01 lot</p>
   <p>$50–$99.99 → 0.02 lot</p>
   <p>$100–$199.99 → 0.03 lot</p>
   <p>$200–$500 → 0.04 lot</p>
-  <p class="warning">Planning guide only. The 1% risk limit always takes priority. If minimum lot risk is too high, skip the trade.</p>
+  <p class="warning">Planning guide only. Never override risk limits. If minimum lot risk is too high, skip the trade.</p>
  </div>
 </section>
 
@@ -199,19 +275,42 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
   <label>Setup and notes</label><textarea id="notes" placeholder="Why did you take this trade? What did you learn?"></textarea>
   <button class="action" onclick="saveTrade()">Save Trade</button>
  </div>
+
  <div class="card">
   <h3>Saved Trades</h3>
   <div class="tablewrap">
-   <table><thead><tr><th>Date</th><th>Side</th><th>Lot</th><th>P/L</th><th>Action</th></tr></thead><tbody id="tradeRows"></tbody></table>
+   <table>
+    <thead><tr><th>Date</th><th>Side</th><th>Lot</th><th>P/L</th><th>Action</th></tr></thead>
+    <tbody id="tradeRows"></tbody>
+   </table>
   </div>
-  <p id="journalSummary" class="muted">No trades saved yet.</p>
+  <p id="journalSummary">No trades saved yet.</p>
   <button class="secondary" onclick="exportCSV()">Export CSV</button>
  </div>
  <p class="small">Journal records are stored in this browser on this device. Clearing browser data may delete them. Export backups regularly.</p>
 </section>
+
+<section id="performance" class="page">
+ <h2>Trading Performance</h2>
+ <div class="grid">
+  <div class="card"><div class="small">TOTAL TRADES</div><div class="metric" id="totalTrades">0</div></div>
+  <div class="card"><div class="small">WIN RATE</div><div class="metric" id="winRate">0%</div></div>
+  <div class="card"><div class="small">TOTAL P/L</div><div class="metric" id="totalPL">$0.00</div></div>
+  <div class="card"><div class="small">PROFIT FACTOR</div><div class="metric" id="profitFactor">--</div></div>
+  <div class="card"><div class="small">WEEKLY P/L</div><div class="metric" id="weeklyPL">$0.00</div></div>
+  <div class="card"><div class="small">MAX DRAWDOWN</div><div class="metric" id="maxDrawdown">$0.00</div></div>
+ </div>
+ <div class="card">
+  <h3>Performance Notes</h3>
+  <p>Metrics are calculated from closed trades saved in this browser. They do not predict future results.</p>
+  <p>Profit factor = gross winning P/L divided by gross losing P/L.</p>
+  <p>Drawdown is calculated from the recorded sequence of trade results, not from live account equity.</p>
+ </div>
+</section>
+
 </main>
 
-<footer>NEGUS AI ASSISTANT · Decision support only · Human approval required</footer>
+<footer>NEGUS AI ASSISTANT · Decision support only · Human approval required · Not connected to broker or live news</footer>
 
 <script>
 function showPage(id,btn){
@@ -219,26 +318,89 @@ function showPage(id,btn){
  document.getElementById(id).classList.add('active');
  document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
  btn.classList.add('active');
+ if(id==='performance')renderPerformance();
 }
+
 function changeChart(){
  const tf=document.getElementById('chartTF').value;
  document.getElementById('chartFrame').src=
  'https://www.tradingview.com/widgetembed/?symbol=FX%3AEURUSD&interval='+tf+'&theme=dark&style=1&timezone=Africa%2FAddis_Ababa&hideideas=1';
 }
+
+function localDateString(date=new Date()){
+ const y=date.getFullYear();
+ const m=String(date.getMonth()+1).padStart(2,'0');
+ const d=String(date.getDate()).padStart(2,'0');
+ return y+'-'+m+'-'+d;
+}
+
+function dailyLimit(balance){
+ if(balance<=15)return 0.80;
+ if(balance<=20)return 1.00;
+ if(balance<=40)return 1.10;
+ if(balance<=50)return 1.20;
+ if(balance<=70)return 3.00;
+ if(balance<=90)return 4.00;
+ if(balance<=200)return 5.00;
+ return 10.00;
+}
+
+function money(n){
+ return (n<0?'-$':'$')+Math.abs(n).toFixed(2);
+}
+
+function getTodayTrades(){
+ const today=localDateString();
+ return trades.filter(t=>t.date===today);
+}
+
+function updateDashboard(){
+ const balance=Number(document.getElementById('balance').value)||15;
+ const limit=dailyLimit(balance);
+ const today=getTodayTrades();
+ const pnl=today.reduce((s,t)=>s+(Number(t.pnl)||0),0);
+ document.getElementById('dashBalance').textContent=money(balance);
+ document.getElementById('todayPL').textContent=money(pnl);
+ document.getElementById('dailyLimit').textContent=money(limit);
+
+ const guard=document.getElementById('dailyGuard');
+ if(pnl<=-limit){
+  guard.innerHTML='<span class="warning">DAILY LOSS LIMIT REACHED — STOP TRADING TODAY.</span><br>Recorded loss: '+money(pnl)+'<br>Daily limit: '+money(limit);
+ }else{
+  guard.innerHTML='<span class="ok">No daily loss limit reached in the journal.</span><br>Recorded P/L today: '+money(pnl)+'<br>Remaining loss allowance: '+money(Math.max(0,limit+pnl));
+ }
+}
+
+function updateRiskMode(){
+ const mode=document.getElementById('riskMode').value;
+ const input=document.getElementById('riskPercent');
+ if(mode==='high'){
+  input.min='4';input.max='8';input.value='4';
+ }else{
+  input.min='0.1';input.max='1';input.value='1';
+ }
+}
+
+function getRiskCap(){
+ return document.getElementById('riskMode').value==='high'?8:1;
+}
+
 function analyze(){
  const d=document.getElementById('direction').value;
  const b=document.getElementById('bias').value;
  const l=document.getElementById('level').value;
  const c=document.getElementById('confirm').value;
  const t=document.getElementById('trigger').value;
+ const news=document.getElementById('newsRisk').value;
  const out=document.getElementById('analysisResult');
  const bal=Number(document.getElementById('balance').value);
  const rp=Number(document.getElementById('riskPercent').value);
  const lot=Number(document.getElementById('lot').value);
  const sl=Number(document.getElementById('stopPips').value);
  const tp=Number(document.getElementById('targetPips').value);
+ const cap=getRiskCap();
  const aligned=(d==='Bullish'&&b==='Bullish')||(d==='Bearish'&&b==='Bearish');
- const valid=[bal,rp,lot,sl,tp].every(Number.isFinite)&&bal>0&&rp>0&&rp<=1&&lot>=0.01&&sl>0&&tp>0;
+ const valid=[bal,rp,lot,sl,tp].every(Number.isFinite)&&bal>0&&rp>0&&rp<=cap&&lot>=0.01&&sl>0&&tp>0;
  const loss=valid?sl*10*lot:Infinity;
  const budget=valid?bal*rp/100:0;
  const riskOK=valid&&loss<=budget;
@@ -246,8 +408,15 @@ function analyze(){
  const checks=[aligned,l==='Yes',!!c&&c!=='None',!!t&&t!=='None',riskOK,rrOK];
  const score=checks.filter(Boolean).length;
  const heading='<b>Setup completeness: '+score+'/6</b><br><span class="small">Rule-check score only. It is NOT a probability of winning.</span><br><br>';
- if(!d||!b||!l||!c||!t){
+
+ if(!d||!b||!l||!c||!t||!news){
   out.innerHTML=heading+'<span class="warning">INCOMPLETE — Complete all assessment fields.</span>';return;
+ }
+ if(news==='high'){
+  out.innerHTML=heading+'<span class="warning">HIGH NEWS RISK — NO TRADE.</span><br>Wait for the release and for spreads and price action to stabilize.';return;
+ }
+ if(news==='caution'){
+  out.innerHTML=heading+'<span class="warning">NEWS CAUTION — WAIT.</span><br>A major release is approaching. Avoid impulsive entries.';return;
  }
  if(d==='Sideways / Unclear'||b==='Neutral'||l==='No'||c==='None'||t==='None'){
   out.innerHTML=heading+'<span class="warning">WAIT — NO TRADE.</span><br>One or more required conditions are missing or unclear.';return;
@@ -256,43 +425,65 @@ function analyze(){
   out.innerHTML=heading+'<span class="warning">CONFLICTING DIRECTION — WAIT.</span><br>Higher timeframe and H1 bias do not agree.';return;
  }
  if(!valid){
-  out.innerHTML=heading+'<span class="warning">INVALID RISK DETAILS.</span><br>Enter valid balance, lot, stop and target; risk must be at most 1%.';return;
+  out.innerHTML=heading+'<span class="warning">INVALID RISK DETAILS.</span><br>Enter valid balance, lot, stop and target. Risk cap for selected mode: '+cap+'%.';return;
  }
  if(!riskOK){
-  out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop loss $'+loss.toFixed(2)+'; selected risk budget $'+budget.toFixed(2)+'.';return;
+  out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop loss '+money(loss)+'; selected risk budget '+money(budget)+'.';return;
  }
  if(!rrOK){
   out.innerHTML=heading+'<span class="warning">REWARD/RISK BELOW 1:1 — WAIT.</span>';return;
  }
- out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk: $'+loss.toFixed(2)+' before costs. Verify chart, news, spread and broker prices. Human decision required.';
+ out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk: '+money(loss)+' before costs. Verify chart, news, spread and broker prices. Human decision required.';
 }
+
 function calculateRisk(){
  const bal=Number(document.getElementById('balance').value);
  const rp=Number(document.getElementById('riskPercent').value);
  const lot=Number(document.getElementById('lot').value);
  const sl=Number(document.getElementById('stopPips').value);
  const tp=Number(document.getElementById('targetPips').value);
+ const mode=document.getElementById('riskMode').value;
+ const cap=getRiskCap();
  const out=document.getElementById('riskResult');
- if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>1||lot<0.01||sl<=0||tp<=0){
-  out.innerHTML='<span class="warning">Invalid values. Enter positive values and keep risk at or below 1%.</span>';return;
+
+ if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>cap||lot<0.01||sl<=0||tp<=0){
+  out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and risk percentage. Maximum for selected mode: '+cap+'%.</span>';return;
  }
- const loss=sl*10*lot,profit=tp*10*lot,budget=bal*rp/100;
- const percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*10);
+ if(mode==='high'&&rp<4){
+  out.innerHTML='<span class="warning">High-risk mode requires a setting between 4% and 8%. This mode is dangerous.</span>';return;
+ }
+ const loss=sl*10*lot;
+ const profit=tp*10*lot;
+ const budget=bal*rp/100;
+ const percent=loss/bal*100;
+ const rr=tp/sl;
+ const maxLot=budget/(sl*10);
  const status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within selected risk budget, before costs.</span>';
- out.innerHTML='Estimated stop loss: <b>$'+loss.toFixed(2)+'</b><br>Risk budget: <b>$'+budget.toFixed(2)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>$'+profit.toFixed(2)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop to fit minimum lot. Include spread, commission and slippage.</span>';
- document.getElementById('dashBalance').textContent='$'+bal.toFixed(2);
+
+ out.innerHTML='Estimated stop loss: <b>'+money(loss)+'</b><br>Risk budget: <b>'+money(budget)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>'+money(profit)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop to fit minimum lot. Include spread, commission and slippage. High-risk mode can cause rapid account loss.</span>';
+ updateDashboard();
 }
+
 function updateChecks(){
  const boxes=[...document.querySelectorAll('#checks input')];
  document.getElementById('checkCount').textContent=boxes.filter(x=>x.checked).length+' of '+boxes.length+' completed';
 }
+
 document.querySelectorAll('#checks input').forEach(x=>x.addEventListener('change',updateChecks));
+
 function resetChecks(){
- document.querySelectorAll('#checks input').forEach(x=>x.checked=false);updateChecks();
+ document.querySelectorAll('#checks input').forEach(x=>x.checked=false);
+ updateChecks();
 }
+
 let trades=[];
-try{trades=JSON.parse(localStorage.getItem('negusTrades')||'[]');if(!Array.isArray(trades))trades=[];}catch(e){trades=[];}
-document.getElementById('tradeDate').value=new Date().toISOString().slice(0,10);
+try{
+ trades=JSON.parse(localStorage.getItem('negusTrades')||'[]');
+ if(!Array.isArray(trades))trades=[];
+}catch(e){trades=[];}
+
+document.getElementById('tradeDate').value=localDateString();
+
 function saveTrade(){
  const date=document.getElementById('tradeDate').value;
  const side=document.getElementById('side').value;
@@ -302,43 +493,143 @@ function saveTrade(){
  const target=Number(document.getElementById('target').value);
  const pnl=Number(document.getElementById('pnl').value);
  const notes=document.getElementById('notes').value;
+
  if(!date||!Number.isFinite(lot)||lot<=0||!Number.isFinite(entry)||entry<=0||!Number.isFinite(stop)||stop<=0||!Number.isFinite(target)||target<=0||!Number.isFinite(pnl)){
   alert('Please enter valid trade details.');return;
  }
+
  trades.unshift({date,side,lot,entry,stop,target,pnl,notes});
- try{localStorage.setItem('negusTrades',JSON.stringify(trades));}
- catch(e){alert('Could not save. Browser storage may be unavailable or full.');return;}
- document.getElementById('notes').value='';renderTrades();alert('Trade saved on this device.');
+
+ try{
+  localStorage.setItem('negusTrades',JSON.stringify(trades));
+ }catch(e){
+  alert('Could not save. Browser storage may be unavailable or full.');return;
+ }
+
+ document.getElementById('notes').value='';
+ renderTrades();
+ updateDashboard();
+ renderPerformance();
+ alert('Trade saved on this device.');
 }
+
 function renderTrades(){
- const body=document.getElementById('tradeRows');body.innerHTML='';
+ const body=document.getElementById('tradeRows');
+ body.innerHTML='';
  let total=0;
+
  trades.forEach((tr,i)=>{
   total+=Number(tr.pnl)||0;
   const row=document.createElement('tr');
   [tr.date,tr.side,String(tr.lot),Number(tr.pnl).toFixed(2)].forEach(v=>{
-   const td=document.createElement('td');td.textContent=v;row.appendChild(td);
+   const td=document.createElement('td');
+   td.textContent=v;
+   row.appendChild(td);
   });
-  const td=document.createElement('td'),del=document.createElement('button');
-  del.className='secondary';del.textContent='Delete';
+
+  const td=document.createElement('td');
+  const del=document.createElement('button');
+  del.className='secondary';
+  del.textContent='Delete';
   del.onclick=()=>{
    if(confirm('Delete this trade?')){
-    trades.splice(i,1);localStorage.setItem('negusTrades',JSON.stringify(trades));renderTrades();
+    trades.splice(i,1);
+    localStorage.setItem('negusTrades',JSON.stringify(trades));
+    renderTrades();
+    updateDashboard();
+    renderPerformance();
    }
   };
-  td.appendChild(del);row.appendChild(td);body.appendChild(row);
+  td.appendChild(del);
+  row.appendChild(td);
+  body.appendChild(row);
  });
- document.getElementById('journalSummary').textContent=trades.length+' trades · Total recorded P/L: $'+total.toFixed(2);
+
+ document.getElementById('journalSummary').textContent=trades.length+' trades · Total recorded P/L: '+money(total);
 }
+
 function exportCSV(){
  if(!trades.length){alert('No trades to export.');return;}
  const keys=['date','side','lot','entry','stop','target','pnl','notes'];
  const lines=[keys.join(',')].concat(trades.map(t=>keys.map(k=>'"'+String(t[k]??'').replace(/"/g,'""')+'"').join(',')));
  const blob=new Blob([lines.join('\n')],{type:'text/csv;charset=utf-8;'});
- const url=URL.createObjectURL(blob),a=document.createElement('a');
- a.href=url;a.download='negus-trade-journal.csv';a.click();URL.revokeObjectURL(url);
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement('a');
+ a.href=url;
+ a.download='negus-trade-journal.csv';
+ a.click();
+ URL.revokeObjectURL(url);
 }
-renderTrades();calculateRisk();updateChecks();
+
+function renderPerformance(){
+ const total=trades.length;
+ const wins=trades.filter(t=>Number(t.pnl)>0);
+ const losses=trades.filter(t=>Number(t.pnl)<0);
+ const grossWin=wins.reduce((s,t)=>s+Number(t.pnl),0);
+ const grossLoss=Math.abs(losses.reduce((s,t)=>s+Number(t.pnl),0));
+ const net=trades.reduce((s,t)=>s+(Number(t.pnl)||0),0);
+ const rate=total?wins.length/total*100:0;
+ const pf=grossLoss===0?(grossWin>0?'∞':'--'):(grossWin/grossLoss).toFixed(2);
+
+ const now=new Date();
+ const day=now.getDay();
+ const monday=new Date(now);
+ monday.setDate(now.getDate()-(day===0?6:day-1));
+ monday.setHours(0,0,0,0);
+ const weekly=trades.filter(t=>{
+  const d=new Date(t.date+'T12:00:00');
+  return d>=monday&&d<=now;
+ }).reduce((s,t)=>s+(Number(t.pnl)||0),0);
+
+ let running=0,peak=0,maxDD=0;
+ const chronological=[...trades].reverse();
+ chronological.forEach(t=>{
+  running+=Number(t.pnl)||0;
+  peak=Math.max(peak,running);
+  maxDD=Math.max(maxDD,peak-running);
+ });
+
+ document.getElementById('totalTrades').textContent=total;
+ document.getElementById('winRate').textContent=rate.toFixed(1)+'%';
+ document.getElementById('totalPL').textContent=money(net);
+ document.getElementById('profitFactor').textContent=pf;
+ document.getElementById('weeklyPL').textContent=money(weekly);
+ document.getElementById('maxDrawdown').textContent=money(maxDD);
+}
+
+function sessionStatus(time){
+ const parts=time.split(':').map(Number);
+ const minutes=parts[0]*60+parts[1];
+ return minutes>=480&&minutes<1020?'OPEN':'CLOSED';
+}
+
+function updateClocks(){
+ const now=new Date();
+ document.getElementById('localClock').textContent=new Intl.DateTimeFormat('en-GB',{
+  timeZone:'Africa/Addis_Ababa',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+ }).format(now);
+
+ const london=new Intl.DateTimeFormat('en-GB',{
+  timeZone:'Europe/London',hour:'2-digit',minute:'2-digit',hour12:false
+ }).format(now);
+
+ const ny=new Intl.DateTimeFormat('en-GB',{
+  timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hour12:false
+ }).format(now);
+
+ document.getElementById('londonClock').textContent=london;
+ document.getElementById('newYorkClock').textContent=ny;
+ document.getElementById('londonStatus').textContent='Market: '+sessionStatus(london);
+ document.getElementById('newYorkStatus').textContent='Market: '+sessionStatus(ny);
+}
+
+renderTrades();
+updateDashboard();
+renderPerformance();
+calculateRisk();
+updateChecks();
+updateClocks();
+setInterval(updateClocks,1000);
 </script>
 </body>
 </html>
