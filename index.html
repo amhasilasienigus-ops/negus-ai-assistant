@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.1</title>
+<title>NEGUS AI ASSISTANT v6.2</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -51,30 +51,23 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 @media(max-width:600px){main{padding:10px}.card{padding:12px}iframe{height:360px}.brand{font-size:20px}}
 </style>
 
-<!-- OneSignal Web Push SDK v16 -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
-window.OneSignalDeferred = window.OneSignalDeferred || [];
-window.negusOneSignalReady = new Promise((resolve) => {
-  OneSignalDeferred.push(async function(OneSignal) {
-    try {
-      await OneSignal.init({
-        appId: "fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6"
-      });
-      resolve(OneSignal);
-    } catch (error) {
-      console.error("OneSignal initialization failed:", error);
-      resolve(null);
-    }
-  });
+window.OneSignalDeferred=window.OneSignalDeferred||[];
+window.negusOneSignalReady=new Promise(resolve=>{
+ OneSignalDeferred.push(async function(OneSignal){
+  try{
+   await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6"});
+   resolve(OneSignal);
+  }catch(error){console.error("OneSignal initialization failed:",error);resolve(null);}
+ });
 });
 </script>
 </head>
 <body>
-
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.1 · LIVE EUR/USD + ECONOMIC CALENDAR + STRATEGY PLAYBOOK</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.2 · LIVE EUR/USD + ECONOMIC CALENDAR + STRATEGY PLAYBOOK</div>
 </header>
 
 <nav>
@@ -84,6 +77,7 @@ window.negusOneSignalReady = new Promise((resolve) => {
  <button onclick="showPage('risk',this)">Risk Calculator</button>
  <button onclick="showPage('checklist',this)">Checklist</button>
  <button onclick="showPage('journal',this)">Trade Journal</button>
+ <button onclick="showPage('strategy',this)">Strategy Playbook</button>
  <button onclick="showPage('performance',this)">Performance</button>
 </nav>
 
@@ -91,10 +85,57 @@ window.negusOneSignalReady = new Promise((resolve) => {
 <section id="dashboard" class="page active">
  <h2>Trading Dashboard</h2>
 
- <!-- Full user-supplied trading playbook -->
+ <div class="card">
+  <h3>Push Notifications</h3>
+  <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
+  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button>
+  <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
+ </div>
+
+ <div class="grid">
+  <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
+  <div class="card"><div class="small">ACCOUNT BALANCE (MANUAL)</div><div class="metric" id="dashBalance">$15.00</div></div>
+  <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
+  <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.80</div></div>
+ </div>
+
+ <div class="card">
+  <h3>Daily Loss Guard</h3>
+  <div id="dailyGuard" class="result">Loading daily results...</div>
+  <p class="small">Based on closed trades manually saved in this browser. It does not block orders in MT5.</p>
+ </div>
+
+ <div class="card">
+  <h3>Trading Sessions · Ethiopia time (EAT)</h3>
+  <div class="grid">
+   <div><div class="small">LOCAL CLOCK</div><div class="metric" id="localClock">--:--:--</div></div>
+   <div><div class="small">LONDON</div><div class="metric" id="londonClock">--</div><div id="londonStatus" class="small">--</div></div>
+   <div><div class="small">NEW YORK</div><div class="metric" id="newYorkClock">--</div><div id="newYorkStatus" class="small">--</div></div>
+  </div>
+  <p class="small">Session status uses London and New York local market clocks, including daylight-saving changes. Approximate session hours: 08:00–17:00 local time.</p>
+ </div>
+
+ <div class="card">
+  <h3>Professional Trading Process</h3>
+  <p>D1 / H4: direction and key zones → H1: structure and bias → M15: confirmation → M5: entry trigger.</p>
+  <p>M1 is optional refinement only and never overrides higher timeframes.</p>
+  <p class="gold">No strong confirmation = NO TRADE.</p>
+  <p>Never widen SL, average down, revenge trade, or force a trade because of minimum lot size.</p>
+ </div>
+
+ <div class="card">
+  <h3>Capital Protection</h3>
+  <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
+  <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
+ </div>
+</section>
+
+<!-- COMPLETE STRATEGY PLAYBOOK PAGE -->
+<section id="strategy" class="page">
+ <h2>Nigus's trading Strategy</h2>
  <div class="card strategy">
-  <h3>Nigus's trading Strategy</h3>
-  <p>NEGUS STRATEGY – PROFESSIONAL TRADING PLAYBOOK v1.2 · EUR/USD · PRICE ACTION · MARKET STRUCTURE · RISK MANAGEMENT</p>
+  <h3>NEGUS STRATEGY – PROFESSIONAL TRADING PLAYBOOK v1.2</h3>
+  <p>EUR/USD · PRICE ACTION · MARKET STRUCTURE · RISK MANAGEMENT</p>
   <details open>
    <summary>Open / close the complete Professional Trading Playbook</summary>
    <div class="quote">“AMBITION WITH DISCIPLINE. GROWTH WITH CONTROL”</div>
@@ -188,13 +229,9 @@ window.negusOneSignalReady = new Promise((resolve) => {
     <p>This ladder is a planning preference, not an automatic trading instruction. Actual position size must be evaluated against the structural SL, account equity, margin, and trading costs.</p>
     <h4>7.1 Aspirational Weekly Growth Targets</h4>
     <div class="tablewrap"><table><thead><tr><th>Starting Balance</th><th>Weekly Target</th></tr></thead><tbody>
-     <tr><td>$15 to below $50</td><td>50%</td></tr>
-     <tr><td>$50 to below $100</td><td>55%</td></tr>
-     <tr><td>$100 to below $200</td><td>60%</td></tr>
-     <tr><td>$200 to below $250</td><td>65%</td></tr>
-     <tr><td>$250–$500</td><td>70%</td></tr>
+     <tr><td>$15 to below $50</td><td>50%</td></tr><tr><td>$50 to below $100</td><td>55%</td></tr><tr><td>$100 to below $200</td><td>60%</td></tr><tr><td>$200 to below $250</td><td>65%</td></tr><tr><td>$250–$500</td><td>70%</td></tr>
     </tbody></table></div>
-        <p><b>High-risk aspirational targets.</b> These percentages are ambitious mathematical goals, not expected returns or guarantees. They must never become a reason to overtrade, increase risk, or force a setup.</p>
+    <p><b>High-risk aspirational targets.</b> These percentages are ambitious mathematical goals, not expected returns or guarantees. They must never become a reason to overtrade, increase risk, or force a setup.</p>
     <h4>7.2 Illustrative Eight-Week Projection</h4>
     <p>Starting balance: $15</p>
     <div class="tablewrap"><table><thead><tr><th>Week</th><th>Starting Balance</th><th>Rate</th><th>Illustrative Profit</th><th>Ending Balance</th></tr></thead><tbody>
@@ -261,50 +298,6 @@ window.negusOneSignalReady = new Promise((resolve) => {
     <div class="quote"><b>NEGUS STRATEGY<br>AMBITION WITH DISCIPLINE.<br>GROWTH WITH CONTROL.</b></div>
    </div>
   </details>
- </div>
-
- <div class="card">
-  <h3>Push Notifications</h3>
-  <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
-  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button>
-  <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
- </div>
-
- <div class="grid">
-  <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
-  <div class="card"><div class="small">ACCOUNT BALANCE (MANUAL)</div><div class="metric" id="dashBalance">$15.00</div></div>
-  <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
-  <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.80</div></div>
- </div>
-
- <div class="card">
-  <h3>Daily Loss Guard</h3>
-  <div id="dailyGuard" class="result">Loading daily results...</div>
-  <p class="small">Based on closed trades manually saved in this browser. It does not block orders in MT5.</p>
- </div>
-
- <div class="card">
-  <h3>Trading Sessions · Ethiopia time (EAT)</h3>
-  <div class="grid">
-   <div><div class="small">LOCAL CLOCK</div><div class="metric" id="localClock">--:--:--</div></div>
-   <div><div class="small">LONDON</div><div class="metric" id="londonClock">--</div><div id="londonStatus" class="small">--</div></div>
-   <div><div class="small">NEW YORK</div><div class="metric" id="newYorkClock">--</div><div id="newYorkStatus" class="small">--</div></div>
-  </div>
-  <p class="small">Session status uses London and New York local market clocks, including daylight-saving changes. Approximate session hours: 08:00–17:00 local time.</p>
- </div>
-
- <div class="card">
-  <h3>Professional Trading Process</h3>
-  <p>D1 / H4: direction and key zones → H1: structure and bias → M15: confirmation → M5: entry trigger.</p>
-  <p>M1 is optional refinement only and never overrides higher timeframes.</p>
-  <p class="gold">No strong confirmation = NO TRADE.</p>
-  <p>Never widen SL, average down, revenge trade, or force a trade because of minimum lot size.</p>
- </div>
-
- <div class="card">
-  <h3>Capital Protection</h3>
-  <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
-  <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  </div>
 </section>
 
@@ -394,7 +387,7 @@ window.negusOneSignalReady = new Promise((resolve) => {
  <div class="card">
   <h3>EUR/USD Position Risk</h3>
   <label>Account balance (USD)</label><input id="balance" type="number" value="15" min="0.01" step="0.01" oninput="updateDashboard()">
-    <label>Risk mode</label>
+  <label>Risk mode</label>
   <select id="riskMode" onchange="updateRiskMode()"><option value="standard">Standard mode — maximum 1%</option><option value="high">High-risk mode — 4% to 8% (dangerous)</option></select>
   <label>Risk percentage (%)</label><input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1">
   <label>Lot size</label><input id="lot" type="number" value="0.01" min="0.01" step="0.01">
@@ -469,7 +462,7 @@ window.negusOneSignalReady = new Promise((resolve) => {
 </section>
 </main>
 
-<footer>NEGUS AI ASSISTANT v6.1 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v6.2 · Decision support only · Human approval required · No broker connection</footer>
 
 <script>
 function showPage(id,btn){
@@ -481,10 +474,8 @@ function showPage(id,btn){
 }
 
 async function subscribeToNegusNotifications(){
- const status=document.getElementById('pushStatus');
- const button=document.getElementById('pushSubscribeButton');
- button.disabled=true;
- button.textContent='Connecting...';
+ const status=document.getElementById('pushStatus'),button=document.getElementById('pushSubscribeButton');
+ button.disabled=true;button.textContent='Connecting...';
  status.textContent='Connecting to OneSignal notification service...';
  try{
   const OneSignal=await window.negusOneSignalReady;
@@ -495,8 +486,7 @@ async function subscribeToNegusNotifications(){
  }catch(error){
   console.error('Notification subscription error:',error);
   status.textContent='Could not open the notification prompt. Check Chrome site notification permission and internet connection, then reload this page.';
-  button.textContent='Try Again';
-  button.disabled=false;
+  button.textContent='Try Again';button.disabled=false;
  }
 }
 
@@ -509,14 +499,9 @@ function localDateString(date=new Date()){
  return y+'-'+m+'-'+d;
 }
 function dailyLimit(balance){
- if(balance<=15)return 0.80;
- if(balance<=20)return 1.00;
- if(balance<=40)return 1.10;
- if(balance<=50)return 1.20;
- if(balance<=70)return 3.00;
- if(balance<=90)return 4.00;
- if(balance<=200)return 5.00;
- return 10.00;
+ if(balance<=15)return 0.80;if(balance<=20)return 1.00;if(balance<=40)return 1.10;
+ if(balance<=50)return 1.20;if(balance<=70)return 3.00;if(balance<=90)return 4.00;
+ if(balance<=200)return 5.00;return 10.00;
 }
 function money(n){return (n<0?'-$':'$')+Math.abs(n).toFixed(2);}
 function getTodayTrades(){const today=localDateString();return trades.filter(t=>t.date===today);}
@@ -594,7 +579,7 @@ function renderTrades(){
   const td=document.createElement('td'),del=document.createElement('button');del.className='secondary';del.textContent='Delete';
   del.onclick=()=>{if(confirm('Delete this trade?')){trades.splice(i,1);localStorage.setItem('negusTrades',JSON.stringify(trades));renderTrades();updateDashboard();renderPerformance();}};
   td.appendChild(del);row.appendChild(td);body.appendChild(row);
-    });
+ });
  document.getElementById('journalSummary').textContent=trades.length+' trades · Total recorded P/L: '+money(total);
 }
 function exportCSV(){
