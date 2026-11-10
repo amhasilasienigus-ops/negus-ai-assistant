@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v5.0</title>
+<title>NEGUS AI ASSISTANT v6.0</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -45,7 +45,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 5.0 · LIVE EUR/USD ANALYSIS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.0 · LIVE EUR/USD + ECONOMIC CALENDAR</div>
 </header>
 
 <nav>
@@ -130,13 +130,8 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
   </div>
   <div id="autoSignal" class="result">Connecting to the live market feed...</div>
   <p class="small">Only closed candles are analyzed. Stale data, closed market, disagreement, high spread or unchecked news means WAIT.</p>
-  <label>Manual high-impact news check (verify an economic calendar yourself)</label>
-  <select id="liveNewsCheck" onchange="evaluateLiveSignal()">
-   <option value="">Not checked — signal disabled</option>
-   <option value="clear">Checked — no high-impact EUR/USD news nearby</option>
-   <option value="risk">High-impact news approaching / just released</option>
-  </select>
-  <p class="small">News is not connected to a live calendar. Verify independently.</p>
+  <div class="result" id="newsGateStatus">WAIT — economic calendar has not been verified.</div>
+  <p class="small">Automatic calendar checks scheduled high-impact EUR/USD events. Always verify independently; this public feed may be incomplete or unavailable.</p>
  </div>
 
  <div class="card">
@@ -198,11 +193,15 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  </div>
 
  <div class="card">
-  <h3>Fundamental News Watch</h3>
-  <p>US: Fed / FOMC, CPI, PCE, NFP, unemployment, GDP and ISM.</p>
-  <p>Eurozone: ECB rates, CPI, GDP, PMI, employment and speeches.</p>
-  <p>Compare actual, forecast, previous and market expectations. Avoid impulsive entries around major news and check spreads.</p>
-  <p class="small">No live news feed is connected. Verify releases with a reliable economic calendar.</p>
+  <h3>Automatic EUR/USD Economic Calendar</h3>
+  <p>Public Forex Factory weekly calendar export. Only USD and EUR events are used. High-impact events block the automatic signal for 30 minutes before and after the scheduled time.</p>
+  <div class="grid">
+   <div><div class="small">CALENDAR STATUS</div><div class="metric" id="newsFeedStatus">Checking...</div></div>
+   <div><div class="small">NEXT HIGH-IMPACT EVENT</div><div id="newsNextEvent">--</div></div>
+  </div>
+  <div id="newsRows" class="result">Loading this week's USD/EUR events...</div>
+  <button class="action" onclick="refreshEconomicNews()">Refresh Economic Calendar</button>
+  <p class="small">Not an official guaranteed API. Feed coverage, timing and browser access can fail. If unavailable, the app stays on WAIT. Check a trusted calendar before every trade.</p>
  </div>
 </section>
 
@@ -346,7 +345,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 
 </main>
 
-<footer>NEGUS AI ASSISTANT · Decision support only · Human approval required · Not connected to broker or live news</footer>
+<footer>NEGUS AI ASSISTANT v6.0 · Decision support only · Human approval required · No broker connection</footer>
 
 <script>
 function showPage(id,btn){
@@ -668,7 +667,7 @@ updateChecks();
 updateClocks();
 setInterval(updateClocks,1000);
 
-/* V5 LIVE MARKET DATA + MULTI-TIMEFRAME RULE ENGINE */
+/* V6 LIVE MARKET DATA + MULTI-TIMEFRAME RULE ENGINE + ECONOMIC CALENDAR */
 const LIVE_API='https://biquote.io/api';
 let liveQuote=null,liveFrames={},liveFetchBusy=false,lastLiveError='';
 const TF_CONFIG=[['D1','1d'],['H4','4h'],['H1','1h'],['M15','15m'],['M5','5m']];
@@ -816,7 +815,6 @@ function evaluateLiveSignal(){
  if(!out)return;
 
  const q=liveQuote||{},frames=liveFrames||{};
- const news=document.getElementById('liveNewsCheck')?.value||'';
  const bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
  const price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
  const spread=Number.isFinite(bid)&&Number.isFinite(ask)?(ask-bid)*10000:Number(q.spread)*10000;
@@ -830,7 +828,7 @@ function evaluateLiveSignal(){
  if(Number.isFinite(age)&&age>60)reasons.push('Quote is older than 60 seconds');
  if(!dataOK)reasons.push('One or more timeframes have insufficient candle data');
  if(!Number.isFinite(spread)||spread>1.5)reasons.push('Spread unavailable or above 1.5 pips');
- if(news!=='clear')reasons.push(news==='risk'?'High-impact news risk selected':'Manual news check not confirmed');
+ if(newsCalendarState.status!=='clear')reasons.push(newsCalendarState.status==='blocked'?'High-impact EUR/USD news window':'Economic calendar not verified');
 
  if(!reasons.length){
   const d=frames.D1.trend;
@@ -893,6 +891,105 @@ function startLiveUpdates(){
  },10000);
 }
 
+
+/* V6 AUTOMATIC ECONOMIC CALENDAR
+   Public Forex Factory weekly JSON export; not an official guaranteed API. */
+const NEWS_API='https://nfs.faireconomy.media/ff_calendar_thisweek.json';
+const NEWS_REFRESH_MS=60*60*1000;
+const NEWS_BLOCK_MS=30*60*1000;
+let newsEvents=[];
+let newsCalendarState={status:'loading',message:'Calendar has not loaded'};
+let newsFetchBusy=false;
+
+function newsTimeEAT(date){
+ return new Intl.DateTimeFormat('en-GB',{
+  timeZone:'Africa/Addis_Ababa',weekday:'short',day:'2-digit',month:'short',
+  hour:'2-digit',minute:'2-digit',hour12:false
+ }).format(date)+' EAT';
+}
+function escapeNewsText(value){
+ return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+}
+function renderEconomicNews(){
+ const now=Date.now();
+ const high=newsEvents.filter(e=>String(e.impact||'').toLowerCase().includes('high'))
+  .sort((a,b)=>a.time-b.time);
+ const active=high.find(e=>Math.abs(e.time-now)<=NEWS_BLOCK_MS);
+ const next=high.find(e=>e.time>now);
+ const status=document.getElementById('newsFeedStatus');
+ const rows=document.getElementById('newsRows');
+ const gate=document.getElementById('newsGateStatus');
+ const nextEl=document.getElementById('newsNextEvent');
+ if(newsCalendarState.status==='error'){
+  if(status)status.textContent='ERROR';
+  if(rows)rows.textContent='Calendar unavailable: '+newsCalendarState.message;
+  if(gate)gate.innerHTML='<span class="warning">WAIT — NEWS CALENDAR UNAVAILABLE.</span> '+escapeNewsText(newsCalendarState.message);
+  return;
+ }
+ if(!newsEvents.length){
+  newsCalendarState={status:'error',message:'No valid USD/EUR events found in the weekly feed'};
+  if(status)status.textContent='ERROR';
+  if(rows)rows.textContent=newsCalendarState.message;
+  if(gate)gate.innerHTML='<span class="warning">WAIT — NO VERIFIED CALENDAR EVENTS.</span>';
+  return;
+ }
+ if(active){
+  newsCalendarState={status:'blocked',message:'High-impact event within 30 minutes'};
+  if(status)status.textContent='NEWS WINDOW';
+  if(gate)gate.innerHTML='<span class="warning">WAIT — HIGH-IMPACT NEWS WINDOW.</span> '+escapeNewsText(active.currency+' · '+active.title+' · '+newsTimeEAT(new Date(active.time)));
+ }else{
+  newsCalendarState={status:'clear',message:'No listed high-impact event within 30 minutes'};
+  if(status)status.textContent='CHECKED';
+  if(gate)gate.innerHTML='<span class="ok">No listed high-impact USD/EUR event within ±30 minutes.</span> This does not guarantee the calendar is complete.';
+ }
+ if(nextEl)nextEl.textContent=next?next.currency+' · '+next.title+' · '+newsTimeEAT(new Date(next.time)):'No upcoming high-impact event in this feed';
+ if(rows){
+  const shown=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>=now-24*60*60*1000).slice(0,18);
+  rows.innerHTML=shown.length?shown.map(e=>{
+   const impact=String(e.impact||'').toLowerCase();
+   const color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small';
+   return '<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br>'+escapeNewsText(e.title)+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+'</div>';
+  }).join(''):'No upcoming USD/EUR events in the next 24 hours. Older events were not shown.';
+ }
+}
+async function refreshEconomicNews(){
+ if(newsFetchBusy)return;
+ newsFetchBusy=true;
+ const status=document.getElementById('newsFeedStatus');
+ if(status)status.textContent='UPDATING';
+ try{
+  const controller=new AbortController();
+  const timeout=setTimeout(()=>controller.abort(),15000);
+  let response;
+  try{response=await fetch(NEWS_API,{cache:'no-store',signal:controller.signal});}
+  finally{clearTimeout(timeout);}
+  if(!response.ok)throw new Error('Calendar HTTP '+response.status);
+  const data=await response.json();
+  if(!Array.isArray(data)||!data.length)throw new Error('Calendar response was empty or invalid');
+  const parsed=data.filter(e=>e&&['USD','EUR'].includes(String(e.country||'').toUpperCase()))
+   .map(e=>{
+    const raw=String(e.date||'').trim();
+    if(!raw||!/(Z|[+-]\d{2}:?\d{2})$/i.test(raw))return null;
+    const time=Date.parse(raw);
+    if(!Number.isFinite(time)||!e.title)return null;
+    return {time,currency:String(e.country).toUpperCase(),title:String(e.title),
+     impact:String(e.impact||'Unknown'),forecast:String(e.forecast||''),previous:String(e.previous||'')};
+   }).filter(Boolean).sort((a,b)=>a.time-b.time);
+  if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
+  newsEvents=parsed;
+  newsCalendarState={status:'clear',message:'Calendar loaded'};
+  renderEconomicNews();
+  evaluateLiveSignal();
+ }catch(err){
+  newsEvents=[];
+  newsCalendarState={status:'error',message:String(err&&err.name==='AbortError'?'Calendar request timed out':(err&&err.message?err.message:err))};
+  renderEconomicNews();
+  evaluateLiveSignal();
+ }finally{newsFetchBusy=false;}
+}
+
+refreshEconomicNews();
+setInterval(refreshEconomicNews,NEWS_REFRESH_MS);
 startLiveUpdates();
 </script>
 </body>
