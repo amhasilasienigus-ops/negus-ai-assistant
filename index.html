@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.2</title>
+<title>NEGUS AI ASSISTANT v6.3</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -67,7 +67,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <body>
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.2 · LIVE EUR/USD + ECONOMIC CALENDAR + STRATEGY PLAYBOOK</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.3 · LIVE EUR/USD + MARKET STRUCTURE + S/R + ECONOMIC CALENDAR</div>
 </header>
 
 <nav>
@@ -334,8 +334,24 @@ window.negusOneSignalReady=new Promise(resolve=>{
  </div>
 
  <div class="card">
+  <h3>V6.3 · Automatic Market Structure & Entry Analysis</h3>
+  <p>Uses closed BiQuote candles only. BOS/CHoCH, liquidity sweeps, FVG, candidate OB and candle confirmation are transparent rule-based approximations, not institutional-grade pattern recognition.</p>
+  <div class="result" id="structureSummary">Waiting for M15/M5 candle data...</div>
+  <div id="structureRows" class="result">M15 structure details will appear here.</div>
+  <h3>Automatic Support & Resistance Zones</h3>
+  <div class="grid">
+   <div><div class="small">NEAREST SUPPORT</div><div id="nearestSupport" class="metric">--</div></div>
+   <div><div class="small">NEAREST RESISTANCE</div><div id="nearestResistance" class="metric">--</div></div>
+   <div><div class="small">PREVIOUS AVAILABLE D1 HIGH</div><div id="pdhValue" class="metric">--</div></div>
+   <div><div class="small">PREVIOUS AVAILABLE D1 LOW</div><div id="pdlValue" class="metric">--</div></div>
+  </div>
+  <div id="srRows" class="result">Support and resistance zones will appear when enough candles are available.</div>
+  <p class="small">Zones are clustered from confirmed H4/H1 swing pivots. PDH/PDL use the previous available D1 candle; the feed's daily boundary may differ from Exness MT5 broker time. These levels are references, not guaranteed reversal points or TradingView chart overlays.</p>
+ </div>
+
+ <div class="card">
   <h3>Manual Market Assessment</h3>
-  <p>Enter observations from your chart. No live broker prices or automatic market-structure detection are connected.</p>
+  <p>Enter observations from your chart. Automatic analysis is separate BiQuote decision support and is not connected to Exness MT5.</p>
   <label>D1 / H4 Direction</label>
   <select id="direction"><option value="">Select direction</option><option>Bullish</option><option>Bearish</option><option>Sideways / Unclear</option></select>
   <label>H1 Intraday Bias</label>
@@ -462,7 +478,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
 </section>
 </main>
 
-<footer>NEGUS AI ASSISTANT v6.2 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v6.3 · Decision support only · Human approval required · No broker connection</footer>
 
 <script>
 function showPage(id,btn){
@@ -643,7 +659,7 @@ function inspectFrame(bars){
  const closes=closed.map(b=>b.close),last=closed[closed.length-1],prev=closed[closed.length-2];
  const e20=ema(closes,20),e50=ema(closes,50),e200=ema(closes,200),rv=rsi(closes),av=atr(closed);
  let trend='NEUTRAL';if(e20!==null&&e50!==null){if(last.close>e20&&e20>e50)trend='BULLISH';else if(last.close<e20&&e20<e50)trend='BEARISH';}
- return {ok:true,count:closed.length,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
+ return {ok:true,count:closed.length,bars:closed,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
 }
 async function fetchJSON(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}
 async function refreshLiveMarket(){
@@ -666,8 +682,82 @@ function renderLiveMarket(){
  const age=Number(q.quoteAgeSeconds);
  setText('feedUpdated','Source: BiQuote · '+(Number.isFinite(age)?'Quote age '+age+' sec':'Quote age unavailable')+' · '+new Date().toLocaleTimeString());
  for(const [name] of TF_CONFIG){const f=liveFrames[name];setText('tf'+name,!f||!f.ok?'NO DATA':f.trend);}
- const m15=liveFrames.M15,m5=liveFrames.M5;setText('liveRSI',m15&&m15.ok&&m5&&m5.ok?m15.rsi.toFixed(1)+' / '+m5.rsi.toFixed(1):'--');evaluateLiveSignal();
+ const m15=liveFrames.M15,m5=liveFrames.M5;setText('liveRSI',m15&&m15.ok&&m5&&m5.ok?m15.rsi.toFixed(1)+' / '+m5.rsi.toFixed(1):'--');renderV63();evaluateLiveSignal();
 }
+/* V6.3 MARKET STRUCTURE, ENTRY PATTERNS AND SUPPORT/RESISTANCE */
+function swingPoints(bars,left=2,right=2){
+ const highs=[],lows=[];
+ for(let i=left;i<bars.length-right;i++){
+  let isHigh=true,isLow=true;
+  for(let j=i-left;j<=i+right;j++){if(j===i)continue;if(bars[j].high>=bars[i].high)isHigh=false;if(bars[j].low<=bars[i].low)isLow=false;}
+  if(isHigh)highs.push({price:bars[i].high,index:i,time:bars[i].time});
+  if(isLow)lows.push({price:bars[i].low,index:i,time:bars[i].time});
+ }
+ return {highs,lows};
+}
+function analyzeStructure(frame){
+ if(!frame||!frame.ok||!frame.bars||frame.bars.length<12)return {ok:false,reason:'Not enough closed M15 candles'};
+ const bars=frame.bars,sw=swingPoints(bars,2,2),last=bars[bars.length-1],prev=bars[bars.length-2];
+ const priorHigh=sw.highs.filter(x=>x.index<bars.length-1).slice(-1)[0],priorLow=sw.lows.filter(x=>x.index<bars.length-1).slice(-1)[0];
+ const range=last.high-last.low,body=Math.abs(last.close-last.open),atrValue=frame.atr||0,displacement=atrValue>0&&body>=atrValue*0.65;
+ const bullishSweep=!!priorLow&&last.low<priorLow.price&&last.close>priorLow.price;
+ const bearishSweep=!!priorHigh&&last.high>priorHigh.price&&last.close<priorHigh.price;
+ const bullishBOS=!!priorHigh&&last.close>priorHigh.price,bearishBOS=!!priorLow&&last.close<priorLow.price;
+ const priorBars=bars.slice(0,-1),recentCloses=priorBars.slice(-8);
+ let priorTrend='UNKNOWN';
+ if(recentCloses.length>=6){const first=recentCloses[0].close,lastPrior=recentCloses[recentCloses.length-1].close;if(lastPrior>first)priorTrend='BULLISH';else if(lastPrior<first)priorTrend='BEARISH';}
+ let choch='NONE';if(priorTrend==='BEARISH'&&bullishBOS)choch='BULLISH CHoCH';else if(priorTrend==='BULLISH'&&bearishBOS)choch='BEARISH CHoCH';
+ let bos='NONE';if(bullishBOS)bos='BULLISH BOS';else if(bearishBOS)bos='BEARISH BOS';
+ let sweep='NONE';if(bullishSweep)sweep='BULLISH LIQUIDITY SWEEP';else if(bearishSweep)sweep='BEARISH LIQUIDITY SWEEP';
+ const direction=last.close>last.open?'BULLISH':last.close<last.open?'BEARISH':'NEUTRAL';
+ return {ok:true,last,prev,priorTrend,bos,choch,sweep,displacement,direction,body,atr:atrValue,range,swings:sw};
+}
+function analyzeEntry(frame){
+ if(!frame||!frame.ok||!frame.bars||frame.bars.length<10)return {ok:false,reason:'Not enough closed M5 candles'};
+ const b=frame.bars,last=b[b.length-1],prev=b[b.length-2],dir=last.close>last.open?'BULLISH':last.close<last.open?'BEARISH':'NEUTRAL';
+ let fvg=null;
+ for(let i=b.length-2;i>=2&&i>=b.length-12;i--){const a=b[i-2],c=b[i];if(c.low>a.high) {fvg={side:'BULLISH',low:a.high,high:c.low};break;}if(c.high<a.low){fvg={side:'BEARISH',low:c.high,high:a.low};break;}}
+ const price=liveQuote?Number(liveQuote.mid):NaN;
+ if(fvg&&Number.isFinite(price))fvg.retest=price>=fvg.low&&price<=fvg.high;
+ let ob=null;
+ for(let i=b.length-2;i>=Math.max(1,b.length-8);i--){const impulse=b[i+1],candidate=b[i];if(impulse.close>impulse.open&&candidate.close<candidate.open){ob={side:'BULLISH',low:candidate.low,high:candidate.open};break;}if(impulse.close<impulse.open&&candidate.close>candidate.open){ob={side:'BEARISH',low:candidate.open,high:candidate.high};break;}}
+ if(ob&&Number.isFinite(price))ob.retest=price>=ob.low&&price<=ob.high;
+ const paBull=dir==='BULLISH'&&last.close>prev.high,paBear=dir==='BEARISH'&&last.close<prev.low;
+ return {ok:true,last,prev,direction:dir,fvg,ob,paBull,paBear};
+}
+function buildZones(frames,price){
+ const candidates=[];
+ ['H4','H1'].forEach(tf=>{const f=frames[tf];if(!f||!f.ok)return;const sw=swingPoints(f.bars,2,2);sw.lows.slice(-12).forEach(x=>candidates.push({type:'SUPPORT',price:x.price,tf}));sw.highs.slice(-12).forEach(x=>candidates.push({type:'RESISTANCE',price:x.price,tf}));});
+ const atrValues=['H4','H1'].map(t=>frames[t]&&frames[t].ok?frames[t].atr:0).filter(x=>x>0),tol=(atrValues.length?Math.max(...atrValues)*0.22:0.00025);
+ const groups=[];candidates.sort((a,b)=>a.price-b.price).forEach(x=>{let g=groups.find(z=>z.type===x.type&&Math.abs(z.mean-x.price)<=tol);if(!g){g={type:x.type,values:[x.price],tfs:[x.tf],mean:x.price};groups.push(g);}else{g.values.push(x.price);g.tfs.push(x.tf);g.mean=g.values.reduce((a,b)=>a+b,0)/g.values.length;}});
+ const zones=groups.map(g=>({type:g.type,low:Math.min(...g.values)-tol/2,high:Math.max(...g.values)+tol/2,mid:g.mean,count:g.values.length,tfs:[...new Set(g.tfs)].join('/')}));
+ const supports=zones.filter(z=>z.type==='SUPPORT'&&z.mid<=price).sort((a,b)=>b.mid-a.mid),resistances=zones.filter(z=>z.type==='RESISTANCE'&&z.mid>=price).sort((a,b)=>a.mid-b.mid);
+ return {zones,support:supports[0]||null,resistance:resistances[0]||null};
+}
+function renderV63(){
+ const frames=liveFrames||{},q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask),price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
+ const st=analyzeStructure(frames.M15),en=analyzeEntry(frames.M5),structure=document.getElementById('structureSummary'),details=document.getElementById('structureRows');
+ if(!structure||!details)return;
+ if(!st.ok||!en.ok){structure.textContent='WAIT — '+(!st.ok?st.reason:en.reason);details.textContent='M15/M5 data is incomplete. No pattern confirmation.';return;}
+ const pipDist=(v)=>Number.isFinite(price)?Math.abs(price-v)*10000:null;
+ const m15Lines=['M15 trend context: '+st.priorTrend,'BOS: '+st.bos,'CHoCH: '+st.choch,'Liquidity sweep: '+st.sweep,'Displacement candle (body ≥ 0.65 × ATR14): '+(st.displacement?'YES':'NO')];
+ const entryLines=['M5 candle direction: '+en.direction,'FVG: '+(en.fvg?en.fvg.side+' zone '+fmtPrice(en.fvg.low)+'–'+fmtPrice(en.fvg.high)+(en.fvg.retest?' · RETEST':' · no retest'):'Not detected in recent 10 candles'),'Candidate OB: '+(en.ob?en.ob.side+' zone '+fmtPrice(en.ob.low)+'–'+fmtPrice(en.ob.high)+(en.ob.retest?' · RETEST':' · no retest'):'Not detected in recent candles'),'Price action: '+(en.paBull?'Bullish close above previous high':en.paBear?'Bearish close below previous low':'No strict break confirmation')];
+ structure.innerHTML='<b>M15 STRUCTURE</b><br>'+m15Lines.map(escapeNewsText).join('<br>')+'<br><br><b>M5 ENTRY CHECK</b><br>'+entryLines.map(escapeNewsText).join('<br>');
+ details.innerHTML='<span class="small">Patterns are calculated from the latest closed candles. FVG is a three-candle gap. OB is only a candidate opposing candle before a directional candle, not a verified institutional order block.</span>';
+ const zones=buildZones(frames,price),support=zones.support,resistance=zones.resistance;
+ setText('nearestSupport',support?fmtPrice(support.mid)+' · '+pipDist(support.mid).toFixed(1)+' pips':'--');
+ setText('nearestResistance',resistance?fmtPrice(resistance.mid)+' · '+pipDist(resistance.mid).toFixed(1)+' pips':'--');
+ const d1=frames.D1;let pdh=null,pdl=null;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];pdh=prior.high;pdl=prior.low;}
+ setText('pdhValue',pdh===null?'--':fmtPrice(pdh));setText('pdlValue',pdl===null?'--':fmtPrice(pdl));
+ const zoneRows=zones.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.012).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,8);
+ const html=[];
+ if(support)html.push('Nearest support: '+fmtPrice(support.low)+'–'+fmtPrice(support.high)+' · '+pipDist(support.mid).toFixed(1)+' pips away · '+support.count+' pivots ('+support.tfs+')');
+ if(resistance)html.push('Nearest resistance: '+fmtPrice(resistance.low)+'–'+fmtPrice(resistance.high)+' · '+pipDist(resistance.mid).toFixed(1)+' pips away · '+resistance.count+' pivots ('+resistance.tfs+')');
+ if(pdh!==null)html.push('Previous available D1 candle high/low: '+fmtPrice(pdh)+' / '+fmtPrice(pdl));
+ zoneRows.forEach(z=>html.push(z.type+' zone: '+fmtPrice(z.low)+'–'+fmtPrice(z.high)+' · '+z.count+' pivots ('+z.tfs+')'));
+ document.getElementById('srRows').innerHTML=html.length?html.map(escapeNewsText).join('<br>'):'No nearby support/resistance pivots identified. Need more data.';
+}
+
 function evaluateLiveSignal(){
  const out=document.getElementById('autoSignal');if(!out)return;
  const q=liveQuote||{},frames=liveFrames||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
@@ -686,7 +776,12 @@ function evaluateLiveSignal(){
   const sameBull=d==='BULLISH'&&h4==='BULLISH'&&h1==='BULLISH',sameBear=d==='BEARISH'&&h4==='BEARISH'&&h1==='BEARISH';
   const m15Bull=m15.trend==='BULLISH'&&m15.rsi>=50&&m15.rsi<75,m15Bear=m15.trend==='BEARISH'&&m15.rsi<=50&&m15.rsi>25;
   const m5Bull=m5.trend==='BULLISH'&&m5.last.close>m5.prev.close&&m5.rsi>=50&&m5.rsi<80,m5Bear=m5.trend==='BEARISH'&&m5.last.close<m5.prev.close&&m5.rsi<=50&&m5.rsi>20;
-  let direction='';if(sameBull&&m15Bull&&m5Bull)direction='BUY';else if(sameBear&&m15Bear&&m5Bear)direction='SELL';else reasons.push('Timeframes or momentum are not fully aligned');
+  const structure=analyzeStructure(m15),entry=analyzeEntry(m5);
+  const m15ConfirmBull=structure.ok&&((structure.bos==='BULLISH BOS'||structure.choch==='BULLISH CHoCH'||structure.sweep==='BULLISH LIQUIDITY SWEEP')&&structure.displacement);
+  const m15ConfirmBear=structure.ok&&((structure.bos==='BEARISH BOS'||structure.choch==='BEARISH CHoCH'||structure.sweep==='BEARISH LIQUIDITY SWEEP')&&structure.displacement);
+  const m5ConfirmBull=entry.ok&&((entry.fvg&&entry.fvg.side==='BULLISH'&&entry.fvg.retest)||(entry.ob&&entry.ob.side==='BULLISH'&&entry.ob.retest)||entry.paBull);
+  const m5ConfirmBear=entry.ok&&((entry.fvg&&entry.fvg.side==='BEARISH'&&entry.fvg.retest)||(entry.ob&&entry.ob.side==='BEARISH'&&entry.ob.retest)||entry.paBear);
+  let direction='';if(sameBull&&m15Bull&&m5Bull&&m15ConfirmBull&&m5ConfirmBull)direction='BUY';else if(sameBear&&m15Bear&&m5Bear&&m15ConfirmBear&&m5ConfirmBear)direction='SELL';else reasons.push('Timeframes, M15 structure/displacement or M5 retest/price action are not fully aligned');
   if(direction){
    const atr5=m5.atr,slPips=atr5?Math.max(5,(atr5*1.5)*10000):0,tpPips=slPips*2;
    const bal=Number(document.getElementById('balance').value)||15,riskPct=Math.min(1,Math.max(0.1,Number(document.getElementById('riskPercent').value)||1));
@@ -736,11 +831,11 @@ function renderEconomicNews(){
  }
  if(nextEl)nextEl.textContent=next?next.currency+' · '+next.title+' · '+newsTimeEAT(new Date(next.time)):'No upcoming high-impact event in this feed';
  if(rows){
-  const shown=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>=now-24*60*60*1000).slice(0,18);
+  const shown=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>now).slice(0,18);
   rows.innerHTML=shown.length?shown.map(e=>{
    const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small';
    return '<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br>'+escapeNewsText(e.title)+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+'</div>';
-  }).join(''):'No upcoming USD/EUR events in the next 24 hours. Older events were not shown.';
+  }).join(''):'No upcoming USD/EUR events in this weekly feed. Past events are hidden.';
  }
 }
 async function refreshEconomicNews(){
