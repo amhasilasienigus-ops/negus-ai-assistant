@@ -1,0 +1,40 @@
+name: Update Economic Calendar
+
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-calendar:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download Forex Factory calendar
+        run: |
+          curl -fsSL --retry 3 --retry-delay 5 \
+            https://nfs.faireconomy.media/ff_calendar_thisweek.json \
+            -o calendar.json
+
+      - name: Validate calendar
+        run: |
+          jq -e 'type == "array" and length > 0 and any(.[]; .country == "USD" or .country == "EUR")' calendar.json
+
+      - name: Save updated calendar
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add calendar.json
+
+          if git diff --cached --quiet; then
+            echo "Calendar has no changes."
+          else
+            git commit -m "Update economic calendar"
+            git push
+          fi
