@@ -1,12 +1,16 @@
-name: Update Economic Calendar
+name: Update Calendar and Send Push Alerts
 
 on:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
   contents: write
+
+concurrency:
+  group: calendar-push-monitor
+  cancel-in-progress: false
 
 jobs:
   update-calendar:
@@ -26,15 +30,22 @@ jobs:
         run: |
           jq -e 'type == "array" and length > 0 and any(.[]; .country == "USD" or .country == "EUR")' calendar.json
 
-      - name: Save updated calendar
+      - name: Send OneSignal push alerts
+        env:
+          ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
+          ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+        run: node .github/scripts/notify-calendar.mjs
+
+      - name: Save calendar and notification state
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add calendar.json
+
+          git add calendar.json .github/state/notification-state.json
 
           if git diff --cached --quiet; then
-            echo "Calendar has no changes."
+            echo "No changes to save."
           else
-            git commit -m "Update economic calendar"
+            git commit -m "Update calendar and notification state"
             git push
           fi
