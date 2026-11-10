@@ -1,11 +1,10 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#101827">
-<title>NEGUS AI ASSISTANT v6.6</title>
+<title>NEGUS AI ASSISTANT v6.7</title>
 <style>
 :root{--bg:#0b1220;--panel:#141f30;--panel2:#1b2a3d;--text:#edf3fa;--muted:#9aabc0;--gold:#e5b94f;--green:#35c995;--red:#ff6878;--line:#29394e}
 *{box-sizing:border-box}
@@ -42,7 +41,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .chart-shell{position:relative;width:100%;height:430px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#0b1220}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
 .chart-price-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.chart-price-cell{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:10px;min-width:0}.chart-price-label{font-size:10px;color:var(--muted);letter-spacing:.4px}.chart-price-value{font-size:clamp(15px,3.4vw,22px);font-weight:800;margin-top:5px;overflow-wrap:anywhere}.chart-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.chart-toggle{display:flex;align-items:center;gap:7px;background:#0c1727;border:1px solid var(--line);border-radius:20px;padding:8px 11px;font-size:12px;color:var(--text);margin:0}.chart-toggle input{width:17px;height:17px;margin:0;accent-color:var(--gold)}.mtf-wrap{overflow-x:auto}.mtf-table{min-width:680px}.mtf-table th{color:var(--gold);font-size:11px}.mtf-table td{font-size:11px;vertical-align:top}.mtf-bull{color:var(--green);font-weight:bold}.mtf-bear{color:var(--red);font-weight:bold}.mtf-neutral{color:var(--gold);font-weight:bold}.chart-note{font-size:11px;color:var(--muted);line-height:1.5}
 @media(max-width:600px){.chart-shell{height:390px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
-
+ 
 footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 .strategy details{background:#0c1727;border:1px solid var(--line);border-radius:9px;padding:12px}
 .strategy summary{color:var(--gold);font-weight:bold;cursor:pointer;padding:5px 0}
@@ -54,7 +53,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 .strategy .chapter{border-top:1px solid var(--line);padding-top:8px;margin-top:16px}
 @media(max-width:600px){main{padding:10px}.card{padding:12px}.chart-shell{height:360px}.brand{font-size:20px}}
 </style>
-
+ 
 <script src="https://unpkg.com/lightweight-charts@4.2.2/dist/lightweight-charts.standalone.production.js" defer></script>
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
@@ -72,9 +71,9 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <body>
 <header>
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.6 · LIVE PRICE PANEL + MULTI-TIMEFRAME OVERLAYS + CLEAN CHART</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 6.7 · LIVE PRICE PANEL + MULTI-TIMEFRAME OVERLAYS + CLEAN CHART</div>
 </header>
-
+ 
 <nav>
  <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
  <button onclick="showPage('analysis',this)">Strategy Analysis</button>
@@ -85,31 +84,31 @@ window.negusOneSignalReady=new Promise(resolve=>{
  <button onclick="showPage('strategy',this)">Nigus's trading Strategy</button>
  <button onclick="showPage('performance',this)">Performance</button>
 </nav>
-
+ 
 <main>
 <section id="dashboard" class="page active">
  <h2>Trading Dashboard</h2>
-
+ 
  <div class="card">
   <h3>Push Notifications</h3>
   <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
   <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button>
   <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
  </div>
-
+ 
  <div class="grid">
   <div class="card"><div class="small">TRADING PAIR</div><div class="metric gold">EUR/USD</div></div>
   <div class="card"><div class="small">ACCOUNT BALANCE (MANUAL)</div><div class="metric" id="dashBalance">$15.00</div></div>
   <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
   <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.80</div></div>
  </div>
-
+ 
  <div class="card">
   <h3>Daily Loss Guard</h3>
   <div id="dailyGuard" class="result">Loading daily results...</div>
   <p class="small">Based on closed trades manually saved in this browser. It does not block orders in MT5.</p>
  </div>
-
+ 
  <div class="card">
   <h3>Trading Sessions · Ethiopia time (EAT)</h3>
   <div class="grid">
@@ -119,7 +118,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   </div>
   <p class="small">Session status uses London and New York local market clocks, including daylight-saving changes. Approximate session hours: 08:00–17:00 local time.</p>
  </div>
-
+ 
  <div class="card">
   <h3>Professional Trading Process</h3>
   <p>D1 / H4: direction and key zones → H1: structure and bias → M15: confirmation → M5: entry trigger.</p>
@@ -127,14 +126,14 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <p class="gold">No strong confirmation = NO TRADE.</p>
   <p>Never widen SL, average down, revenge trade, or force a trade because of minimum lot size.</p>
  </div>
-
+ 
  <div class="card">
   <h3>Capital Protection</h3>
   <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
   <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  </div>
 </section>
-
+ 
 <!-- COMPLETE STRATEGY PLAYBOOK PAGE -->
 <section id="strategy" class="page">
  <h2>Nigus's trading Strategy</h2>
@@ -148,7 +147,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
    <p>A structured trading framework for disciplined EUR/USD day trading.</p>
    <h4>Core Philosophy</h4>
    <p class="quote">“Set the goal. Prepare professionally. Stay alert to opportunities. Accept with gratitude what the market gives.” (Nigus Tilahun)</p>
-
+ 
    <div class="chapter">
     <h4>1. STRATEGY MANDATE</h4>
     <h4>1.1 Mission</h4>
@@ -159,7 +158,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <h4>1.3 Trading Motto</h4>
     <p class="quote">“I don't trade to recover. I trade to execute my plan.”</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>2. MULTI-TIMEFRAME ANALYSIS</h4>
     <p>NEGUS STRATEGY uses a top-down analysis model.</p>
@@ -174,7 +173,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <ul><li>Higher timeframes determine the broader market context.</li><li>H1 establishes the primary intraday bias.</li><li>M15 confirms the trading setup.</li><li>M5 identifies the entry opportunity.</li><li>M1 must never override higher-timeframe structure.</li></ul>
     <p>If timeframes conflict, wait for clarity instead of forcing a trade.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>3. NEGUS STRATEGY ENTRY MODEL</h4>
     <p>Every trade must follow a structured sequence.</p>
@@ -193,7 +192,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <h4>Step 7 – Execute or Wait</h4>
     <p>If confirmation is missing, do not enter. <b>No confirmation = No trade.</b></p>
    </div>
-
+ 
    <div class="chapter">
     <h4>4. MARKET STRUCTURE AND SMC CONCEPTS</h4>
     <h4>4.1 Break of Structure (BOS)</h4><p>A break of a meaningful previous swing high or low, generally supporting continuation in the current direction.</p>
@@ -203,7 +202,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <h4>4.5 Order Block (OB)</h4><p>A selected opposing candle or candle cluster before a strong displacement that breaks market structure. The zone is a trading hypothesis and must be validated through testing.</p>
     <h4>4.6 Premium and Discount</h4><ul><li>Premium: Upper half of the range.</li><li>Discount: Lower half of the range.</li><li>Equilibrium: Midpoint of the range.</li></ul><p>Use the same swing-selection rules consistently.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>5. FUNDAMENTAL AND NEWS ANALYSIS</h4>
     <p>EUR/USD is influenced by economic conditions and monetary-policy expectations in both the United States and the Eurozone.</p>
@@ -214,7 +213,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <h4>5.4 News Protection</h4><ul><li>Avoid impulsive entries immediately before major releases.</li><li>Watch spread expansion and volatility.</li><li>Wait for price action to stabilize.</li><li>Verify the publication time from a reliable economic calendar.</li></ul>
     <p>Time convention: Ethiopia uses UTC+3. Session and news schedules should be recorded in Ethiopian local time and UTC. Ethiopian traditional clock notation should be labelled separately from international 12/24-hour time. MT5/Exness server time may differ from UTC; verify the platform clock before converting.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>6. RISK MANAGEMENT</h4>
     <p>Risk management is the foundation of long-term trading survival.</p>
@@ -226,11 +225,12 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <p>This demonstrates why small accounts face significant risk when the broker's minimum lot is 0.01.</p>
     <p><b>Important:</b> Never make a structural Stop Loss artificially tight just to fit the account. If the risk is too high, skip the trade or continue practising on demo.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>7. CAPITAL PLAN AND LOT-SIZE LADDER</h4>
     <p>The following is the preferred capital-planning ladder.</p>
-    <div class="tablewrap"><table><thead><tr><th>Account Balance</th><th>Preferred Lot Size</th></tr></thead><tbody><tr><td>$15–$49.99</td><td>0.01</td></tr><tr><td>$50–$99.99</td><td>0.02</td></tr><tr><td>$100–$199.99</td><td>0.03</td></tr><tr><td>$200–$249.99</td><td>0.04</td></tr><tr><td>$250–$500</td><td>0.04</td></tr></tbody></table></div>
+    <di
+v class="tablewrap"><table><thead><tr><th>Account Balance</th><th>Preferred Lot Size</th></tr></thead><tbody><tr><td>$15–$49.99</td><td>0.01</td></tr><tr><td>$50–$99.99</td><td>0.02</td></tr><tr><td>$100–$199.99</td><td>0.03</td></tr><tr><td>$200–$249.99</td><td>0.04</td></tr><tr><td>$250–$500</td><td>0.04</td></tr></tbody></table></div>
     <p>This ladder is a planning preference, not an automatic trading instruction. Actual position size must be evaluated against the structural SL, account equity, margin, and trading costs.</p>
     <h4>7.1 Aspirational Weekly Growth Targets</h4>
     <div class="tablewrap"><table><thead><tr><th>Starting Balance</th><th>Weekly Target</th></tr></thead><tbody>
@@ -246,13 +246,13 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <p>This projection assumes the target is achieved every week, with no losses, withdrawals, deposits, fees, or other costs. It is a mathematical illustration—not a forecast or promise.</p>
     <h4>7.3 Milestone Rewards</h4><ul><li>Keep personal rewards separate from trading capital.</li><li>Reward discipline, not only profit.</li><li>Never open an unnecessary trade to reach a milestone.</li><li>A week without a valid setup can still be a successful week.</li></ul>
    </div>
-
+ 
    <div class="chapter">
     <h4>8. INDICATORS AND SUPPORTING TOOLS</h4>
     <div class="tablewrap"><table><thead><tr><th>Indicator</th><th>Purpose</th></tr></thead><tbody><tr><td>EMA 20</td><td>Short-term trend context</td></tr><tr><td>EMA 50</td><td>Intermediate trend context</td></tr><tr><td>EMA 200</td><td>Long-term trend context</td></tr><tr><td>RSI 14</td><td>Momentum and divergence context</td></tr><tr><td>ATR 14</td><td>Volatility and stop-distance context</td></tr><tr><td>Previous Day High/Low</td><td>Liquidity and structure</td></tr><tr><td>Session High/Low</td><td>Intraday reference levels</td></tr></tbody></table></div>
     <p>Indicators are supporting tools. Price action and market structure remain the primary decision framework.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>9. TRADING PSYCHOLOGY</h4>
     <p>Professional trading requires emotional discipline.</p>
@@ -262,7 +262,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <ol><li>Is the market direction clear?</li><li>Is price at a planned area?</li><li>Is confirmation present?</li><li>Is the Stop Loss logical?</li><li>Is the potential loss acceptable?</li><li>Is there major news risk?</li><li>Am I following my system?</li></ol>
     <p>If the answers are unclear, wait.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>10. TRADE JOURNAL</h4>
     <p>Every trade must be documented.</p>
@@ -270,13 +270,13 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <h4>Performance Metrics</h4><ul><li>Win rate</li><li>Average winning trade</li><li>Average losing trade</li><li>Risk-to-reward ratio</li><li>Expectancy</li><li>Profit factor</li><li>Maximum drawdown</li><li>Rule adherence</li></ul>
     <p>Do not judge a strategy based on only a few trades.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>11. BACKTESTING AND VALIDATION</h4>
     <ol><li>Define exact entry and exit rules.</li><li>Test different market conditions.</li><li>Include realistic spreads and commissions.</li><li>Record every valid setup.</li><li>Separate development data from out-of-sample data.</li><li>Measure performance consistently.</li><li>Forward-test on demo.</li><li>Refine rules based on evidence.</li></ol>
     <p>The goal is to discover whether the system has a repeatable statistical edge.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>12. NEGUS AI ASSISTANT – DEVELOPMENT ROADMAP</h4>
     <div class="tablewrap"><table><thead><tr><th>Phase</th><th>Module</th><th>Main Function</th></tr></thead><tbody><tr><td>1</td><td>Risk Calculator</td><td>Calculate lot size, pip value, SL risk</td></tr><tr><td>2</td><td>Trade Journal</td><td>Record and analyze trades</td></tr><tr><td>3</td><td>Chart Assistant</td><td>Analyze supplied charts and identify scenarios</td></tr><tr><td>4</td><td>News Dashboard</td><td>Track verified EUR/USD news</td></tr><tr><td>5</td><td>Trading Alerts</td><td>Monitor planned levels</td></tr><tr><td>6</td><td>Performance Analytics</td><td>Evaluate strategy statistics</td></tr></tbody></table></div>
@@ -284,14 +284,14 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <ul><li>Never invent live market prices.</li><li>Never invent economic news.</li><li>Show data timestamps and sources.</li><li>Separate observations from interpretations.</li><li>Explain uncertainty.</li><li>Request updated chart information when necessary.</li><li>Never execute live trades autonomously in the initial version.</li><li>Keep human approval for all trading decisions.</li></ul>
     <h4>First Development Priority</h4><p>Build a EUR/USD risk and lot-size calculator compatible with Exness MT5 Standard specifications, then develop the trade journal.</p>
    </div>
-
+ 
    <div class="chapter">
     <h4>13. DAILY TRADING CHECKLIST</h4>
     <h4>Before Trading</h4><ul><li>Check EUR/USD economic calendar.</li><li>Analyze D1/H4/H1.</li><li>Establish market bias.</li><li>Mark important liquidity levels.</li><li>Identify support and resistance.</li><li>Define the session plan.</li><li>Establish the maximum acceptable loss.</li></ul>
     <h4>Before Entry</h4><ul><li>Price reaches the planned area.</li><li>M15 confirmation appears.</li><li>M5 entry trigger is clear.</li><li>SL and TP are defined.</li><li>Lot size is calculated.</li><li>Spread and costs are acceptable.</li><li>News risk is checked.</li><li>The trade follows the strategy.</li></ul>
     <h4>After Trading</h4><ul><li>Record the trade.</li><li>Save chart screenshots.</li><li>Review the result.</li><li>Identify mistakes.</li><li>Record one lesson.</li><li>Avoid immediate revenge trading.</li></ul>
    </div>
-
+ 
    <div class="chapter">
     <h4>14. FINAL COMMITMENT</h4>
     <p>NEGUS STRATEGY is not built around excitement, predictions, or unrealistic promises.</p>
@@ -305,7 +305,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   </details>
  </div>
 </section>
-
+ 
 <section id="analysis" class="page">
  <h2>Strategy Analysis</h2>
  <div class="card">
@@ -320,7 +320,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <p class="small" id="feedUpdated">Waiting for market data...</p>
   <button class="action" onclick="refreshLiveMarket()">Refresh Market Data</button>
  </div>
-
+ 
  <div class="card">
   <h3>Automatic Multi-Timeframe Analysis</h3>
   <p>D1 / H4 direction → H1 bias → M15 confirmation → M5 trigger. Indicators: EMA 20/50/200 (where enough bars exist), RSI 14 and ATR 14. Rules-based decision support, not AI prediction.</p>
@@ -337,7 +337,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <div class="result" id="newsGateStatus">WAIT — economic calendar has not been verified.</div>
   <p class="small">Automatic calendar checks scheduled high-impact EUR/USD events. Always verify independently; this public feed may be incomplete or unavailable.</p>
  </div>
-
+ 
  <div class="card">
   <h3>V6.3 · Automatic Market Structure & Entry Analysis</h3>
   <p>Uses closed BiQuote candles only. BOS/CHoCH, liquidity sweeps, FVG, candidate OB and candle confirmation are transparent rule-based approximations, not institutional-grade pattern recognition.</p>
@@ -353,7 +353,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <div id="srRows" class="result">Support and resistance zones will appear when enough candles are available.</div>
   <p class="small">Zones are clustered from confirmed H4/H1 swing pivots and are also drawn as approximate chart overlays. PDH/PDL use the previous available D1 candle; the feed's daily boundary may differ from Exness MT5 broker time. These levels are references, not guaranteed reversal points.</p>
  </div>
-
+ 
  <div class="card">
   <h3>Manual Market Assessment</h3>
   <p>Enter observations from your chart. Automatic analysis is separate BiQuote decision support and is not connected to Exness MT5.</p>
@@ -374,7 +374,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <button class="action" onclick="analyze()">Evaluate Setup</button>
   <div id="analysisResult" class="result">Complete the assessment to receive a result.</div>
  </div>
-
+ 
  <div class="card">
   <h3>Automatic EUR/USD Economic Calendar</h3>
   <p>Public Forex Factory weekly calendar export. Only USD and EUR events are used. High-impact events block the automatic signal for 30 minutes before and after the scheduled time.</p>
@@ -387,11 +387,11 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <p class="small">Not an official guaranteed API. Feed coverage, timing and browser access can fail. If unavailable, the app stays on WAIT. Check a trusted calendar before every trade.</p>
  </div>
 </section>
-
+ 
 <section id="market" class="page">
  <h2>Market & Chart</h2>
  <div class="card">
-   <h3>EUR/USD Smart TradingView Chart · V6.6</h3>
+   <h3>EUR/USD Smart TradingView Chart · v6.7</h3>
    <p>Live BiQuote price and candles with selectable NEGUS overlays. External market data only; not an Exness MT5 connection.</p>
    <div class="chart-price-strip">
     <div class="chart-price-cell"><div class="chart-price-label">LIVE MID PRICE</div><div id="chartLiveMid" class="chart-price-value gold">--</div></div>
@@ -415,7 +415,8 @@ window.negusOneSignalReady=new Promise(resolve=>{
    <p class="chart-note">Only the selected timeframe's FVG, structure and candidate OB are drawn. Higher-timeframe H4/H1 support and resistance and D1 liquidity references are optional overlays. The multi-timeframe panel below keeps the other timeframes visible without crowding the chart.</p>
   </div>
   <div class="card">
-   <h3>Multi-Timeframe Analysis · All Timeframes</h3>
+   <h3>Multi-Timeframe A
+nalysis · All Timeframes</h3>
    <p>D1 → H4 → H1 → M15 → M5. Every row is calculated from that timeframe's available closed BiQuote candles. This is rules-based decision support, not a prediction.</p>
    <div id="mtfStatus" class="result">Waiting for all timeframe candles...</div>
    <div class="mtf-wrap"><table class="mtf-table"><thead><tr><th>TF</th><th>Trend</th><th>Structure</th><th>Support / Resistance</th><th>FVG</th><th>Liquidity / Sweep</th></tr></thead><tbody id="mtfRows"><tr><td colspan="6">Waiting for live data...</td></tr></tbody></table></div>
@@ -425,7 +426,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <h3>Timeframe Workflow</h3><p>D1 / H4: direction and zones</p><p>H1: structure and bias</p><p>M15: confirmation</p><p>M5: entry trigger</p><p>M1: optional refinement only; never overrides higher timeframes.</p>
  </div>
 </section>
-
+ 
 <section id="risk" class="page">
  <h2>Risk Calculator</h2>
  <div class="card">
@@ -446,7 +447,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <p class="warning">Planning guide only. Never override risk limits. If minimum lot risk is too high, skip the trade.</p>
  </div>
 </section>
-
+ 
 <section id="checklist" class="page">
  <h2>Pre-Trade Checklist</h2>
  <div class="card">
@@ -466,7 +467,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
   <button class="secondary" onclick="resetChecks()">Reset Checklist</button>
  </div>
 </section>
-
+ 
 <section id="journal" class="page">
  <h2>Trade Journal</h2>
  <div class="card">
@@ -489,7 +490,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  </div>
  <p class="small">Journal records are stored in this browser on this device. Clearing browser data may delete them. Export backups regularly.</p>
 </section>
-
+ 
 <section id="performance" class="page">
  <h2>Trading Performance</h2>
  <div class="grid">
@@ -505,9 +506,9 @@ window.negusOneSignalReady=new Promise(resolve=>{
  </div>
 </section>
 </main>
-
-<footer>NEGUS AI ASSISTANT v6.6 · Decision support only · Human approval required · No broker connection</footer>
-
+ 
+<footer>NEGUS AI ASSISTANT v6.7 · Decision support only · Human approval required · No broker connection</footer>
+ 
 <script>
 function showPage(id,btn){
  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
@@ -517,7 +518,7 @@ function showPage(id,btn){
  if(id==='performance')renderPerformance();
  if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
 }
-
+ 
 async function subscribeToNegusNotifications(){
  const status=document.getElementById('pushStatus'),button=document.getElementById('pushSubscribeButton');
  button.disabled=true;button.textContent='Connecting...';
@@ -534,7 +535,7 @@ async function subscribeToNegusNotifications(){
   button.textContent='Try Again';button.disabled=false;
  }
 }
-
+ 
 function changeChart(){
  const tf=document.getElementById('chartTF').value;
  renderSmartChart(true);
@@ -604,7 +605,7 @@ function updateChecks(){
 }
 document.querySelectorAll('#checks input').forEach(x=>x.addEventListener('change',updateChecks));
 function resetChecks(){document.querySelectorAll('#checks input').forEach(x=>x.checked=false);updateChecks();}
-
+ 
 let trades=[];
 try{trades=JSON.parse(localStorage.getItem('negusTrades')||'[]');if(!Array.isArray(trades))trades=[];}catch(e){trades=[];}
 document.getElementById('tradeDate').value=localDateString();
@@ -644,7 +645,8 @@ function renderPerformance(){
  monday.setDate(now.getDate()-(day===0?6:day-1));monday.setHours(0,0,0,0);
  const weekly=trades.filter(t=>{const d=new Date(t.date+'T12:00:00');return d>=monday&&d<=now;}).reduce((s,t)=>s+(Number(t.pnl)||0),0);
  let running=0,peak=0,maxDD=0;[...trades].reverse().forEach(t=>{running+=Number(t.pnl)||0;peak=Math.max(peak,running);maxDD=Math.max(maxDD,peak-running);});
- document.getElementById('totalTrades').textContent=total;document.getElementById('winRate').textContent=rate.toFixed(1)+'%';
+ document.getElementById('totalTrades').textConten
+t=total;document.getElementById('winRate').textContent=rate.toFixed(1)+'%';
  document.getElementById('totalPL').textContent=money(net);document.getElementById('profitFactor').textContent=pf;
  document.getElementById('weeklyPL').textContent=money(weekly);document.getElementById('maxDrawdown').textContent=money(maxDD);
 }
@@ -658,7 +660,7 @@ function updateClocks(){
  document.getElementById('londonStatus').textContent='Market: '+sessionStatus(london);document.getElementById('newYorkStatus').textContent='Market: '+sessionStatus(ny);
 }
 renderTrades();updateDashboard();renderPerformance();calculateRisk();updateChecks();updateClocks();setInterval(updateClocks,1000);
-
+ 
 /* LIVE MARKET DATA + MULTI-TIMEFRAME RULE ENGINE */
 const LIVE_API='https://biquote.io/api';
 let liveQuote=null,liveFrames={},liveFetchBusy=false,lastLiveError='';
@@ -788,7 +790,7 @@ function renderV63(){
  zoneRows.forEach(z=>html.push(z.type+' zone: '+fmtPrice(z.low)+'–'+fmtPrice(z.high)+' · '+z.count+' pivots ('+z.tfs+')'));
  document.getElementById('srRows').innerHTML=html.length?html.map(escapeNewsText).join('<br>'):'No nearby support/resistance pivots identified. Need more data.';
 }
-
+ 
 function renderMultiTimeframePanel(){
  const body=document.getElementById('mtfRows'),status=document.getElementById('mtfStatus');if(!body)return;
  const frames=liveFrames||{},price=chartPrice(),rows=[];
@@ -809,7 +811,7 @@ function renderMultiTimeframePanel(){
  const ready=TF_CONFIG.filter(([tf])=>frames[tf]&&frames[tf].ok).length;
  if(status)status.innerHTML='<b>'+ready+'/5 timeframes ready</b> · Current reference price: <b>'+fmtPrice(price)+'</b> · Each row uses closed candles only.';
 }
-/* V6.6 SMART CHART — clean selectable overlays + live price + MTF panel */
+/* v6.7 SMART CHART — clean selectable overlays + live price + MTF panel */
 let smartChart=null,smartCandleSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null;
 function chartTime(value){const n=Math.floor(new Date(value).getTime()/1000);return Number.isFinite(n)&&n>0?n:null;}
 function chartBars(tf){const frame=liveFrames&&liveFrames[tf];if(!frame||!frame.ok||!Array.isArray(frame.bars))return [];return frame.bars.map(b=>({time:chartTime(b.time),open:b.open,high:b.high,low:b.low,close:b.close})).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite));}
@@ -863,7 +865,7 @@ function renderSmartChart(forceFit=false){
 }
 window.addEventListener('resize',()=>{resizeOverlayCanvas();drawSmartOverlays();});
 document.addEventListener('DOMContentLoaded',()=>{initSmartChart();});
-
+ 
 function evaluateLiveSignal(){
  const out=document.getElementById('autoSignal');if(!out)return;
  const q=liveQuote||{},frames=liveFrames||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
@@ -905,7 +907,7 @@ function startLiveUpdates(){
  refreshLiveMarket();setInterval(refreshLiveMarket,60000);
  setInterval(async()=>{try{const q=await fetchJSON(LIVE_API+'/EURUSD');liveQuote=q;if(!lastLiveError)renderLiveMarket();}catch(e){setText('feedStatus','ERROR');}},10000);
 }
-
+ 
 /* Automatic economic calendar: Forex Factory weekly JSON */
 const NEWS_API='./calendar.json',NEWS_REFRESH_MS=5*60*1000,NEWS_BLOCK_MS=30*60*1000;
 let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false;
