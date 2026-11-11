@@ -1,6 +1,7 @@
+
 <!DOCTYPE html>
  
-<html lang="en">
+<html lang="am">
  
 <head>
  
@@ -10,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v11</title>
+<title>NEGUS AI ASSISTANT v12</title>
  
 <style>
  
@@ -78,8 +79,8 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
  
 .tablewrap{overflow-x:auto}
  
-.chart-shell{position:relative;width:100%;height:460px;border:1px solid #d5dce5;border-radius:10px;overflow:hidden;background:#fff}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
-.tv-chart-wrap{height:540px;width:100%;border:1px solid #34445b;border-radius:10px;overflow:hidden;background:#0b1220;margin:12px 0 18px}.tv-chart-container{height:100%;width:100%}.tv-chart-container__widget{height:calc(100% - 28px);width:100%}.tv-chart-copyright{height:25px;padding:4px 8px;text-align:right;font-size:11px;color:#9aabc0;background:#0b1220}.tv-chart-copyright a{color:#9aabc0;text-decoration:none}.chart-subheading{font-size:14px;color:var(--gold);margin:18px 0 5px}.news-event{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.55}.news-event:last-child{border-bottom:0}.news-explain{font-size:12px;color:var(--muted);margin-top:5px}.news-impact{font-size:12px;margin-top:5px;padding:7px 9px;background:#111d2e;border-radius:7px}.news-summary{border:1px solid #3b4d64;background:#101d2e;padding:12px;border-radius:9px;margin:12px 0;line-height:1.6}.news-summary b{color:var(--gold)}
+.chart-shell{position:relative;width:100%;height:520px;border:1px solid #d5dce5;border-radius:10px;overflow:hidden;background:#fff}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
+.chart-subheading{font-size:14px;color:var(--gold);margin:18px 0 5px}.news-event{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.55}.news-event:last-child{border-bottom:0}.news-explain{font-size:12px;color:var(--muted);margin-top:5px}.news-impact{font-size:12px;margin-top:5px;padding:7px 9px;background:#111d2e;border-radius:7px}.news-summary{border:1px solid #3b4d64;background:#101d2e;padding:12px;border-radius:9px;margin:12px 0;line-height:1.6}.news-summary b{color:var(--gold)}
  
 .chart-price-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.chart-price-cell{background:#fff;border:1px solid #dce3eb;border-radius:9px;padding:10px;min-width:0}.chart-price-label{font-size:10px;color:var(--muted);letter-spacing:.4px}.chart-price-value{font-size:clamp(15px,3.4vw,22px);font-weight:800;margin-top:5px;overflow-wrap:anywhere}.chart-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.chart-toggle{display:flex;align-items:center;gap:7px;background:#0c1727;border:1px solid var(--line);border-radius:20px;padding:8px 11px;font-size:12px;color:var(--text);margin:0}.chart-toggle input{width:17px;height:17px;margin:0;accent-color:var(--gold)}.mtf-wrap{overflow-x:auto}.mtf-table{min-width:680px}.mtf-table th{color:var(--gold);font-size:11px}.mtf-table td{font-size:11px;vertical-align:top}.mtf-bull{color:var(--green);font-weight:bold}.mtf-bear{color:var(--red);font-weight:bold}.mtf-neutral{color:var(--gold);font-weight:bold}.chart-note{font-size:11px;color:var(--muted);line-height:1.5}
 .chart-shell{background:#fff;border:1px solid #d9e0e8;border-radius:8px}
@@ -90,7 +91,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .chart-controls .chart-toggle:has(input:disabled){opacity:.45}
  
  
-@media(max-width:600px){.tv-chart-wrap{height:470px}.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+@media(max-width:600px){.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
  
  
  
@@ -152,7 +153,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 11 · MULTI-TIMEFRAME CHART OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12 · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -760,25 +761,25 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-  <h3>Automatic EUR/USD Economic Calendar</h3>
+  <h3>የEUR/USD አውቶማቲክ የኢኮኖሚ ዜና ቀን መቁጠሪያ</h3>
  
-  <p>Public Forex Factory weekly calendar export. Only USD and EUR events are used. High-impact events block the automatic signal for 30 minutes before and after the scheduled time.</p>
+  <p>የForex Factory ሳምንታዊ የዜና ምንጭ ነው። USD እና EUR ዜናዎች ብቻ ይታያሉ። ከፍተኛ ተፅዕኖ ያለው ዜና ከመውጣቱ 30 ደቂቃ በፊትና በኋላ የንግድ ምልክቱን WAIT ያደርጋል።</p>
  
   <div class="grid">
  
-   <div><div class="small">CALENDAR STATUS</div><div class="metric" id="newsFeedStatus">Checking...</div></div>
+   <div><div class="small">የዜና ምንጭ ሁኔታ</div><div class="metric" id="newsFeedStatus">Checking...</div></div>
  
-   <div><div class="small">NEXT HIGH-IMPACT EVENT</div><div id="newsNextEvent">--</div></div>
+   <div><div class="small">ቀጣይ ከፍተኛ ተፅዕኖ ያለው ዜና</div><div id="newsNextEvent">--</div></div>
  
   </div>
  
-  <div id="newsProfessionalSummary" class="news-summary">Professional EUR/USD impact summary will appear after the calendar loads.</div>
-  <h4>Upcoming USD / EUR Events — Explanation & Pair Impact</h4>
-  <div id="newsRows" class="result">Loading this week's USD/EUR events...</div>
+  <div id="newsProfessionalSummary" class="news-summary">የEUR/USD ሙያዊ የዜና ትንተና ዜናው ሲጫን ይታያል።</div>
+  <h4>ቀጣይ USD / EUR ዜናዎች — ማብራሪያ፣ መደምደሚያና ሙያዊ ምክር</h4>
+  <div id="newsRows" class="result">የዚህ ሳምንት USD/EUR ዜናዎች በመጫን ላይ...</div>
  
-  <button class="action" onclick="refreshEconomicNews()">Refresh Economic Calendar</button>
+  <button class="action" onclick="refreshEconomicNews()">የዜና ቀን መቁጠሪያን አድስ</button>
  
-  <p class="small">Not an official guaranteed API. Feed coverage, timing and browser access can fail. If unavailable, the app stays on WAIT. Check a trusted calendar before every trade.</p>
+  <p class="small">ይህ የሶስተኛ ወገን የዜና ምንጭ ነው፤ ሙሉ መሆኑ ዋስትና የለውም። ምንጩ ካልሰራ WAIT ይቆያል። ከንግድ በፊት በታመነ የኢኮኖሚ ቀን መቁጠሪያ አረጋግጥ።</p>
  
  </div>
  
@@ -792,13 +793,9 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD NEGUS Smart Chart · v11</h3>
- 
-   <p><b>Official TradingView Advanced Chart</b> for EUR/USD, with TradingView's own chart engine, symbol search, indicators and drawing tools. TradingView data may differ from Exness MT5.</p>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12</h3>
 
-   <div class="tv-chart-wrap"><div id="tvChartContainer" class="tv-chart-container"><div class="tv-chart-container__widget" style="height:calc(100% - 28px);width:100%"></div><div class="tv-chart-copyright"><a href="https://www.tradingview.com/symbols/EURUSD/" target="_blank" rel="noopener noreferrer">EUR/USD chart by TradingView</a></div></div></div>
-
-   <p class="small">The official embedded TradingView widget runs inside its own frame. NEGUS custom multi-timeframe S/R, FVG and liquidity overlays are kept in the separate analysis chart below because external code cannot draw custom layers inside TradingView's embedded frame.</p>
+   <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
    <div class="chart-price-strip">
  
@@ -816,25 +813,25 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="M30">M30 · Intraday Structure</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
  
-   <h4 class="chart-subheading">NEGUS MTF Overlay Analysis Chart</h4>
-   <p class="small">This companion chart preserves NEGUS-calculated levels and overlays. It is not the TradingView chart above.</p>
-   <div class="small" style="margin-top:10px">NEGUS OVERLAYS · Switch each layer independently</div>
+   <h4 class="chart-subheading">የNEGUS ተደራቢ መለያዎች · በዚሁ ቻርት ላይ</h4>
+   <p class="small">የሚከተሉት የSMC መስመሮችና ዞኖች ከካንድሎቹ ጋር በአንድ የቻርት ቦታ ላይ ይሳላሉ።</p>
+   <div class="small" style="margin-top:10px">የNEGUS OVERLAYS · እያንዳንዱን በተናጠል ON/OFF አድርግ</div>
  
-   <div class="chart-master"><label><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> SMC ON / OFF</label><small>Turns BOS, CHoCH, FVG, Order Blocks and liquidity markings on or off. Support / Resistance stays independently controlled.</small></div>
+   <div class="chart-master"><label><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> SMC አብራ / አጥፋ</label><small>BOS፣ CHoCH፣ FVG፣ Order Block እና Liquidity ያበራል/ያጠፋል። Support / Resistance በተናጠል ይቆጣጠራል።</small></div>
  
    <div class="chart-controls">
  
-    <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> Support / Resistance</label>
+    <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> ድጋፍ / መከላከያ</label>
  
-    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG</label>
+    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG የዋጋ ክፍተት</label>
  
     <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" checked onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
  
-    <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH</label>
+    <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH የመዋቅር ለውጥ</label>
  
-    <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> Candidate OB</label>
+    <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> ጊዜያዊ Order Block</label>
 
-  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" checked onchange="drawSmartOverlays()"> ALL TIMEFRAMES · MTF</label>
+  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" checked onchange="drawSmartOverlays()"> ሁሉም የጊዜ ክፈፎች · MTF</label>
  
    </div>
  
@@ -1034,7 +1031,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v11 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v12 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
  
  
  
@@ -1052,7 +1049,7 @@ function showPage(id,btn){
  
  if(id==='performance')renderPerformance();
  
- if(id==='market'){if(!tradingViewChartLoaded)loadTradingViewChart(document.getElementById('chartTF')?.value||'M15');renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
+ if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});resizeOverlayCanvas();renderSmartChart(true);},120);}
  
 }
  
@@ -1097,24 +1094,12 @@ function changeChart(){
  const tf=document.getElementById('chartTF').value;
  
  renderSmartChart(true);
- loadTradingViewChart(tf);
+ drawSmartOverlays();
  
- setText('chartStatus','Chart timeframe: '+tf+' · selected-timeframe overlays refreshed.');
+ setText('chartStatus','የጊዜ ክፈፍ፦ '+tf+' · ቻርቱና overlays ተዘምነዋል።');
  
 }
  
-/* Official TradingView Advanced Chart widget. The public embed is isolated in an iframe. */
-let tradingViewChartLoaded=false;
-function loadTradingViewChart(tf='M15'){
- const host=document.getElementById('tvChartContainer');if(!host)return;
- const intervals={M5:'5',M15:'15',M30:'30',H1:'60',H4:'240',D1:'D'};
- const interval=intervals[tf]||'15';
- host.innerHTML='<div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div><div class="tv-chart-copyright"><a href="https://www.tradingview.com/symbols/EURUSD/" target="_blank" rel="noopener noreferrer">EUR/USD chart by TradingView</a></div>';
- const script=document.createElement('script');script.type='text/javascript';script.async=true;script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
- script.textContent=JSON.stringify({autosize:true,symbol:'FX:EURUSD',interval,timezone:'exchange',theme:'dark',style:'1',locale:'en',allow_symbol_change:true,hide_side_toolbar:false,hide_top_toolbar:false,hide_legend:false,hide_volume:false,withdateranges:true,save_image:false,calendar:false,studies:[],support_host:'https://www.tradingview.com'});
- host.appendChild(script);tradingViewChartLoaded=true;
-}
-
 function localDateString(date=new Date()){
  
  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
@@ -1709,7 +1694,7 @@ function toggleSMC(){
  ['overlayFVG','overlayLiquidity','overlayStructure','overlayOB'].forEach(id=>{const el=document.getElementById(id);if(el)el.disabled=!enabled;});
  drawSmartOverlays();
  if(smartCandleSeries&&smartChartReady)renderSmartChart(false);
- setText('chartStatus',enabled?'SMC overlays ON · Select individual layers below.':'SMC overlays OFF · Price candles and independent Support / Resistance remain visible.');
+ setText('chartStatus',enabled?'SMC ተደራቢዎች በርተዋል · ከታች የምትፈልጋቸውን ክፍሎች ምረጥ።':'SMC ተደራቢዎች ጠፍተዋል · ካንድሎቹና Support / Resistance ይቀጥላሉ።');
 }
  
  
@@ -1717,13 +1702,13 @@ function initSmartChart(){
  
  const host=document.getElementById('chartHost');if(!host)return;
  
- if(!window.LightweightCharts){setText('chartStatus','Chart library is unavailable. Check internet connection and reload.');return;}
+ if(!window.LightweightCharts){setText('chartStatus','የቻርት ላይብረሪው አልተገኘም። የInternet ግንኙነትን አረጋግጥና ገጹን እንደገና ክፈት።');return;}
  
  if(smartChart)return;
  
  try{
  
-  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.08,bottom:0.23}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
+  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
  
   smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
  
@@ -1736,7 +1721,7 @@ function initSmartChart(){
  
   smartChartReady=true;resizeOverlayCanvas();renderSmartChart(true);updateChartQuote();
  
- }catch(err){console.error('Smart chart initialization failed',err);setText('chartStatus','Chart initialization failed: '+String(err.message||err));}
+ }catch(err){console.error('Smart chart initialization failed',err);setText('chartStatus','ቻርቱ ማስጀመር አልተቻለም፦ '+String(err.message||err));}
  
 }
  
@@ -1748,30 +1733,31 @@ function drawSmartOverlays(){
  const w=host.clientWidth,h=host.clientHeight,dpr=window.devicePixelRatio||1,ctx=canvas.getContext('2d');
  if(canvas.width!==Math.round(w*dpr)||canvas.height!==Math.round(h*dpr))resizeOverlayCanvas();
  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+ const labelQueue=[];
  const ts=smartChart.timeScale(),xFor=t=>{const sec=typeof t==='number'?t:chartTime(t);return sec?ts.timeToCoordinate(sec):null;},yFor=p=>Number.isFinite(p)?smartCandleSeries.priceToCoordinate(p):null;
  const line=(price,color,label,dash=[5,4],startTime=null)=>{
   const y=yFor(price);if(y===null||y<-20||y>h+20)return;const x0=startTime?xFor(startTime):0;
   ctx.save();ctx.strokeStyle=color;ctx.fillStyle=color;ctx.lineWidth=1.1;ctx.setLineDash(dash);ctx.beginPath();ctx.moveTo(x0===null?0:Math.max(0,x0),y);ctx.lineTo(w,y);ctx.stroke();ctx.setLineDash([]);
-  ctx.font='10px Arial';const tw=ctx.measureText(label).width;ctx.fillStyle='rgba(8,16,28,.86)';ctx.fillRect(Math.max(0,w-tw-10),Math.max(0,y-14),tw+8,13);ctx.fillStyle=color;ctx.fillText(label,Math.max(3,w-tw-6),Math.max(10,y-4));ctx.restore();
+  labelQueue.push({y,label,color});ctx.restore();
  };
  const zone=(low,high,color,label,startTime=null,endTime=null)=>{
   const y1=yFor(high),y2=yFor(low);if(y1===null||y2===null)return;let x1=startTime?xFor(startTime):0,x2=endTime?xFor(endTime):w;
   if(x1===null)x1=0;if(x2===null)x2=w;x1=Math.max(0,Math.min(w,x1));x2=Math.max(x1+8,Math.min(w,x2));
   const top=Math.max(0,Math.min(y1,y2)),bottom=Math.min(h,Math.max(y1,y2));if(bottom<=0||top>=h||bottom-top<1)return;
-  ctx.save();ctx.fillStyle=color+'18';ctx.strokeStyle=color+'aa';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);ctx.fillStyle=color;ctx.font='10px Arial';ctx.fillText(label,Math.min(w-100,x1+4),Math.max(10,top+11));ctx.restore();
+  ctx.save();ctx.fillStyle=color+'18';ctx.strokeStyle=color+'aa';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);labelQueue.push({y:Math.max(10,top+11),label,color});ctx.restore();
  };
  const frames=liveFrames||{},price=chartPrice(),tf=document.getElementById('chartTF')?.value||'M15',allTF=!!document.getElementById('overlayAllTF')?.checked;
  const tfs=allTF?['D1','H4','H1','M30','M15','M5']:[tf];
  if(overlayOn('overlaySR')){
-  const built=buildZones(frames,price),near=built.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.018).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,12);
+  const built=buildZones(frames,price),near=built.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.018).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,6);
   near.forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878',z.type+' '+z.tfs));
  }
  if(overlayOn('overlayLiquidity')){
   const d1=frames.D1;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];line(prior.high,'#e5b94f','D1 PDH');line(prior.low,'#e5b94f','D1 PDL');}
   tfs.forEach(frameTF=>{
    const f=frames[frameTF];if(!f||!f.ok)return;const sw=swingPoints(f.bars,2,2);
-   const highs=sw.highs.filter(x=>!Number.isFinite(price)||Math.abs(x.price-price)<0.012).slice(-2);
-   const lows=sw.lows.filter(x=>!Number.isFinite(price)||Math.abs(x.price-price)<0.012).slice(-2);
+   const highs=sw.highs.filter(x=>!Number.isFinite(price)||Math.abs(x.price-price)<0.008).slice(-1);
+   const lows=sw.lows.filter(x=>!Number.isFinite(price)||Math.abs(x.price-price)<0.008).slice(-1);
    highs.forEach(x=>line(x.price,'#e5b94f',frameTF+' buy-side liq',[2,4],x.time));
    lows.forEach(x=>line(x.price,'#f0a35e',frameTF+' sell-side liq',[2,4],x.time));
    const st=analyzeStructure(f);if(st.ok&&st.sweep!=='NONE'){const bull=st.sweep.includes('BULLISH'),y=yFor(bull?st.last.low:st.last.high),x=xFor(st.last.time);if(y!==null&&x!==null){ctx.save();ctx.fillStyle=bull?'#35c995':'#ff6878';ctx.font='bold 10px Arial';ctx.fillText(frameTF+' SWEEP',Math.max(2,x-28),Math.max(12,Math.min(h-4,y+(bull?16:-7))));ctx.restore();}}
@@ -1783,6 +1769,16 @@ function drawSmartOverlays(){
  if(overlayOn('overlayFVG')||overlayOn('overlayOB')){
   tfs.forEach(frameTF=>{const en=analyzeEntry(frames[frameTF]);if(!en.ok)return;if(overlayOn('overlayFVG')&&en.fvg)zone(en.fvg.low,en.fvg.high,'#5ba7ff',frameTF+' '+en.fvg.side+' FVG',en.fvg.time,en.fvg.endTime);if(overlayOn('overlayOB')&&en.ob)zone(en.ob.low,en.ob.high,'#b18cff',frameTF+' '+en.ob.side+' OB*',en.ob.time,en.ob.endTime);});
  }
+ // Keep all level lines, but stack their text labels at the right edge to prevent collisions.
+ const seen=new Set(),unique=labelQueue.filter(item=>{const k=item.label+'|'+Math.round(item.y/5);if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>a.y-b.y);
+ const maxLabels=Math.max(1,Math.floor((h-24)/16));
+ let visible=unique;
+ if(visible.length>maxLabels){const center=h/2;visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);}
+ const gap=15,topPad=12,bottomPad=8,available=Math.max(0,h-topPad-bottomPad);
+ const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y,i===0?topPad:0))}));
+ for(let i=1;i<positions.length;i++)positions[i].y=Math.max(positions[i].y,positions[i-1].y+gap);
+ if(positions.length&&positions[positions.length-1].y>h-bottomPad){const shift=positions[positions.length-1].y-(h-bottomPad);positions.forEach(p=>p.y-=shift);}
+ positions.forEach(({item,y})=>{ctx.save();ctx.font='10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-11),tw+8,14);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(12,y));ctx.restore();});
 }
 
 function renderSmartChart(forceFit=false){
@@ -1790,14 +1786,14 @@ function renderSmartChart(forceFit=false){
  if(!smartChartReady){if(document.getElementById('chartHost'))initSmartChart();if(!smartChartReady)return;}
  
  const tf=document.getElementById('chartTF')?.value||'M15',frame=liveFrames&&liveFrames[tf],bars=chartBars(tf);
- if(!bars.length){const detail=frame&&!frame.ok?(' · '+(frame.error||'invalid candle data')+' · raw '+(frame.rawCount??0)+' / valid '+(frame.count??0)):' · waiting for feed';setText('chartStatus',tf+' chart has no valid candle history'+detail+'. Check the provider candle timestamp/OHLC format. The current quote is not a substitute for historical candles.');return;}
+ if(!bars.length){const detail=frame&&!frame.ok?(' · '+(frame.error||'invalid candle data')+' · raw '+(frame.rawCount??0)+' / valid '+(frame.count??0)):' · waiting for feed';setText('chartStatus',tf+' የጊዜ ክፈፍ ትክክለኛ የካንድል ታሪክ የለውም'+detail+'። የMarket Data Feed ሁኔታን አረጋግጥ። የአሁኑ ዋጋ የቀድሞ ካንድሎችን አይተካም።');return;}
  
  try{
  
   const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;
   smartCandleSeries.setData(bars);
   smartCandleSeries.applyOptions({lastValueVisible:true,priceLineVisible:false});
-  smartChart.priceScale('right').applyOptions({autoScale:true,scaleMargins:{top:0.06,bottom:0.20}});if(smartVolumeSeries){const volumeData=bars.filter(b=>Number.isFinite(b.volume)&&b.volume>0).map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?'rgba(21,155,131,.34)':'rgba(220,89,101,.34)'}));smartVolumeSeries.setData(volumeData);}
+  smartChart.priceScale('right').applyOptions({autoScale:true,scaleMargins:{top:0.10,bottom:0.12}});if(smartVolumeSeries){const volumeData=bars.filter(b=>Number.isFinite(b.volume)&&b.volume>0).map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?'rgba(21,155,131,.34)':'rgba(220,89,101,.34)'}));smartVolumeSeries.setData(volumeData);}
  
   const marks=[],st=analyzeStructure(liveFrames[tf]),en=analyzeEntry(liveFrames[tf]);
  
@@ -1810,7 +1806,7 @@ function renderSmartChart(forceFit=false){
   if(oldRange&&!forceFit){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}
   else {smartChart.timeScale().fitContent();}
  
-  smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' candles plotted · full history fitted · live quote shown separately · BiQuote · '+new Date().toLocaleTimeString());
+  smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' ካንድሎች ታይተዋል · ሙሉ የተገኘ ታሪክ · የቀጥታ ዋጋ በተለየ መለኪያ · BiQuote · '+new Date().toLocaleTimeString());
  
  }catch(err){console.error('Smart chart render failed',err);setText('chartStatus','Chart update error: '+String(err.message||err));}
  
@@ -1913,9 +1909,13 @@ const NEWS_API='./calendar.json',NEWS_REFRESH_MS=5*60*1000,NEWS_BLOCK_MS=30*60*1
 let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false;
  
 function newsTimeEAT(date){
- 
- return new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}).format(date)+' EAT';
- 
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
+ const get=k=>parts.find(p=>p.type===k)?.value||'';
+ const h=Number(get('hour'))%24,traditional=((h+6)%12)||12,minute=get('minute');
+ const period=h>=6&&h<18?'ቀን':'ሌሊት';
+ const day=new Intl.DateTimeFormat('am-ET',{timeZone:'Africa/Addis_Ababa',weekday:'long',day:'2-digit',month:'short'}).format(date);
+ const utc=new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date);
+ return 'ኢትዮጵያ፦ '+day+' · '+String(traditional).padStart(2,'0')+':'+minute+' '+period+' (UTC '+utc+')';
 }
  
 function escapeNewsText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
@@ -1963,12 +1963,35 @@ function explainNewsEvent(e){
  const weight=impact.includes('high')?'High':impact.includes('medium')?'Medium':impact.includes('low')?'Low':'Unrated';
  return {kind,explain,surprise,scenario,pair,weight,currencyEffect};
 }
+function newsExplainAm(kind){return ({rates:'የማዕከላዊ ባንክ የወለድ ውሳኔ የገንዘቡን ፍላጎትና የወደፊት የወለድ ተስፋ ይቀይራል። ጠንካራ የወለድ አቋም ገንዘቡን ሊያጠናክር ይችላል።',inflation:'የዋጋ ግሽበት መረጃ የወደፊት የወለድ ውሳኔን ይነካል። ከተጠበቀው በላይ ከሆነ ገንዘቡን ሊያጠናክር ይችላል።',labour:'የሥራ ገበያ መረጃ የኢኮኖሚ ጥንካሬንና የወለድ ተስፋን ያሳያል። ጠንካራ ውጤት ገንዘቡን ሊደግፍ ይችላል።',growth:'GDP የኢኮኖሚ ዕድገትን ይለካል። ከተጠበቀው በላይ ከሆነ የገንዘቡን እሴት ሊደግፍ ይችላል።',activity:'PMIና የምርት መረጃዎች የንግድ እንቅስቃሴን ያሳያሉ። ከተጠበቀው በላይ ከሆኑ ገንዘቡን ሊደግፉ ይችላሉ።',consumption:'የችርቻሮ ሽያጭ የቤተሰብ ወጪንና ፍላጎትን ይለካል። ጠንካራ ውጤት የኢኮኖሚ ጥንካሬን ሊያመለክት ይችላል።',confidence:'የእምነት መለኪያዎች የቤተሰብና የንግድ ተስፋን ያሳያሉ። ተፅዕኖው በተዘዋዋሪ ሊሆን ይችላል።','central-bank communication':'የማዕከላዊ ባንክ ንግግር ጠንካራ (hawkish) ወይም ለስላሳ (dovish) አቋም እንዳለ ይገመገማል።',general:'ይህ የታቀደ የኢኮኖሚ መረጃ ነው። ገበያው ውጤቱን ከትንበያና ከቀዳሚ ውጤት ጋር ያነጻጽራል።'})[kind]||'የኢኮኖሚ መረጃ ነው፤ ውጤቱን ከትንበያ ጋር ማነጻጸር ያስፈልጋል።';}
+function newsPairAm(a){if(a.currencyEffect==='stronger')return a.pair.includes('Bearish')?'USD ጠንካራ ከሆነ EUR/USD ወደ ታች ሊገፋ ይችላል።':'EUR ጠንካራ ከሆነ EUR/USD ወደ ላይ ሊደገፍ ይችላል።';if(a.currencyEffect==='weaker')return a.pair.includes('Bullish')?'USD ደካማ ከሆነ EUR/USD ወደ ላይ ሊወጣ ይችላል።':'EUR ደካማ ከሆነ EUR/USD ወደ ታች ሊጫን ይችላል።';return 'Actual እና Forecast እስኪነጻጸሩ ድረስ አቅጣጫው አልተረጋገጠም።';}
+function newsSurpriseAm(e,a){const actual=newsNumber(e.actual),forecast=newsNumber(e.forecast);if(!Number.isFinite(actual)||!Number.isFinite(forecast))return 'ትክክለኛ ውጤት ገና አልተለቀቀም፤ ይህ ሁኔታዊ ግምት ብቻ ነው።';if(a.currencyEffect==='in-line')return 'ውጤቱ ከትንበያ ጋር ተቀራራቢ ነው።';return 'ትክክለኛ ውጤት '+e.actual+' ከትንበያ '+e.forecast+' ጋር ሲነጻጸር '+(a.currencyEffect==='stronger'?'ለገንዘቡ የሚደግፍ':'ለገንዘቡ የማይደግፍ')+' ነው።';}
+
+function newsConclusionAm(e,a){
+ const actual=newsNumber(e.actual),forecast=newsNumber(e.forecast);
+ if(!Number.isFinite(actual)||!Number.isFinite(forecast)) return 'ይህ ዜና ገና አልተለቀቀም። ስለዚህ የEUR/USD አቅጣጫ አሁን ማረጋገጥ አይቻልም፤ የሚታየው ተፅዕኖ ሁኔታዊ ግምት ብቻ ነው።';
+ if(a.currencyEffect==='in-line') return 'ውጤቱ ከትንበያ ጋር ተቀራራቢ ነው። የEUR/USD አቅጣጫ በዚህ ዜና ብቻ አይወሰንም።';
+ if(a.currencyEffect==='stronger') return e.currency==='USD'?'የUSD ውጤት ከትንበያ የበለጠ ጠንካራ ነው። ይህ EUR/USD ላይ የታች ጫና ሊፈጥር ይችላል።':'የEUR ውጤት ከትንበያ የበለጠ ጠንካራ ነው። ይህ EUR/USD ላይ የላይ ድጋፍ ሊሆን ይችላል።';
+ return e.currency==='USD'?'የUSD ውጤት ከትንበያ ደካማ ነው። ይህ EUR/USD ላይ የላይ ድጋፍ ሊሆን ይችላል።':'የEUR ውጤት ከትንበያ ደካማ ነው። ይህ EUR/USD ላይ የታች ጫና ሊፈጥር ይችላል።';
+}
+function newsRecommendationAm(e,a){
+ const actual=newsNumber(e.actual),forecast=newsNumber(e.forecast);
+ if(!Number.isFinite(actual)||!Number.isFinite(forecast)) return 'ዜናው ከመውጣቱ በፊት አዲስ ትሬድ አትክፈት። ውጤቱ ከወጣ በኋላ Spread እንዲረጋጋ፣ M15 ካንድል እንዲዘጋ፣ H1 አቅጣጫና Liquidity ምላሽ እንዲረጋገጡ ጠብቅ።';
+ if(a.currencyEffect==='in-line') return 'በዜናው ላይ ብቻ BUY/SELL አትወስን። H1 አዝማሚያን፣ M15 መዘጋትን፣ Liquidity እና Spread አረጋግጥ፤ ግልጽ ማረጋገጫ ከሌለ WAIT ቆይ።';
+ return 'የመጀመሪያውን የዋጋ ፍንዳታ (spike) አትከተል። M15 ካንድል ከተዘጋ በኋላ H1 አቅጣጫ፣ retest/structure confirmation፣ Spread እና Stop Loss አደጋ ካረጋገጡ ብቻ እቅድ ገምግም።';
+}
+
 function renderNewsProfessionalSummary(upcoming){
  const el=document.getElementById('newsProfessionalSummary');if(!el)return;
  const high=upcoming.filter(e=>String(e.impact).toLowerCase().includes('high'));
- if(!upcoming.length){el.innerHTML='<b>EUR/USD desk summary:</b> No upcoming USD/EUR events are listed in the current weekly feed. This is not proof that the market is free of event risk; verify a second calendar.';return;}
- const next=high[0]||upcoming[0],nextInfo=explainNewsEvent(next),highText=high.length?high.length+' high-impact event(s) remain in the listed calendar.':'No upcoming high-impact USD/EUR event is listed.';
- el.innerHTML='<b>Professional EUR/USD impact summary</b><br>'+escapeNewsText(highText)+' Next scheduled release: <b>'+escapeNewsText(next.currency+' · '+next.title)+'</b> at '+escapeNewsText(newsTimeEAT(new Date(next.time)))+'. '+escapeNewsText(nextInfo.explain)+'<br><b>Trading implication:</b> '+escapeNewsText(nextInfo.pair)+' Treat this as a conditional scenario until actual data are released; do not pre-judge direction. Watch the first reaction, spread expansion and price structure before considering an entry.';
+ if(!upcoming.length){
+  el.innerHTML='<b>የEUR/USD ሙያዊ ማጠቃለያ</b><br><b>መደምደሚያ፦</b> በቀጣይ ዝርዝር ውስጥ የሚታይ USD/EUR ዜና የለም፤ ይህ የዜና አደጋ የለም ማለት አይደለም።<br><b>ሙያዊ ምክር፦</b> በታመነ ሌላ የኢኮኖሚ ቀን መቁጠሪያ አረጋግጥ፤ የዋጋ መዋቅርና Liquidity እስኪረጋገጡ WAIT ቆይ።';
+  return;
+ }
+ const next=high[0]||upcoming[0],info=explainNewsEvent(next);
+ const conclusion=newsConclusionAm(next,info),recommendation=newsRecommendationAm(next,info);
+ const highText=high.length?high.length+' ከፍተኛ ተፅዕኖ ያላቸው ዜናዎች ቀርተዋል።':'በሚታየው ዝርዝር ውስጥ ቀጣይ ከፍተኛ ተፅዕኖ ያለው ዜና የለም።';
+ el.innerHTML='<b>የEUR/USD ሙያዊ ማጠቃለያ</b><br>'+escapeNewsText(highText)+'<br><b>ቀጣይ ዋና ዜና፦</b> '+escapeNewsText(next.currency+' · '+next.title)+' — '+escapeNewsText(newsTimeEAT(new Date(next.time)))+'<br><b>የዜና ማብራሪያ፦</b> '+escapeNewsText(newsExplainAm(info.kind))+'<br><b>የሚጠበቀው ተፅዕኖ፦</b> '+escapeNewsText(newsPairAm(info))+'<br><b>መደምደሚያ፦</b> '+escapeNewsText(conclusion)+'<br><b>ሙያዊ ምክር፦</b> '+escapeNewsText(recommendation)+'<br><b>የአደጋ ማስጠንቀቂያ፦</b> ይህ የዜና ትንተና ነው እንጂ የBUY/SELL ዋስትና አይደለም።';
 }
 
 function renderEconomicNews(){
@@ -1981,7 +2004,7 @@ function renderEconomicNews(){
  
  if(newsCalendarState.status==='error'){
  
-  if(status)status.textContent='ERROR';if(rows)rows.textContent='Calendar unavailable: '+newsCalendarState.message;const summary=document.getElementById('newsProfessionalSummary');if(summary)summary.textContent='Professional EUR/USD impact summary unavailable because the economic calendar failed to load. Treat news risk as unverified and do not use the signal as clearance to trade.';
+  if(status)status.textContent='ስህተት';if(rows)rows.textContent='የዜና ቀን መቁጠሪያ አልተገኘም፦ '+newsCalendarState.message;const summary=document.getElementById('newsProfessionalSummary');if(summary)summary.textContent='የዜና ምንጩ ስላልተጫነ ሙያዊ ማጠቃለያ አልተገኘም። የዜና አደጋው አልተረጋገጠም፤ ንግድ ለመጀመር እንደፈቃድ አትቁጠረው።';
  
   if(gate)gate.innerHTML='<span class="warning">WAIT — NEWS CALENDAR UNAVAILABLE.</span> '+escapeNewsText(newsCalendarState.message);return;
  
@@ -1991,7 +2014,7 @@ function renderEconomicNews(){
  
   newsCalendarState={status:'error',message:'No valid USD/EUR events found in the weekly feed'};
  
-  if(status)status.textContent='ERROR';if(rows)rows.textContent=newsCalendarState.message;
+  if(status)status.textContent='ስህተት';if(rows)rows.textContent=newsCalendarState.message;
  
   if(gate)gate.innerHTML='<span class="warning">WAIT — NO VERIFIED CALENDAR EVENTS.</span>';return;
  
@@ -2001,7 +2024,7 @@ function renderEconomicNews(){
  
   newsCalendarState={status:'blocked',message:'High-impact event within 30 minutes'};
  
-  if(status)status.textContent='NEWS WINDOW';
+  if(status)status.textContent='የዜና መከላከያ ጊዜ';
  
   if(gate)gate.innerHTML='<span class="warning">WAIT — HIGH-IMPACT NEWS WINDOW.</span> '+escapeNewsText(active.currency+' · '+active.title+' · '+newsTimeEAT(new Date(active.time)));
  
@@ -2009,7 +2032,7 @@ function renderEconomicNews(){
  
   newsCalendarState={status:'clear',message:'No listed high-impact event within 30 minutes'};
  
-  if(status)status.textContent='CHECKED';
+  if(status)status.textContent='ተፈትሿል';
  
   if(gate)gate.innerHTML='<span class="ok">No listed high-impact USD/EUR event within ±30 minutes.</span> This does not guarantee the calendar is complete.';
  
@@ -2023,8 +2046,8 @@ function renderEconomicNews(){
   renderNewsProfessionalSummary(upcoming);
   rows.innerHTML=shown.length?shown.map(e=>{
    const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small',a=explainNewsEvent(e);
-   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br><b>'+escapeNewsText(e.title)+'</b>'+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+(e.actual?' · Actual: '+escapeNewsText(e.actual):'')+'<div class="news-explain"><b>What it measures:</b> '+escapeNewsText(a.explain)+'</div><div class="news-impact"><b>EUR/USD scenario:</b> '+escapeNewsText(a.pair)+'<br><b>Market read:</b> '+escapeNewsText(a.surprise)+' '+escapeNewsText(a.scenario)+'</div></div>';
-  }).join(''):'No upcoming USD/EUR events in this weekly feed. Past events are hidden.';
+   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br><b>'+escapeNewsText(e.title)+'</b>'+(e.forecast?' · ትንበያ: '+escapeNewsText(e.forecast):'')+(e.previous?' · ቀዳሚ: '+escapeNewsText(e.previous):'')+(e.actual?' · ትክክለኛ: '+escapeNewsText(e.actual):'')+'<div class="news-explain"><b>የሚለካው፦</b> '+escapeNewsText(newsExplainAm(a.kind))+'</div><div class="news-impact"><b>EUR/USD ተፅዕኖ፦</b> '+escapeNewsText(newsPairAm(a))+'<br><b>የገበያ ንባብ፦</b> '+escapeNewsText(newsSurpriseAm(e,a))+'<br><b>መደምደሚያ፦</b> '+escapeNewsText(newsConclusionAm(e,a))+'<br><b>ሙያዊ ምክር፦</b> '+escapeNewsText(newsRecommendationAm(e,a))+'</div></div>';
+  }).join(''):'በዚህ ሳምንታዊ ምንጭ ውስጥ ቀጣይ USD/EUR ዜና የለም። ያለፉ ዜናዎች ተደብቀዋል።';
  
  }
  
