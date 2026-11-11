@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
  
 <html lang="am">
@@ -1726,14 +1725,7 @@ function initSmartChart(){
   smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
  
   smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1,
-   autoscaleInfoProvider:original=>{
-    const info=original();if(!info||!info.priceRange)return info;
-    const visible=getSRDisplayZones(liveFrames||{},chartPrice());if(!visible.length)return info;
-    let min=info.priceRange.minValue,max=info.priceRange.maxValue;
-    visible.forEach(z=>{min=Math.min(min,z.low);max=Math.max(max,z.high);});
-    const pad=Math.max((max-min)*0.035,0.00008);
-    return {...info,priceRange:{...info.priceRange,minValue:min-pad,maxValue:max+pad}};
-   }});
+   priceFormat:{type:'price',precision:5,minMove:0.00001}});
  
   smartVolumeSeries=smartChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
   smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.82,bottom:0.02},visible:false});
