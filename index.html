@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
  
 <html lang="am">
@@ -11,7 +10,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT V12.1</title>
+<title>NEGUS AI ASSISTANT V12.2</title>
  
 <style>
  
@@ -793,7 +792,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.1</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.2</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -1031,7 +1030,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
+<footer>NEGUS AI ASSISTANT v12.2 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
  
  
  
@@ -1708,9 +1707,9 @@ function initSmartChart(){
  
  try{
  
-  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
+  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#f0f2f5',style:LightweightCharts.LineStyle.Solid},horzLines:{color:'#e9edf1',style:LightweightCharts.LineStyle.Solid}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
  
-  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
+  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',priceFormat:{type:'price',precision:5,minMove:0.00001},lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
  
   smartVolumeSeries=smartChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
   smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.78,bottom:0.02},visible:false,autoScale:true});
