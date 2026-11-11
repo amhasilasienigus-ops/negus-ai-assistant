@@ -79,6 +79,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .tablewrap{overflow-x:auto}
  
 .chart-shell{position:relative;width:100%;height:460px;border:1px solid #d5dce5;border-radius:10px;overflow:hidden;background:#fff}.chart-host{position:absolute;inset:0}.chart-overlay{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}.chart-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:10px;font-size:11px;color:var(--muted)}.legend-dot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}.chart-status{font-size:11px;color:var(--muted);margin-top:7px}
+.tv-chart-wrap{height:540px;width:100%;border:1px solid #34445b;border-radius:10px;overflow:hidden;background:#0b1220;margin:12px 0 18px}.tv-chart-container{height:100%;width:100%}.tv-chart-container__widget{height:calc(100% - 28px);width:100%}.tv-chart-copyright{height:25px;padding:4px 8px;text-align:right;font-size:11px;color:#9aabc0;background:#0b1220}.tv-chart-copyright a{color:#9aabc0;text-decoration:none}.chart-subheading{font-size:14px;color:var(--gold);margin:18px 0 5px}.news-event{padding:10px 0;border-bottom:1px solid var(--line);line-height:1.55}.news-event:last-child{border-bottom:0}.news-explain{font-size:12px;color:var(--muted);margin-top:5px}.news-impact{font-size:12px;margin-top:5px;padding:7px 9px;background:#111d2e;border-radius:7px}.news-summary{border:1px solid #3b4d64;background:#101d2e;padding:12px;border-radius:9px;margin:12px 0;line-height:1.6}.news-summary b{color:var(--gold)}
  
 .chart-price-strip{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0}.chart-price-cell{background:#fff;border:1px solid #dce3eb;border-radius:9px;padding:10px;min-width:0}.chart-price-label{font-size:10px;color:var(--muted);letter-spacing:.4px}.chart-price-value{font-size:clamp(15px,3.4vw,22px);font-weight:800;margin-top:5px;overflow-wrap:anywhere}.chart-controls{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.chart-toggle{display:flex;align-items:center;gap:7px;background:#0c1727;border:1px solid var(--line);border-radius:20px;padding:8px 11px;font-size:12px;color:var(--text);margin:0}.chart-toggle input{width:17px;height:17px;margin:0;accent-color:var(--gold)}.mtf-wrap{overflow-x:auto}.mtf-table{min-width:680px}.mtf-table th{color:var(--gold);font-size:11px}.mtf-table td{font-size:11px;vertical-align:top}.mtf-bull{color:var(--green);font-weight:bold}.mtf-bear{color:var(--red);font-weight:bold}.mtf-neutral{color:var(--gold);font-weight:bold}.chart-note{font-size:11px;color:var(--muted);line-height:1.5}
 .chart-shell{background:#fff;border:1px solid #d9e0e8;border-radius:8px}
@@ -89,7 +90,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .chart-controls .chart-toggle:has(input:disabled){opacity:.45}
  
  
-@media(max-width:600px){.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+@media(max-width:600px){.tv-chart-wrap{height:470px}.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
  
  
  
@@ -771,6 +772,8 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   </div>
  
+  <div id="newsProfessionalSummary" class="news-summary">Professional EUR/USD impact summary will appear after the calendar loads.</div>
+  <h4>Upcoming USD / EUR Events — Explanation & Pair Impact</h4>
   <div id="newsRows" class="result">Loading this week's USD/EUR events...</div>
  
   <button class="action" onclick="refreshEconomicNews()">Refresh Economic Calendar</button>
@@ -791,8 +794,12 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <h3>EUR/USD NEGUS Smart Chart · v11</h3>
  
-   <p>Full historical candlesticks, clean price scale, optional volume bars and selectable NEGUS overlays. External market data only; not an Exness MT5 connection. Volume bars appear only if the provider supplies volume data.</p>
- 
+   <p><b>Official TradingView Advanced Chart</b> for EUR/USD, with TradingView's own chart engine, symbol search, indicators and drawing tools. TradingView data may differ from Exness MT5.</p>
+
+   <div class="tv-chart-wrap"><div id="tvChartContainer" class="tv-chart-container"><div class="tv-chart-container__widget" style="height:calc(100% - 28px);width:100%"></div><div class="tv-chart-copyright"><a href="https://www.tradingview.com/symbols/EURUSD/" target="_blank" rel="noopener noreferrer">EUR/USD chart by TradingView</a></div></div></div>
+
+   <p class="small">The official embedded TradingView widget runs inside its own frame. NEGUS custom multi-timeframe S/R, FVG and liquidity overlays are kept in the separate analysis chart below because external code cannot draw custom layers inside TradingView's embedded frame.</p>
+
    <div class="chart-price-strip">
  
     <div class="chart-price-cell"><div class="chart-price-label">LIVE MID PRICE</div><div id="chartLiveMid" class="chart-price-value gold">--</div></div>
@@ -809,7 +816,9 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="M30">M30 · Intraday Structure</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
  
-   <div class="small" style="margin-top:10px">CHART OVERLAYS · Switch each layer independently</div>
+   <h4 class="chart-subheading">NEGUS MTF Overlay Analysis Chart</h4>
+   <p class="small">This companion chart preserves NEGUS-calculated levels and overlays. It is not the TradingView chart above.</p>
+   <div class="small" style="margin-top:10px">NEGUS OVERLAYS · Switch each layer independently</div>
  
    <div class="chart-master"><label><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> SMC ON / OFF</label><small>Turns BOS, CHoCH, FVG, Order Blocks and liquidity markings on or off. Support / Resistance stays independently controlled.</small></div>
  
@@ -1043,7 +1052,7 @@ function showPage(id,btn){
  
  if(id==='performance')renderPerformance();
  
- if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
+ if(id==='market'){if(!tradingViewChartLoaded)loadTradingViewChart(document.getElementById('chartTF')?.value||'M15');renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});renderSmartChart(true);},100);}
  
 }
  
@@ -1088,11 +1097,24 @@ function changeChart(){
  const tf=document.getElementById('chartTF').value;
  
  renderSmartChart(true);
+ loadTradingViewChart(tf);
  
  setText('chartStatus','Chart timeframe: '+tf+' · selected-timeframe overlays refreshed.');
  
 }
  
+/* Official TradingView Advanced Chart widget. The public embed is isolated in an iframe. */
+let tradingViewChartLoaded=false;
+function loadTradingViewChart(tf='M15'){
+ const host=document.getElementById('tvChartContainer');if(!host)return;
+ const intervals={M5:'5',M15:'15',M30:'30',H1:'60',H4:'240',D1:'D'};
+ const interval=intervals[tf]||'15';
+ host.innerHTML='<div class="tradingview-widget-container__widget" style="height:calc(100% - 28px);width:100%"></div><div class="tv-chart-copyright"><a href="https://www.tradingview.com/symbols/EURUSD/" target="_blank" rel="noopener noreferrer">EUR/USD chart by TradingView</a></div>';
+ const script=document.createElement('script');script.type='text/javascript';script.async=true;script.src='https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js';
+ script.textContent=JSON.stringify({autosize:true,symbol:'FX:EURUSD',interval,timezone:'exchange',theme:'dark',style:'1',locale:'en',allow_symbol_change:true,hide_side_toolbar:false,hide_top_toolbar:false,hide_legend:false,hide_volume:false,withdateranges:true,save_image:false,calendar:false,studies:[],support_host:'https://www.tradingview.com'});
+ host.appendChild(script);tradingViewChartLoaded=true;
+}
+
 function localDateString(date=new Date()){
  
  const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,'0'),d=String(date.getDate()).padStart(2,'0');
@@ -1898,6 +1920,57 @@ function newsTimeEAT(date){
  
 function escapeNewsText(value){return String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));}
  
+function newsNumber(value){
+ if(value===null||value===undefined||String(value).trim()===''||String(value).trim()==='-')return NaN;
+ const n=Number(String(value).replace(/,/g,'').replace(/%/g,'').replace(/[^0-9.+-]/g,''));return Number.isFinite(n)?n:NaN;
+}
+function explainNewsEvent(e){
+ const title=String(e.title||'').toLowerCase(),ccy=e.currency,impact=String(e.impact||'Unknown').toLowerCase();
+ let kind='general',explain='This release is a scheduled economic update. Markets compare the result with expectations and the prior reading; the headline alone does not determine direction.';
+ let higher='stronger',lower='weaker',inverse=false;
+ if(/interest rate|rate decision|cash rate|monetary policy|fomc|ecb.*decision|policy statement/.test(title)){
+  kind='rates';explain='Central-bank rate decisions and policy statements change the expected return on the currency and the future path of monetary policy. A more hawkish outcome can support the currency; a dovish surprise can weaken it.';
+ }else if(/cpi|consumer price|inflation|hicp|pce price|price index|ppi|producer price/.test(title)){
+  kind='inflation';explain='Inflation data influence expectations for future interest rates. A hotter-than-expected reading can lift rate expectations and support the currency in the short term; a softer reading can reduce them. The reaction depends on the central bank’s current priorities.';
+ }else if(/unemployment claims|jobless claims|unemployment rate/.test(title)){
+  kind='labour';inverse=true;explain='Labour-market weakness can reduce expected interest rates. For unemployment claims or the unemployment rate, a lower-than-expected figure is generally stronger for the currency; a higher figure is generally weaker.';
+ }else if(/non.?farm|payroll|employment change|employment report|average hourly earnings|wage|jobs/.test(title)){
+  kind='labour';explain='Employment and wage data indicate labour-market strength and inflation pressure. Stronger-than-expected jobs or wages can support the currency through higher rate expectations; weaker data can weigh on it.';
+ }else if(/gdp|gross domestic/.test(title)){
+  kind='growth';explain='GDP measures economic growth. A stronger-than-expected reading generally supports the currency by improving the growth outlook; a weaker reading can undermine it.';
+ }else if(/pmi|ism|manufacturing|services index|industrial production/.test(title)){
+  kind='activity';explain='Business-activity surveys and production data indicate economic momentum. A higher-than-expected reading generally supports the currency; a weaker reading can weigh on it.';
+ }else if(/retail sales|consumer spending/.test(title)){
+  kind='consumption';explain='Retail sales measure household demand. Stronger-than-expected spending can support the currency by signalling resilient growth; weaker spending can point to a slowdown.';
+ }else if(/consumer confidence|sentiment|economic sentiment/.test(title)){
+  kind='confidence';explain='Confidence surveys provide an early signal of household or business activity. A stronger reading can support the currency, while a weaker reading can hurt it, although market reaction is often less direct.';
+ }else if(/speech|testimony|press conference|minutes|remarks/.test(title)){
+  kind='central-bank communication';explain='Central-bank communication is interpreted for hawkish or dovish guidance. A hawkish tone (more concern about inflation or higher rates for longer) tends to support that currency; a dovish tone tends to weaken it.';
+ }
+ const actual=newsNumber(e.actual),forecast=newsNumber(e.forecast),previous=e.previous||'N/A';
+ let surprise='No released actual value is available in this calendar entry; the impact below is scenario-based, not a confirmed market signal.';
+ let currencyEffect='pending',scenario='Wait for the actual release and compare it with the consensus forecast.';
+ if(Number.isFinite(actual)&&Number.isFinite(forecast)){
+  const delta=actual-forecast,better=inverse?delta<0:delta>0;
+  currencyEffect=delta===0?'in-line':(better?'stronger':'weaker');
+  surprise='Actual '+e.actual+' vs forecast '+e.forecast+' ('+(delta===0?'in line':(delta>0?'above':'below'))+' expectations). Previous: '+previous+'.';
+  scenario=delta===0?'The result was broadly in line with consensus; direction may depend on details and positioning.':(better?'The surprise is generally supportive of '+ccy+'.':'The surprise is generally negative for '+ccy+'.');
+ }
+ let pair='Neutral / wait';
+ if(currencyEffect==='stronger')pair=ccy==='USD'?'Bearish EUR/USD — USD strength can push the pair lower.':'Bullish EUR/USD — EUR strength can lift the pair.';
+ else if(currencyEffect==='weaker')pair=ccy==='USD'?'Bullish EUR/USD — USD weakness can lift the pair.':'Bearish EUR/USD — EUR weakness can pressure the pair.';
+ else if(kind!=='general')pair=ccy==='USD'?'If USD data beat expectations: bearish EUR/USD; if they miss: bullish EUR/USD.':'If EUR data beat expectations: bullish EUR/USD; if they miss: bearish EUR/USD.';
+ const weight=impact.includes('high')?'High':impact.includes('medium')?'Medium':impact.includes('low')?'Low':'Unrated';
+ return {kind,explain,surprise,scenario,pair,weight,currencyEffect};
+}
+function renderNewsProfessionalSummary(upcoming){
+ const el=document.getElementById('newsProfessionalSummary');if(!el)return;
+ const high=upcoming.filter(e=>String(e.impact).toLowerCase().includes('high'));
+ if(!upcoming.length){el.innerHTML='<b>EUR/USD desk summary:</b> No upcoming USD/EUR events are listed in the current weekly feed. This is not proof that the market is free of event risk; verify a second calendar.';return;}
+ const next=high[0]||upcoming[0],nextInfo=explainNewsEvent(next),highText=high.length?high.length+' high-impact event(s) remain in the listed calendar.':'No upcoming high-impact USD/EUR event is listed.';
+ el.innerHTML='<b>Professional EUR/USD impact summary</b><br>'+escapeNewsText(highText)+' Next scheduled release: <b>'+escapeNewsText(next.currency+' · '+next.title)+'</b> at '+escapeNewsText(newsTimeEAT(new Date(next.time)))+'. '+escapeNewsText(nextInfo.explain)+'<br><b>Trading implication:</b> '+escapeNewsText(nextInfo.pair)+' Treat this as a conditional scenario until actual data are released; do not pre-judge direction. Watch the first reaction, spread expansion and price structure before considering an entry.';
+}
+
 function renderEconomicNews(){
  
  const now=Date.now(),high=newsEvents.filter(e=>String(e.impact||'').toLowerCase().includes('high')).sort((a,b)=>a.time-b.time);
@@ -1908,7 +1981,7 @@ function renderEconomicNews(){
  
  if(newsCalendarState.status==='error'){
  
-  if(status)status.textContent='ERROR';if(rows)rows.textContent='Calendar unavailable: '+newsCalendarState.message;
+  if(status)status.textContent='ERROR';if(rows)rows.textContent='Calendar unavailable: '+newsCalendarState.message;const summary=document.getElementById('newsProfessionalSummary');if(summary)summary.textContent='Professional EUR/USD impact summary unavailable because the economic calendar failed to load. Treat news risk as unverified and do not use the signal as clearance to trade.';
  
   if(gate)gate.innerHTML='<span class="warning">WAIT — NEWS CALENDAR UNAVAILABLE.</span> '+escapeNewsText(newsCalendarState.message);return;
  
@@ -1946,14 +2019,11 @@ function renderEconomicNews(){
  
  if(rows){
  
-  const shown=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>now).slice(0,18);
- 
+  const upcoming=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>now),shown=upcoming.slice(0,18);
+  renderNewsProfessionalSummary(upcoming);
   rows.innerHTML=shown.length?shown.map(e=>{
- 
-   const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small';
- 
-   return '<div style="padding:7px 0;border-bottom:1px solid var(--line)"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br>'+escapeNewsText(e.title)+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+'</div>';
- 
+   const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small',a=explainNewsEvent(e);
+   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br><b>'+escapeNewsText(e.title)+'</b>'+(e.forecast?' · Forecast: '+escapeNewsText(e.forecast):'')+(e.previous?' · Previous: '+escapeNewsText(e.previous):'')+(e.actual?' · Actual: '+escapeNewsText(e.actual):'')+'<div class="news-explain"><b>What it measures:</b> '+escapeNewsText(a.explain)+'</div><div class="news-impact"><b>EUR/USD scenario:</b> '+escapeNewsText(a.pair)+'<br><b>Market read:</b> '+escapeNewsText(a.surprise)+' '+escapeNewsText(a.scenario)+'</div></div>';
   }).join(''):'No upcoming USD/EUR events in this weekly feed. Past events are hidden.';
  
  }
@@ -1980,7 +2050,7 @@ async function refreshEconomicNews(){
  
    const time=Date.parse(raw);if(!Number.isFinite(time)||!e.title)return null;
  
-   return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),forecast:String(e.forecast||''),previous:String(e.previous||'')};
+   return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual||''),forecast:String(e.forecast||''),previous:String(e.previous||'')};
  
   }).filter(Boolean).sort((a,b)=>a.time-b.time);
  
