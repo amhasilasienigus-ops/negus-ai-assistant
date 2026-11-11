@@ -1575,20 +1575,14 @@ function buildZones(frames,price){
 // Select nearby levels plus the nearest D1/H4/H1 levels on BOTH sides.
 // This prevents the chart from silently dropping higher-timeframe resistance/support.
 function getSRDisplayZones(frames,price){
- const zones=buildZones(frames,price).zones;
- const selected=[];
+ const zones=buildZones(frames,price).zones,selected=[];
  const add=z=>{if(z&&!selected.some(x=>x.type===z.type&&Math.abs(x.mid-z.mid)<0.000001))selected.push(z);};
  ['SUPPORT','RESISTANCE'].forEach(type=>{
   const side=zones.filter(z=>z.type===type&&(!Number.isFinite(price)||(type==='SUPPORT'?z.mid<=price:z.mid>=price)))
    .sort((a,b)=>Number.isFinite(price)?Math.abs(a.mid-price)-Math.abs(b.mid-price):a.mid-b.mid);
-  side.slice(0,2).forEach(add);
+  // Keep the three nearest levels on each side, then explicitly retain HTF references.
+  side.slice(0,3).forEach(add);
   ['D1','H4','H1'].forEach(tf=>add(side.find(z=>z.tfs.split('/').includes(tf))));
-  // Keep the chart readable while preserving the closest higher-timeframe references.
-  const same=selected.filter(z=>z.type===type);
-  if(same.length>4){
-   const keep=same.slice().sort((a,b)=>Number.isFinite(price)?Math.abs(a.mid-price)-Math.abs(b.mid-price):a.mid-b.mid).slice(0,4);
-   for(let i=selected.length-1;i>=0;i--)if(selected[i].type===type&&!keep.includes(selected[i]))selected.splice(i,1);
-  }
  });
  return selected.sort((a,b)=>a.mid-b.mid);
 }
@@ -1683,7 +1677,7 @@ function renderMultiTimeframePanel(){
  
 /* v11 SMART CHART — simultaneous multi-timeframe overlays + live price */
  
-let smartChart=null,smartCandleSeries=null,smartVolumeSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null;
+let smartChart=null,smartCandleSeries=null,smartVolumeSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null,liveSignalDirection='WAIT';
  
 function chartTime(value){return normalizeCandleTime(value);}
  
@@ -1833,8 +1827,13 @@ function renderSmartChart(forceFit=false){
   if(overlayOn('overlayStructure')&&st.ok){if(st.bos!=='NONE')marks.push({time:chartTime(st.last.time),position:st.bos.includes('BULLISH')?'belowBar':'aboveBar',color:'#e5b94f',shape:st.bos.includes('BULLISH')?'arrowUp':'arrowDown',text:st.bos});if(st.choch!=='NONE')marks.push({time:chartTime(st.last.time),position:st.choch.includes('BULLISH')?'belowBar':'aboveBar',color:'#ffd166',shape:'circle',text:st.choch});if(st.sweep!=='NONE')marks.push({time:chartTime(st.last.time),position:st.sweep.includes('BULLISH')?'belowBar':'aboveBar',color:st.sweep.includes('BULLISH')?'#35c995':'#ff6878',shape:'arrowUp',text:'SWEEP'});}
  
   if(overlayOn('overlayFVG')&&en.ok){if(en.paBull)marks.push({time:chartTime(en.last.time),position:'belowBar',color:'#35c995',shape:'arrowUp',text:'PA BUY'});if(en.paBear)marks.push({time:chartTime(en.last.time),position:'aboveBar',color:'#ff6878',shape:'arrowDown',text:'PA SELL'});}
+  // Show a BUY/SELL marker only when the full multi-timeframe rule engine confirms it.
+  if(liveSignalDirection==='BUY'||liveSignalDirection==='SELL'){
+   const signalBar=bars[bars.length-1],buy=liveSignalDirection==='BUY';
+   marks.push({time:signalBar.time,position:buy?'belowBar':'aboveBar',color:buy?'#159b83':'#dc5965',shape:buy?'arrowUp':'arrowDown',text:buy?'BUY SIGNAL':'SELL SIGNAL'});
+  }
  
-  if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time));
+  if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time).sort((a,b)=>a.time-b.time));
  
   if(oldRange&&!forceFit){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}
   else {smartChart.timeScale().fitContent();}
@@ -1853,6 +1852,7 @@ document.addEventListener('DOMContentLoaded',()=>{initSmartChart();});
  
 function evaluateLiveSignal(){
  
+ liveSignalDirection='WAIT';
  const out=document.getElementById('autoSignal');if(!out)return;
  
  const q=liveQuote||{},frames=liveFrames||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
@@ -1913,7 +1913,8 @@ function evaluateLiveSignal(){
  
     const entry=price,sl=direction==='BUY'?entry-slPips/10000:entry+slPips/10000,tp=direction==='BUY'?entry+tpPips/10000:entry-tpPips/10000;
  
-    out.innerHTML='<span class="ok">RULES ALIGN: '+direction+'</span><br>Reference entry: <b>'+fmtPrice(entry)+'</b><br>Illustrative stop: <b>'+fmtPrice(sl)+'</b> ('+slPips.toFixed(1)+' pips)<br>Illustrative target: <b>'+fmtPrice(tp)+'</b> ('+tpPips.toFixed(1)+' pips)<br>Maximum theoretical lot at '+riskPct.toFixed(1)+'% risk: <b>'+maxLot.toFixed(4)+'</b><br><br><span class="warning">Not an instruction to trade.</span> Verify the setup and exact prices on Exness MT5. Never round lot size upward. The app does not place orders.';return;
+    liveSignalDirection=direction;
+    out.innerHTML='<span class="ok">RULES ALIGN: '+direction+'</span><br>Reference entry: <b>'+fmtPrice(entry)+'</b><br>Illustrative stop: <b>'+fmtPrice(sl)+'</b> ('+slPips.toFixed(1)+' pips)<br>Illustrative target: <b>'+fmtPrice(tp)+'</b> ('+tpPips.toFixed(1)+' pips)<br>Maximum theoretical lot at '+riskPct.toFixed(1)+'% risk: <b>'+maxLot.toFixed(4)+'</b><br><br><span class="warning">Not an instruction to trade.</span> Verify the setup and exact prices on Exness MT5. Never round lot size upward. The app does not place orders.';if(smartChartReady)renderSmartChart(false);return;
  
    }
  
@@ -1921,7 +1922,7 @@ function evaluateLiveSignal(){
  
  }
  
- out.innerHTML='<span class="warning">WAIT — NO TRADE.</span><br>'+reasons.map(x=>'• '+x).join('<br>')+'<br><br>Do not force an entry. This is a conservative rule check, not a prediction.';
+ out.innerHTML='<span class="warning">WAIT — NO TRADE.</span><br>'+reasons.map(x=>'• '+x).join('<br>')+'<br><br>Do not force an entry. This is a conservative rule check, not a prediction.';if(smartChartReady)renderSmartChart(false);
  
 }
  
