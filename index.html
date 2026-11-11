@@ -11,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v12</title>
+<title>NEGUS AI ASSISTANT V12.1</title>
  
 <style>
  
@@ -91,7 +91,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .chart-controls .chart-toggle:has(input:disabled){opacity:.45}
  
  
-@media(max-width:600px){.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+@media(max-width:600px){.chart-shell{height:560px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
  
  
  
@@ -153,7 +153,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12 · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.1 · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -793,7 +793,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.1</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -814,24 +814,24 @@ window.negusOneSignalReady=new Promise(resolve=>{
    <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="M30">M30 · Intraday Structure</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
  
    <h4 class="chart-subheading">የNEGUS ተደራቢ መለያዎች · በዚሁ ቻርት ላይ</h4>
-   <p class="small">የሚከተሉት የSMC መስመሮችና ዞኖች ከካንድሎቹ ጋር በአንድ የቻርት ቦታ ላይ ይሳላሉ።</p>
+   <p class="small">ቻርቱ መጀመሪያ ንጹህ ይከፈታል። የምትፈልገውን SMC overlay ብቻ ON አድርግ፤ ሁሉም በዚሁ ቻርት ላይ ይታያሉ።</p>
    <div class="small" style="margin-top:10px">የNEGUS OVERLAYS · እያንዳንዱን በተናጠል ON/OFF አድርግ</div>
  
-   <div class="chart-master"><label><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> SMC አብራ / አጥፋ</label><small>BOS፣ CHoCH፣ FVG፣ Order Block እና Liquidity ያበራል/ያጠፋል። Support / Resistance በተናጠል ይቆጣጠራል።</small></div>
+   <div class="chart-master"><label><input id="smcMaster" type="checkbox" onchange="toggleSMC()"> SMC አብራ / አጥፋ</label><small>BOS፣ CHoCH፣ FVG፣ Order Block እና Liquidity ያበራል/ያጠፋል። Support / Resistance በተናጠል ይቆጣጠራል።</small></div>
  
    <div class="chart-controls">
  
-    <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> ድጋፍ / መከላከያ</label>
+    <label class="chart-toggle"><input id="overlaySR" type="checkbox" onchange="drawSmartOverlays()"> ድጋፍ / መከላከያ</label>
  
-    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG የዋጋ ክፍተት</label>
+    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" onchange="drawSmartOverlays()"> FVG የዋጋ ክፍተት</label>
  
-    <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" checked onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
+    <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
  
     <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH የመዋቅር ለውጥ</label>
  
     <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> ጊዜያዊ Order Block</label>
 
-  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" checked onchange="drawSmartOverlays()"> ሁሉም የጊዜ ክፈፎች · MTF</label>
+  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" onchange="drawSmartOverlays()"> ሁሉም የጊዜ ክፈፎች · MTF</label>
  
    </div>
  
@@ -841,7 +841,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <div id="chartStatus" class="chart-status">Waiting for live candle data and chart library...</div>
  
-   <p class="chart-note">SMC MASTER ON/OFF controls BOS/CHoCH, FVG, candidate OB and liquidity layers. Support / Resistance remains independent. M30 is an additional chart timeframe. With ALL TIMEFRAMES · MTF enabled, Support/Resistance, FVG and liquidity references from D1, H4, H1, M30, M15 and M5 are drawn together. Selected-timeframe BOS/CHoCH and candidate OB remain available as focused layers.</p>
+   <p class="chart-note">SMC MASTER ON/OFF controls BOS/CHoCH, FVG, candidate OB and liquidity layers. Support / Resistance remains independent. M30 is an additional chart timeframe. With MTF enabled, higher-timeframe references are added selectively to reduce label overlap. Selected-timeframe BOS/CHoCH and candidate OB remain available as focused layers.</p>
  
   </div>
  
@@ -1031,7 +1031,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
+<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
  
  
  
@@ -1713,7 +1713,7 @@ function initSmartChart(){
   smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
  
   smartVolumeSeries=smartChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
-  smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.82,bottom:0.02},visible:false});
+  smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.78,bottom:0.02},visible:false,autoScale:true});
  
   if(window.ResizeObserver){smartChartResizeObserver=new ResizeObserver(entries=>{for(const e of entries){const w=Math.max(1,Math.floor(e.contentRect.width)),h=Math.max(1,Math.floor(e.contentRect.height));smartChart.applyOptions({width:w,height:h});resizeOverlayCanvas();drawSmartOverlays();}});smartChartResizeObserver.observe(host);}
  
@@ -1747,9 +1747,9 @@ function drawSmartOverlays(){
   ctx.save();ctx.fillStyle=color+'18';ctx.strokeStyle=color+'aa';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);labelQueue.push({y:Math.max(10,top+11),label,color});ctx.restore();
  };
  const frames=liveFrames||{},price=chartPrice(),tf=document.getElementById('chartTF')?.value||'M15',allTF=!!document.getElementById('overlayAllTF')?.checked;
- const tfs=allTF?['D1','H4','H1','M30','M15','M5']:[tf];
+ const tfs=allTF?['D1','H4','H1',tf].filter((v,i,a)=>a.indexOf(v)===i):[tf];
  if(overlayOn('overlaySR')){
-  const built=buildZones(frames,price),near=built.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.018).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,6);
+  const built=buildZones(frames,price),near=built.zones.filter(z=>Number.isFinite(price)&&Math.abs(z.mid-price)<0.018).sort((a,b)=>Math.abs(a.mid-price)-Math.abs(b.mid-price)).slice(0,3);
   near.forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878',z.type+' '+z.tfs));
  }
  if(overlayOn('overlayLiquidity')){
@@ -1771,14 +1771,17 @@ function drawSmartOverlays(){
  }
  // Keep all level lines, but stack their text labels at the right edge to prevent collisions.
  const seen=new Set(),unique=labelQueue.filter(item=>{const k=item.label+'|'+Math.round(item.y/5);if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>a.y-b.y);
- const maxLabels=Math.max(1,Math.floor((h-24)/16));
+ const maxLabels=Math.min(7,Math.max(1,Math.floor((h-36)/25)));
  let visible=unique;
- if(visible.length>maxLabels){const center=h/2;visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);}
- const gap=15,topPad=12,bottomPad=8,available=Math.max(0,h-topPad-bottomPad);
- const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y,i===0?topPad:0))}));
+ if(visible.length>maxLabels){
+   const center=h/2;
+   visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);
+ }
+ const gap=24,topPad=16,bottomPad=12;
+ const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y))}));
  for(let i=1;i<positions.length;i++)positions[i].y=Math.max(positions[i].y,positions[i-1].y+gap);
  if(positions.length&&positions[positions.length-1].y>h-bottomPad){const shift=positions[positions.length-1].y-(h-bottomPad);positions.forEach(p=>p.y-=shift);}
- positions.forEach(({item,y})=>{ctx.save();ctx.font='10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-11),tw+8,14);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(12,y));ctx.restore();});
+ positions.forEach(({item,y})=>{ctx.save();ctx.font='bold 10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-12),tw+8,16);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(13,y));ctx.restore();});
 }
 
 function renderSmartChart(forceFit=false){
