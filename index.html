@@ -10,7 +10,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v9</title>
+<title>NEGUS AI ASSISTANT v10</title>
  
 <style>
  
@@ -111,7 +111,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  
 .strategy .chapter{border-top:1px solid var(--line);padding-top:8px;margin-top:16px}
  
-@media(max-width:600px){main{padding:10px}.card{padding:12px}.chart-shell{height:360px}.brand{font-size:20px}}
+@media(max-width:600px){main{padding:10px}.card{padding:12px}.brand{font-size:20px}}
  
 </style>
  
@@ -151,7 +151,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 9 · CLEAN PRICE CHART + SMC MASTER SWITCH + VOLUME</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 10 · FULL CANDLE HISTORY + ROBUST TIME DATA + SMC MASTER</div>
  
 </header>
  
@@ -267,7 +267,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <h3>Capital Protection</h3>
  
-  <p class="warning">The 4%–8% mode is high risk. Strong confirmation does not guarantee a win or prevent a loss. A full stop can still lose the planned amount.</p>
+  <p class="warning">Risk is capped at 1% per trade in this assistant. A full stop can still lose the planned amount. If the broker minimum lot exceeds the risk budget, skip the trade.</p>
  
   <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  
@@ -789,9 +789,9 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD Smart TradingView Chart · v9</h3>
+   <h3>EUR/USD NEGUS Smart Chart · v10</h3>
  
-   <p>Clean light-background candles, price scale, volume bars and selectable NEGUS overlays. External market data only; not an Exness MT5 connection. Volume bars appear only if the provider supplies volume data.</p>
+   <p>Full historical candlesticks, clean price scale, optional volume bars and selectable NEGUS overlays. External market data only; not an Exness MT5 connection. Volume bars appear only if the provider supplies volume data.</p>
  
    <div class="chart-price-strip">
  
@@ -815,7 +815,6 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <div class="chart-controls">
  
-    <label class="chart-toggle"><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> <b>SMC MASTER ON / OFF</b></label>
     <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> Support / Resistance</label>
  
     <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG</label>
@@ -1024,7 +1023,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v9 · Decision support only · Human approval required · No broker connection</footer>
+<footer>NEGUS AI ASSISTANT v10 · Decision support only · Human approval required · No broker connection</footer>
  
  
  
@@ -1186,8 +1185,6 @@ function calculateRisk(){
  const mode=document.getElementById('riskMode').value,cap=getRiskCap(),out=document.getElementById('riskResult');
  
  if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>cap||lot<0.01||sl<=0||tp<=0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and risk percentage. Maximum for selected mode: '+cap+'%.</span>';return;}
- 
- if(mode==='high'&&rp<4){out.innerHTML='<span class="warning">High-risk mode requires a setting between 4% and 8%. This mode is dangerous.</span>';return;}
  
  const loss=sl*10*lot,profit=tp*10*lot,budget=bal*rp/100,percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*10);
  
@@ -1367,22 +1364,51 @@ function atr(bars,period=14){
  
 }
  
-function inspectFrame(bars){
+function normalizeCandleTime(value){
+ if(value===null||value===undefined||value==='')return null;
+ if(typeof value==='number'||(typeof value==='string'&&/^\d+(?:\.\d+)?$/.test(value.trim()))){
+  const n=Number(value);if(!Number.isFinite(n)||n<=0)return null;
+  return Math.floor(n>1e12?n/1000:n);
+ }
+ const parsed=Date.parse(String(value));
+ return Number.isFinite(parsed)&&parsed>0?Math.floor(parsed/1000):null;
+}
  
- const closed=(Array.isArray(bars)?bars:[]).filter(b=>b&&b.isOpen!==true&&Number.isFinite(Number(b.close))&&Number.isFinite(Number(b.high))&&Number.isFinite(Number(b.low)))
+function normalizeCandle(raw){
+ if(!raw||typeof raw!=='object')return null;
+ const timeValue=raw.openTime??raw.open_time??raw.time??raw.timestamp??raw.t??raw.date??raw.datetime;
+ const time=normalizeCandleTime(timeValue);
+ const open=Number(raw.open??raw.o),high=Number(raw.high??raw.h),low=Number(raw.low??raw.l),close=Number(raw.close??raw.c);
+ if(!time||![open,high,low,close].every(Number.isFinite)||open<=0||high<=0||low<=0||close<=0)return null;
+ if(high<Math.max(open,close,low)||low>Math.min(open,close,high))return null;
+ const rawVolume=Number(raw.volume??raw.vol??raw.tickVolume??raw.tick_volume??raw.v??0);
+ return {time,open,high,low,close,volume:Number.isFinite(rawVolume)&&rawVolume>0?rawVolume:0,isOpen:raw.isOpen===true||raw.is_open===true};
+}
  
- .map(b=>({open:Number(b.open),high:Number(b.high),low:Number(b.low),close:Number(b.close),volume:Number(b.volume??b.vol??b.tickVolume??0),time:b.openTime})).sort((a,b)=>new Date(a.time)-new Date(b.time));
+function extractCandles(payload){
+ if(Array.isArray(payload))return payload;
+ if(!payload||typeof payload!=='object')return [];
+ for(const key of ['bars','candles','data','result','ohlc']){
+  const value=payload[key];
+  if(Array.isArray(value))return value;
+  if(value&&typeof value==='object'){
+   for(const nested of ['bars','candles','data','ohlc'])if(Array.isArray(value[nested]))return value[nested];
+  }
+ }
+ return [];
+}
  
- if(closed.length<30)return {ok:false,count:closed.length,error:'Need at least 30 closed candles'};
- 
+function inspectFrame(payload){
+ const rawBars=extractCandles(payload);
+ const normalized=rawBars.map(normalizeCandle).filter(Boolean);
+ const byTime=new Map();
+ normalized.forEach(b=>{if(!b.isOpen)byTime.set(b.time,b);});
+ const closed=[...byTime.values()].sort((a,b)=>a.time-b.time);
+ if(closed.length<30)return {ok:false,count:closed.length,rawCount:rawBars.length,error:'Need at least 30 valid closed candles with OHLC and timestamp'};
  const closes=closed.map(b=>b.close),last=closed[closed.length-1],prev=closed[closed.length-2];
- 
  const e20=ema(closes,20),e50=ema(closes,50),e200=ema(closes,200),rv=rsi(closes),av=atr(closed);
- 
  let trend='NEUTRAL';if(e20!==null&&e50!==null){if(last.close>e20&&e20>e50)trend='BULLISH';else if(last.close<e20&&e20<e50)trend='BEARISH';}
- 
- return {ok:true,count:closed.length,bars:closed,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
- 
+ return {ok:true,count:closed.length,rawCount:rawBars.length,bars:closed,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
 }
  
 async function fetchJSON(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}
@@ -1395,7 +1421,7 @@ async function refreshLiveMarket(){
  
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
  
-  const framePromises=TF_CONFIG.map(async([name,interval])=>{const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');return [name,inspectFrame(data.bars)];});
+  const framePromises=TF_CONFIG.map(async([name,interval])=>{const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');return [name,inspectFrame(data)];});
  
   const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
  
@@ -1625,9 +1651,14 @@ function renderMultiTimeframePanel(){
  
 let smartChart=null,smartCandleSeries=null,smartVolumeSeries=null,smartChartReady=false,smartChartResizeObserver=null,smartChartLastTF='',smartLivePriceLine=null;
  
-function chartTime(value){const n=Math.floor(new Date(value).getTime()/1000);return Number.isFinite(n)&&n>0?n:null;}
+function chartTime(value){return normalizeCandleTime(value);}
  
-function chartBars(tf){const frame=liveFrames&&liveFrames[tf];if(!frame||!frame.ok||!Array.isArray(frame.bars))return [];return frame.bars.map(b=>({time:chartTime(b.time),open:Number(b.open),high:Number(b.high),low:Number(b.low),close:Number(b.close),volume:Number(b.volume??b.vol??b.tickVolume??0)})).filter(b=>b.time&&[b.open,b.high,b.low,b.close].every(Number.isFinite));}
+function chartBars(tf){
+ const frame=liveFrames&&liveFrames[tf];if(!frame||!frame.ok||!Array.isArray(frame.bars))return [];
+ const unique=new Map();
+ frame.bars.forEach(raw=>{const b=normalizeCandle(raw);if(b&&!b.isOpen)unique.set(b.time,{time:b.time,open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume});});
+ return [...unique.values()].sort((a,b)=>a.time-b.time);
+}
  
 function chartPrice(){const q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask);return Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);}
  
@@ -1666,7 +1697,7 @@ function initSmartChart(){
  
   smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.08,bottom:0.23}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
  
-  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false});
+  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
  
   smartVolumeSeries=smartChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
   smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.82,bottom:0.02},visible:false});
@@ -1715,11 +1746,15 @@ function renderSmartChart(forceFit=false){
  
  if(!smartChartReady){if(document.getElementById('chartHost'))initSmartChart();if(!smartChartReady)return;}
  
- const tf=document.getElementById('chartTF')?.value||'M15',bars=chartBars(tf);if(!bars.length){setText('chartStatus','Waiting for '+tf+' closed candles from BiQuote...');return;}
+ const tf=document.getElementById('chartTF')?.value||'M15',frame=liveFrames&&liveFrames[tf],bars=chartBars(tf);
+ if(!bars.length){const detail=frame&&!frame.ok?(' · '+(frame.error||'invalid candle data')+' · raw '+(frame.rawCount??0)+' / valid '+(frame.count??0)):' · waiting for feed';setText('chartStatus',tf+' chart has no valid candle history'+detail+'. Check the provider candle timestamp/OHLC format. The current quote is not a substitute for historical candles.');return;}
  
  try{
  
-  const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;smartCandleSeries.setData(bars);if(smartVolumeSeries){const volumeData=bars.filter(b=>Number.isFinite(b.volume)&&b.volume>0).map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?'rgba(21,155,131,.34)':'rgba(220,89,101,.34)'}));smartVolumeSeries.setData(volumeData);}
+  const oldRange=!forceFit&&smartChartLastTF===tf?smartChart.timeScale().getVisibleLogicalRange():null;
+  smartCandleSeries.setData(bars);
+  smartCandleSeries.applyOptions({lastValueVisible:true,priceLineVisible:false});
+  smartChart.priceScale('right').applyOptions({autoScale:true,scaleMargins:{top:0.06,bottom:0.20}});if(smartVolumeSeries){const volumeData=bars.filter(b=>Number.isFinite(b.volume)&&b.volume>0).map(b=>({time:b.time,value:b.volume,color:b.close>=b.open?'rgba(21,155,131,.34)':'rgba(220,89,101,.34)'}));smartVolumeSeries.setData(volumeData);}
  
   const marks=[],st=analyzeStructure(liveFrames[tf]),en=analyzeEntry(liveFrames[tf]);
  
@@ -1729,9 +1764,10 @@ function renderSmartChart(forceFit=false){
  
   if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time));
  
-  if(oldRange){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}else smartChart.timeScale().fitContent();
+  if(oldRange&&!forceFit){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}
+  else {smartChart.timeScale().fitContent();}
  
-  smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' closed candles · Live price line · BiQuote · '+new Date().toLocaleTimeString());
+  smartChartLastTF=tf;updateChartQuote();drawSmartOverlays();setText('chartStatus',tf+' · '+bars.length+' candles plotted · full history fitted · live quote shown separately · BiQuote · '+new Date().toLocaleTimeString());
  
  }catch(err){console.error('Smart chart render failed',err);setText('chartStatus','Chart update error: '+String(err.message||err));}
  
