@@ -11,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT V12.3</title>
+<title>NEGUS AI ASSISTANT v12.1</title>
  
 <style>
  
@@ -91,7 +91,7 @@ td,th{padding:9px 6px;border-bottom:1px solid var(--line);text-align:left}
 .chart-controls .chart-toggle:has(input:disabled){opacity:.45}
  
  
-@media(max-width:600px){.chart-shell{height:560px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
+@media(max-width:600px){.chart-shell{height:420px}.chart-price-strip{grid-template-columns:repeat(2,minmax(0,1fr))}.chart-price-cell{padding:8px}.chart-controls{gap:6px}.chart-toggle{font-size:11px;padding:7px 9px}}
  
  
  
@@ -793,7 +793,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.3</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.1</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -814,25 +814,24 @@ window.negusOneSignalReady=new Promise(resolve=>{
    <select id="chartTF" onchange="changeChart()"><option value="M5">M5 · Entry</option><option value="M15" selected>M15 · Confirmation</option><option value="M30">M30 · Intraday Structure</option><option value="H1">H1 · Bias</option><option value="H4">H4 · Structure</option><option value="D1">D1 · Direction</option></select>
  
    <h4 class="chart-subheading">የNEGUS ተደራቢ መለያዎች · በዚሁ ቻርት ላይ</h4>
-   <p class="small">ቻርቱ መጀመሪያ ንጹህ ይከፈታል። የምትፈልገውን SMC overlay ብቻ ON አድርግ፤ ሁሉም በዚሁ ቻርት ላይ ይታያሉ።</p>
+   <p class="small">የሚከተሉት የSMC መስመሮችና ዞኖች ከካንድሎቹ ጋር በአንድ የቻርት ቦታ ላይ ይሳላሉ።</p>
    <div class="small" style="margin-top:10px">የNEGUS OVERLAYS · እያንዳንዱን በተናጠል ON/OFF አድርግ</div>
  
-   <div class="chart-master"><label><input id="smcMaster" type="checkbox" onchange="toggleSMC()"> SMC አብራ / አጥፋ</label><small>BOS፣ CHoCH፣ FVG፣ Order Block እና Liquidity ያበራል/ያጠፋል። Support / Resistance በተናጠል ይቆጣጠራል።</small></div>
+   <div class="chart-master"><label><input id="smcMaster" type="checkbox" checked onchange="toggleSMC()"> SMC አብራ / አጥፋ</label><small>BOS፣ CHoCH፣ FVG፣ Order Block እና Liquidity ያበራል/ያጠፋል። Support / Resistance በተናጠል ይቆጣጠራል።</small></div>
  
    <div class="chart-controls">
  
-    <label class="chart-toggle"><input id="overlaySR" type="checkbox" onchange="drawSmartOverlays()"> ድጋፍ / መከላከያ</label>
+    <label class="chart-toggle"><input id="overlaySR" type="checkbox" checked onchange="drawSmartOverlays()"> ድጋፍ / መከላከያ</label>
  
-    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" onchange="drawSmartOverlays()"> FVG የዋጋ ክፍተት</label>
+    <label class="chart-toggle"><input id="overlayFVG" type="checkbox" checked onchange="drawSmartOverlays()"> FVG የዋጋ ክፍተት</label>
  
-    <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
+    <label class="chart-toggle"><input id="overlayLiquidity" type="checkbox" checked onchange="drawSmartOverlays()"> Liquidity / PDH / PDL</label>
  
     <label class="chart-toggle"><input id="overlayStructure" type="checkbox" onchange="drawSmartOverlays()"> BOS / CHoCH የመዋቅር ለውጥ</label>
  
     <label class="chart-toggle"><input id="overlayOB" type="checkbox" onchange="drawSmartOverlays()"> ጊዜያዊ Order Block</label>
 
-  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" onchange="drawSmartOverlays()"> ሁሉም የጊዜ ክፈፎች · MTF</label>
-<label class="chart-toggle"><input id="overlayEntry" type="checkbox" onchange="renderSmartChart(false)"> BUY / SELL Entry Signals</label>
+  <label class="chart-toggle"><input id="overlayAllTF" type="checkbox" checked onchange="drawSmartOverlays()"> ሁሉም የጊዜ ክፈፎች · MTF</label>
  
    </div>
  
@@ -842,7 +841,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    <div id="chartStatus" class="chart-status">Waiting for live candle data and chart library...</div>
  
-   <p class="chart-note">SMC MASTER ON/OFF controls BOS/CHoCH, FVG, candidate OB and liquidity layers. Support / Resistance remains independent. M30 is an additional chart timeframe. With MTF enabled, higher-timeframe references are added selectively to reduce label overlap. Selected-timeframe BOS/CHoCH and candidate OB remain available as focused layers.</p>
+   <p class="chart-note">SMC MASTER ON/OFF controls BOS/CHoCH, FVG, candidate OB and liquidity layers. Support / Resistance remains independent. M30 is an additional chart timeframe. With ALL TIMEFRAMES · MTF enabled, Support/Resistance, FVG and liquidity references from D1, H4, H1, M30, M15 and M5 are drawn together. Selected-timeframe BOS/CHoCH and candidate OB remain available as focused layers.</p>
  
   </div>
  
@@ -1032,7 +1031,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.3 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
+<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
  
  
  
@@ -1573,6 +1572,27 @@ function buildZones(frames,price){
  return {zones,support:supports[0]||null,resistance:resistances[0]||null};
 }
 
+// Select nearby levels plus the nearest D1/H4/H1 levels on BOTH sides.
+// This prevents the chart from silently dropping higher-timeframe resistance/support.
+function getSRDisplayZones(frames,price){
+ const zones=buildZones(frames,price).zones;
+ const selected=[];
+ const add=z=>{if(z&&!selected.some(x=>x.type===z.type&&Math.abs(x.mid-z.mid)<0.000001))selected.push(z);};
+ ['SUPPORT','RESISTANCE'].forEach(type=>{
+  const side=zones.filter(z=>z.type===type&&(!Number.isFinite(price)||(type==='SUPPORT'?z.mid<=price:z.mid>=price)))
+   .sort((a,b)=>Number.isFinite(price)?Math.abs(a.mid-price)-Math.abs(b.mid-price):a.mid-b.mid);
+  side.slice(0,2).forEach(add);
+  ['D1','H4','H1'].forEach(tf=>add(side.find(z=>z.tfs.split('/').includes(tf))));
+  // Keep the chart readable while preserving the closest higher-timeframe references.
+  const same=selected.filter(z=>z.type===type);
+  if(same.length>4){
+   const keep=same.slice().sort((a,b)=>Number.isFinite(price)?Math.abs(a.mid-price)-Math.abs(b.mid-price):a.mid-b.mid).slice(0,4);
+   for(let i=selected.length-1;i>=0;i--)if(selected[i].type===type&&!keep.includes(selected[i]))selected.splice(i,1);
+  }
+ });
+ return selected.sort((a,b)=>a.mid-b.mid);
+}
+
 function renderV63(){
  
  const frames=liveFrames||{},q=liveQuote||{},mid=Number(q.mid),bid=Number(q.bid),ask=Number(q.ask),price=Number.isFinite(mid)&&mid>0?mid:(bid>0&&ask>0?(bid+ask)/2:NaN);
@@ -1709,12 +1729,20 @@ function initSmartChart(){
  
  try{
  
-  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#f0f2f5',style:LightweightCharts.LineStyle.Solid},horzLines:{color:'#e9edf1',style:LightweightCharts.LineStyle.Solid}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
+  smartChart=LightweightCharts.createChart(host,{width:host.clientWidth||600,height:host.clientHeight||430,layout:{background:{type:'solid',color:'#ffffff'},textColor:'#263445',fontFamily:'Arial, sans-serif'},grid:{vertLines:{color:'#edf1f5'},horzLines:{color:'#e6ebf0'}},rightPriceScale:{borderColor:'#d5dce5',scaleMargins:{top:0.10,bottom:0.12}},timeScale:{borderColor:'#d5dce5',timeVisible:true,secondsVisible:false},crosshair:{mode:LightweightCharts.CrosshairMode.Normal},handleScroll:true,handleScale:true});
  
-  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',priceFormat:{type:'price',precision:5,minMove:0.00001},lastValueVisible:true,priceLineVisible:false,priceLineWidth:1});
+  smartCandleSeries=smartChart.addCandlestickSeries({upColor:'#159b83',downColor:'#dc5965',borderUpColor:'#159b83',borderDownColor:'#dc5965',wickUpColor:'#159b83',wickDownColor:'#dc5965',lastValueVisible:true,priceLineVisible:false,priceLineWidth:1,
+   autoscaleInfoProvider:original=>{
+    const info=original();if(!info||!info.priceRange)return info;
+    const visible=getSRDisplayZones(liveFrames||{},chartPrice());if(!visible.length)return info;
+    let min=info.priceRange.minValue,max=info.priceRange.maxValue;
+    visible.forEach(z=>{min=Math.min(min,z.low);max=Math.max(max,z.high);});
+    const pad=Math.max((max-min)*0.035,0.00008);
+    return {...info,priceRange:{...info.priceRange,minValue:min-pad,maxValue:max+pad}};
+   }});
  
   smartVolumeSeries=smartChart.addHistogramSeries({priceScaleId:'volume',priceFormat:{type:'volume'},lastValueVisible:false,priceLineVisible:false});
-  smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.78,bottom:0.02},visible:false,autoScale:true});
+  smartChart.priceScale('volume').applyOptions({scaleMargins:{top:0.82,bottom:0.02},visible:false});
  
   if(window.ResizeObserver){smartChartResizeObserver=new ResizeObserver(entries=>{for(const e of entries){const w=Math.max(1,Math.floor(e.contentRect.width)),h=Math.max(1,Math.floor(e.contentRect.height));smartChart.applyOptions({width:w,height:h});resizeOverlayCanvas();drawSmartOverlays();}});smartChartResizeObserver.observe(host);}
  
@@ -1748,13 +1776,14 @@ function drawSmartOverlays(){
   ctx.save();ctx.fillStyle=color+'18';ctx.strokeStyle=color+'aa';ctx.lineWidth=1;ctx.setLineDash([4,3]);ctx.fillRect(x1,top,x2-x1,bottom-top);ctx.strokeRect(x1,top,x2-x1,bottom-top);ctx.setLineDash([]);labelQueue.push({y:Math.max(10,top+11),label,color});ctx.restore();
  };
  const frames=liveFrames||{},price=chartPrice(),tf=document.getElementById('chartTF')?.value||'M15',allTF=!!document.getElementById('overlayAllTF')?.checked;
- const tfs=allTF?['D1','H4','H1',tf].filter((v,i,a)=>a.indexOf(v)===i):[tf];
+ const tfs=allTF?['D1','H4','H1','M30','M15','M5']:[tf];
  if(overlayOn('overlaySR')){
-  const built=buildZones(frames,price);
-  const htf=built.zones.filter(z=>z.tfs.split('/').some(t=>['D1','H4','H1'].includes(t))&&(!Number.isFinite(price)||Math.abs(z.mid-price)<0.060));
-  const supports=htf.filter(z=>z.type==='SUPPORT'&&(!Number.isFinite(price)||z.mid<=price)).sort((a,b)=>b.mid-a.mid).slice(0,2);
-  const resistances=htf.filter(z=>z.type==='RESISTANCE'&&(!Number.isFinite(price)||z.mid>=price)).sort((a,b)=>a.mid-b.mid).slice(0,2);
-  [...supports,...resistances].forEach(z=>zone(z.low,z.high,z.type==='SUPPORT'?'#35c995':'#ff6878','HTF '+z.type+' '+z.tfs));
+  const visibleSR=getSRDisplayZones(frames,price);
+  visibleSR.forEach(z=>{
+   const color=z.type==='SUPPORT'?'#35c995':'#ff6878';
+   zone(z.low,z.high,color,z.type+' '+z.tfs);
+   line(z.mid,color,z.type+' '+z.tfs,[6,3]);
+  });
  }
  if(overlayOn('overlayLiquidity')){
   const d1=frames.D1;if(d1&&d1.ok&&d1.bars.length>=2){const prior=d1.bars[d1.bars.length-2];line(prior.high,'#e5b94f','D1 PDH');line(prior.low,'#e5b94f','D1 PDL');}
@@ -1775,30 +1804,16 @@ function drawSmartOverlays(){
  }
  // Keep all level lines, but stack their text labels at the right edge to prevent collisions.
  const seen=new Set(),unique=labelQueue.filter(item=>{const k=item.label+'|'+Math.round(item.y/5);if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>a.y-b.y);
- const maxLabels=Math.min(7,Math.max(1,Math.floor((h-36)/25)));
+ const maxLabels=Math.max(1,Math.floor((h-24)/16));
  let visible=unique;
- if(visible.length>maxLabels){
-   const center=h/2;
-   visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);
- }
- const gap=24,topPad=16,bottomPad=12;
- const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y))}));
+ if(visible.length>maxLabels){const center=h/2;visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);}
+ const gap=15,topPad=12,bottomPad=8,available=Math.max(0,h-topPad-bottomPad);
+ const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y,i===0?topPad:0))}));
  for(let i=1;i<positions.length;i++)positions[i].y=Math.max(positions[i].y,positions[i-1].y+gap);
  if(positions.length&&positions[positions.length-1].y>h-bottomPad){const shift=positions[positions.length-1].y-(h-bottomPad);positions.forEach(p=>p.y-=shift);}
- positions.forEach(({item,y})=>{ctx.save();ctx.font='bold 10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-12),tw+8,16);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(13,y));ctx.restore();});
+ positions.forEach(({item,y})=>{ctx.save();ctx.font='10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-11),tw+8,14);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(12,y));ctx.restore();});
 }
 
-function getChartEntrySignal(frames){
- const req=['D1','H4','H1','M15','M5']; if(!req.every(k=>frames[k]&&frames[k].ok))return null;
- const d=frames.D1.trend,h4=frames.H4.trend,h1=frames.H1.trend,m15=frames.M15,m5=frames.M5;
- const st=analyzeStructure(m15),en=analyzeEntry(m5); if(!st.ok||!en.ok)return null;
- const bullHTF=d==='BULLISH'&&h4==='BULLISH'&&h1==='BULLISH',bearHTF=d==='BEARISH'&&h4==='BEARISH'&&h1==='BEARISH';
- const bull15=m15.trend==='BULLISH'&&m15.rsi>=50&&m15.rsi<75&&st.displacement&&(st.bos==='BULLISH BOS'||st.choch==='BULLISH CHoCH'||st.sweep==='BULLISH LIQUIDITY SWEEP');
- const bear15=m15.trend==='BEARISH'&&m15.rsi<=50&&m15.rsi>25&&st.displacement&&(st.bos==='BEARISH BOS'||st.choch==='BEARISH CHoCH'||st.sweep==='BEARISH LIQUIDITY SWEEP');
- const bull5=m5.trend==='BULLISH'&&m5.last.close>m5.prev.close&&m5.rsi>=50&&m5.rsi<80&&((en.fvg&&en.fvg.side==='BULLISH'&&en.fvg.retest)||(en.ob&&en.ob.side==='BULLISH'&&en.ob.retest)||en.paBull);
- const bear5=m5.trend==='BEARISH'&&m5.last.close<m5.prev.close&&m5.rsi<=50&&m5.rsi>20&&((en.fvg&&en.fvg.side==='BEARISH'&&en.fvg.retest)||(en.ob&&en.ob.side==='BEARISH'&&en.ob.retest)||en.paBear);
- if(bullHTF&&bull15&&bull5)return 'BUY'; if(bearHTF&&bear15&&bear5)return 'SELL'; return null;
-}
 function renderSmartChart(forceFit=false){
  
  if(!smartChartReady){if(document.getElementById('chartHost'))initSmartChart();if(!smartChartReady)return;}
@@ -1819,7 +1834,6 @@ function renderSmartChart(forceFit=false){
  
   if(overlayOn('overlayFVG')&&en.ok){if(en.paBull)marks.push({time:chartTime(en.last.time),position:'belowBar',color:'#35c995',shape:'arrowUp',text:'PA BUY'});if(en.paBear)marks.push({time:chartTime(en.last.time),position:'aboveBar',color:'#ff6878',shape:'arrowDown',text:'PA SELL'});}
  
-  if(overlayOn('overlayEntry')){const sig=getChartEntrySignal(liveFrames||{});if(sig==='BUY')marks.push({time:chartTime(bars[bars.length-1].time),position:'belowBar',color:'#16a34a',shape:'arrowUp',text:'BUY ENTRY'});else if(sig==='SELL')marks.push({time:chartTime(bars[bars.length-1].time),position:'aboveBar',color:'#dc2626',shape:'arrowDown',text:'SELL ENTRY'});}
   if(typeof smartCandleSeries.setMarkers==='function')smartCandleSeries.setMarkers(marks.filter(m=>m.time));
  
   if(oldRange&&!forceFit){try{smartChart.timeScale().setVisibleLogicalRange(oldRange);}catch(e){smartChart.timeScale().fitContent();}}
