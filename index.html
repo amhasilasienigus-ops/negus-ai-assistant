@@ -153,7 +153,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.1 · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.1 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -219,6 +219,34 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
+<!-- NEGUS AI — EXNESS READ-ONLY ACCOUNT CARD -->
+<div class="card" id="exnessAccountCard">
+  <h3>Exness Real Account · Read Only</h3>
+  <p class="small">Secure account connection. This dashboard only reads account information and cannot place or modify trades.</p>
+
+  <form id="exnessConnectForm" autocomplete="off">
+    <label for="exnessAccessPin">NEGUS Access PIN</label>
+    <input id="exnessAccessPin" type="password" placeholder="Enter your NEGUS Access PIN" autocomplete="off" required>
+    <div class="grid">
+      <button class="action" id="exnessConnectButton" type="submit">Connect / Refresh Exness</button>
+      <button class="secondary" id="exnessDisconnectButton" type="button">Clear PIN</button>
+    </div>
+  </form>
+
+  <div id="exnessConnectionStatus" class="result" role="status" aria-live="polite">Not connected. Enter your Access PIN.</div>
+
+  <div class="grid" style="margin-top:12px">
+    <div class="card"><div class="small">ACCOUNT BALANCE</div><div class="metric gold" id="exnessBalance">—</div></div>
+    <div class="card"><div class="small">EQUITY</div><div class="metric" id="exnessEquity">—</div></div>
+    <div class="card"><div class="small">FREE MARGIN</div><div class="metric" id="exnessFreeMargin">—</div></div>
+    <div class="card"><div class="small">ACCOUNT STATUS</div><div class="metric" id="exnessAccountStatus">—</div></div>
+  </div>
+
+  <p class="small" id="exnessAccountUpdated">Account values appear after a successful connection.</p>
+  <p class="small">Read-only access. Never enter your Exness trading password here.</p>
+</div>
+<!-- END EXNESS READ-ONLY ACCOUNT CARD -->
+
   <h3>Daily Loss Guard</h3>
  
   <div id="dailyGuard" class="result">Loading daily results...</div>
@@ -1031,7 +1059,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · የሰው ማረጋገጫ ያስፈልጋል · ከBroker ጋር ቀጥታ ግንኙነት የለም</footer>
+<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
  
  
  
@@ -2080,6 +2108,171 @@ function renderEconomicNews(){
  
 }
  
+/* =====================================================
+   NEGUS AI — EXNESS READ-ONLY ACCOUNT INTEGRATION
+   Credentials remain on the Vercel backend.
+   This browser code never places or modifies trades.
+   ===================================================== */
+
+const EXNESS_ACCOUNT_API =
+  'https://negus-ai-assistant.vercel.app/api/exness/account';
+
+function exnessFindValue(obj, names) {
+  const wanted = names.map(name => name.toLowerCase());
+  const seen = new Set();
+
+  function walk(value, depth) {
+    if (!value || typeof value !== 'object' || depth > 6 || seen.has(value)) {
+      return undefined;
+    }
+    seen.add(value);
+
+    for (const [key, val] of Object.entries(value)) {
+      if (wanted.includes(key.toLowerCase()) && val !== null && val !== undefined && val !== '') {
+        return val;
+      }
+    }
+    for (const val of Object.values(value)) {
+      const found = walk(val, depth + 1);
+      if (found !== undefined) return found;
+    }
+    return undefined;
+  }
+  return walk(obj, 0);
+}
+
+function exnessMoney(value, currency) {
+  if (value === undefined || value === null || value === '') return '—';
+  const number = Number(value);
+  if (!Number.isFinite(number)) return String(value);
+  return (currency ? currency + ' ' : '') + number.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function exnessStatus(message, isError = false) {
+  const el = document.getElementById('exnessConnectionStatus');
+  if (!el) return;
+  el.textContent = message;
+  el.className = 'result ' + (isError ? 'warning' : 'ok');
+}
+
+function exnessResetDisplay() {
+  ['exnessBalance', 'exnessEquity', 'exnessFreeMargin', 'exnessAccountStatus'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = '—';
+  });
+  const updated = document.getElementById('exnessAccountUpdated');
+  if (updated) updated.textContent = 'Account values appear after a successful connection.';
+}
+
+async function connectExnessAccount(event) {
+  if (event) event.preventDefault();
+  const pinInput = document.getElementById('exnessAccessPin');
+  const button = document.getElementById('exnessConnectButton');
+  if (!pinInput || !button || button.disabled) return;
+
+  const pin = pinInput.value.trim();
+  if (!pin) {
+    exnessStatus('Enter your NEGUS Access PIN.', true);
+    return;
+  }
+
+  button.disabled = true;
+  button.textContent = 'Connecting…';
+  exnessStatus('Connecting securely to Exness…');
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 20000);
+
+  try {
+    const response = await fetch(EXNESS_ACCOUNT_API, {
+      method: 'GET',
+      cache: 'no-store',
+      redirect: 'error',
+      signal: controller.signal,
+      headers: {
+        'X-NEGUS-ACCESS-PIN': pin,
+        'Accept': 'application/json'
+      }
+    });
+
+    const responseText = await response.text();
+    let payload;
+    try {
+      payload = responseText ? JSON.parse(responseText) : {};
+    } catch (_) {
+      throw new Error('Backend returned an invalid response.');
+    }
+
+    if (!response.ok || payload.ok !== true) {
+      const messages = {
+        401: 'Incorrect Access PIN. Check the Vercel NEGUS_ACCESS_PIN setting.',
+        403: 'Website origin is not permitted by the backend.',
+        405: 'Backend request method is not supported.',
+        502: 'Exness rejected or could not complete the request. Check API access and signing.',
+        503: 'Vercel server configuration is incomplete.'
+      };
+      throw new Error(messages[response.status] || payload.error || 'Exness connection failed.');
+    }
+
+    const account = payload.account || {};
+    const currency = exnessFindValue(account, ['currency', 'account_currency']) || '';
+    const balance = exnessFindValue(account, ['balance', 'account_balance']);
+    const equity = exnessFindValue(account, ['equity', 'account_equity']);
+    const freeMargin = exnessFindValue(account, ['free_margin', 'freeMargin', 'available_margin', 'availableMargin']);
+    const accountStatus = exnessFindValue(account, ['status', 'account_status', 'state']) || 'Connected';
+
+    const balanceEl = document.getElementById('exnessBalance');
+    const equityEl = document.getElementById('exnessEquity');
+    const marginEl = document.getElementById('exnessFreeMargin');
+    const statusEl = document.getElementById('exnessAccountStatus');
+
+    if (balanceEl) balanceEl.textContent = exnessMoney(balance, currency);
+    if (equityEl) equityEl.textContent = exnessMoney(equity, currency);
+    if (marginEl) marginEl.textContent = exnessMoney(freeMargin, currency);
+    if (statusEl) statusEl.textContent = String(accountStatus);
+
+    const updated = document.getElementById('exnessAccountUpdated');
+    if (updated) updated.textContent = 'Last successful update: ' + new Date().toLocaleString();
+
+    const hasAccountData = balance !== undefined || equity !== undefined || freeMargin !== undefined;
+    if (!hasAccountData) {
+      exnessStatus('Backend connected, but expected account fields were not found. Inspect the Exness response format.', true);
+    } else {
+      exnessStatus('CONNECTED — Exness account data received successfully.');
+    }
+  } catch (error) {
+    const message = error && error.name === 'AbortError'
+      ? 'Connection timed out. Try again.'
+      : (error && error.message ? error.message : 'Connection failed.');
+    exnessStatus(message, true);
+  } finally {
+    clearTimeout(timeoutId);
+    button.disabled = false;
+    button.textContent = 'Connect / Refresh Exness';
+  }
+}
+
+function initExnessAccount() {
+  const form = document.getElementById('exnessConnectForm');
+  const clearButton = document.getElementById('exnessDisconnectButton');
+  if (!form || !clearButton) return;
+
+  form.addEventListener('submit', connectExnessAccount);
+  clearButton.addEventListener('click', () => {
+    const pinInput = document.getElementById('exnessAccessPin');
+    if (pinInput) pinInput.value = '';
+    exnessResetDisplay();
+    exnessStatus('PIN cleared. Not connected.');
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initExnessAccount);
+
+/* END NEGUS AI — EXNESS READ-ONLY ACCOUNT INTEGRATION */
+
 async function refreshEconomicNews(){
  
  if(newsFetchBusy)return;newsFetchBusy=true;const status=document.getElementById('newsFeedStatus');if(status)status.textContent='UPDATING';
