@@ -11,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v12.4</title>
+<title>NEGUS AI ASSISTANT v13.0</title>
  
 <style>
  
@@ -115,6 +115,23 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
  
 @media(max-width:600px){main{padding:10px}.card{padding:12px}.brand{font-size:20px}}
  
+
+/* NEGUS AI V13 live chat */
+.negus-chat-messages{display:flex;flex-direction:column;gap:12px;max-height:55vh;min-height:180px;overflow-y:auto;padding:4px 2px 14px}
+.negus-chat-welcome,.negus-chat-message{padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#0c1727;line-height:1.65;font-size:14px;white-space:pre-wrap;overflow-wrap:anywhere}
+.negus-chat-welcome{color:var(--muted)}
+.negus-chat-message.user{align-self:flex-end;max-width:92%;border-color:#806a36;background:#1b2a3d}
+.negus-chat-message.assistant{align-self:stretch;border-left:3px solid var(--gold)}
+.negus-chat-message .chat-role{font-size:10px;color:var(--gold);font-weight:bold;margin-bottom:5px;letter-spacing:.5px}
+.negus-chat-message img{display:block;max-width:100%;max-height:280px;object-fit:contain;border-radius:8px;margin-top:8px}
+.negus-chat-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.negus-chat-actions button{margin-top:0}
+.negus-upload-label{display:inline-flex;align-items:center;min-height:42px;cursor:pointer}
+.negus-image-preview{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:10px 0;padding:10px;background:#0c1727;border:1px solid var(--line);border-radius:8px}
+.negus-image-preview img{max-width:180px;max-height:130px;object-fit:contain;border-radius:6px}
+.negus-chat-message.pending{opacity:.7}
+@media(max-width:600px){.negus-chat-actions>*{flex:1 1 auto}.negus-chat-actions button{min-width:120px}}
+
 </style>
  
  
@@ -153,7 +170,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.4 + EXNESS READ-ONLY + MANUAL ACCOUNT SNAPSHOT · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 13.0 + AI LIVE CHAT + IMAGE ANALYSIS + EXNESS READ-ONLY + MANUAL ACCOUNT SNAPSHOT · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -162,6 +179,8 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <nav>
  
  <button class="active" onclick="showPage('dashboard',this)">Dashboard</button>
+ 
+ <button onclick="showPage('aiChat',this)">NEGUS AI Chat</button>
  
  <button onclick="showPage('analysis',this)">Strategy Analysis</button>
  
@@ -1101,11 +1120,52 @@ nalysis · All Timeframes</h3>
  
 </section>
  
+
+<section id="aiChat" class="page">
+ <h2>NEGUS AI · Live Trading Conversation</h2>
+ <div class="card">
+  <h3>ሙያዊ የTrading ውይይት</h3>
+  <p>ጥያቄህን በጽሑፍ ጻፍ ወይም የTradingView / Exness chart Screenshot ጫን። NEGUS AI የPrice Action፣ SMC፣ Market Structure፣ Liquidity፣ OB፣ FVG፣ Risk እና News ሁኔታን በማብራራት ይመልሳል። የላክኸውን ማስረጃ ብቻ ይመርምራል፤ የማይታይ የገበያ ውሂብ አይገምትም።</p>
+  <label for="negusChatPin">NEGUS AI Access PIN</label>
+  <input id="negusChatPin" type="password" autocomplete="off" placeholder="Backend ላይ ያዘጋጀኸውን Chat PIN አስገባ">
+  <div class="small">ይህ ከExness PIN የተለየ ነው። በVercel ላይ NEGUS_CHAT_PIN በሚለው Environment Variable የምታዘጋጀውን PIN ተጠቀም።</div>
+ </div>
+ <div class="card">
+  <div id="negusChatMessages" class="negus-chat-messages" aria-live="polite">
+   <div class="negus-chat-welcome"><b>♛ NEGUS AI</b><br>ሰላም! የምትፈልገውን የገበያ ጥያቄ ጻፍ ወይም Screenshot ላክ። ከዚያ ትንተናውን በደረጃ እንመርምራለን።</div>
+  </div>
+  <div id="negusImagePreview" class="negus-image-preview" hidden>
+   <img id="negusPreviewImage" alt="Chart screenshot preview">
+   <button class="secondary" type="button" onclick="negusClearImage()">Remove image</button>
+  </div>
+  <label for="negusChatInput">መልዕክትህ</label>
+  <textarea id="negusChatInput" rows="3" placeholder="ለምሳሌ፦ ይህን EUR/USD M15 chart ከH1 አቅጣጫ ጋር አገናኝተህ ተንትንልኝ..."></textarea>
+  <div class="negus-chat-actions">
+   <label class="secondary negus-upload-label" for="negusChatImage">📷 Screenshot ጫን</label>
+   <input id="negusChatImage" type="file" accept="image/png,image/jpeg,image/webp" hidden>
+   <button class="action" id="negusChatSend" type="button" onclick="negusSendChatMessage()">Send to NEGUS AI</button>
+   <button class="secondary" type="button" onclick="negusResetChat()">New Conversation</button>
+  </div>
+  <div id="negusChatStatus" class="result" role="status">Ready. ጥያቄህን ወይም Screenshot ላክ።</div>
+  <p class="small">የምስል ጫን ገደብ፦ 12MB በፊት ከማቀነስ። የላክኸው ምስል ለAI ትንተና ወደ NEGUS backend ይላካል። የAI ምክር የውሳኔ ድጋፍ ብቻ ነው፤ ትሬድ በራሱ አይከፍትም።</p>
+ </div>
+ <div class="card">
+  <h3>የNEGUS AI የትንተና መዋቅር</h3>
+  <div class="grid">
+   <div class="result"><b>1. Market Bias</b><br>HTF አቅጣጫና የገበያ አወቃቀር</div>
+   <div class="result"><b>2. Liquidity</b><br>Liquidity pools፣ sweep እና inducement</div>
+   <div class="result"><b>3. Confirmation</b><br>BOS/CHoCH፣ OB/FVG፣ retest</div>
+   <div class="result"><b>4. Trade Plan</b><br>BUY / SELL / WAIT፣ Entry፣ SL፣ TP እና Risk</div>
+  </div>
+  <p class="small">ከScreenshot ብቻ የማይታዩ የዋጋ ደረጃዎች ወይም የዜና ሁኔታዎች እንደተረጋገጡ አይቀርቡም።</p>
+ </div>
+</section>
+
 </main>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.4 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
+<footer>NEGUS AI ASSISTANT v13.0 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
  
  
  
@@ -2559,6 +2619,92 @@ document.addEventListener('DOMContentLoaded', renderManualAccountSnapshot);
 
 refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLiveUpdates();
  
+
+
+/* =====================================================
+   NEGUS AI V13 — SECURE TEXT + SCREENSHOT CONVERSATION
+   AI provider key stays on Vercel; browser only calls own API.
+   ===================================================== */
+const NEGUS_CHAT_API = 'https://negus-ai-assistant.vercel.app/api/ai/chat';
+let negusChatImageData = null;
+let negusChatBusy = false;
+let negusChatResponseId = sessionStorage.getItem('negus_ai_response_id') || '';
+
+function negusChatAddMessage(role, text, imageData, pending){
+  const host=document.getElementById('negusChatMessages');
+  if(!host)return null;
+  const welcome=host.querySelector('.negus-chat-welcome');if(welcome)welcome.remove();
+  const bubble=document.createElement('div');bubble.className='negus-chat-message '+role+(pending?' pending':'');
+  const tag=document.createElement('div');tag.className='chat-role';tag.textContent=role==='user'?'YOU':'NEGUS AI';bubble.appendChild(tag);
+  if(text){const body=document.createElement('div');body.textContent=text;bubble.appendChild(body);}
+  if(imageData){const img=document.createElement('img');img.src=imageData;img.alt='Uploaded trading chart screenshot';bubble.appendChild(img);}
+  host.appendChild(bubble);host.scrollTop=host.scrollHeight;return bubble;
+}
+
+function negusClearImage(){
+  negusChatImageData=null;
+  const input=document.getElementById('negusChatImage');if(input)input.value='';
+  const preview=document.getElementById('negusImagePreview');if(preview)preview.hidden=true;
+  const img=document.getElementById('negusPreviewImage');if(img)img.removeAttribute('src');
+}
+
+async function negusPrepareImage(file){
+  if(!file||!/^image\/(png|jpeg|webp)$/.test(file.type))throw new Error('PNG, JPG/JPEG ወይም WEBP ምስል ብቻ ይቻላል።');
+  if(file.size>12*1024*1024)throw new Error('ምስሉ ከ12MB በላይ ነው። ትንሽ Screenshot ላክ።');
+  const source=await new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>resolve(r.result);r.onerror=()=>reject(new Error('ምስሉን ማንበብ አልተቻለም።'));r.readAsDataURL(file);});
+  const img=await new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=()=>reject(new Error('የምስል ፋይሉ ሊከፈት አልቻለም።'));i.src=source;});
+  const max=1600,scale=Math.min(1,max/Math.max(img.width,img.height));
+  const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
+  const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);
+  return canvas.toDataURL('image/jpeg',0.82);
+}
+
+async function negusSendChatMessage(){
+  if(negusChatBusy)return;
+  const input=document.getElementById('negusChatInput'),pin=document.getElementById('negusChatPin'),status=document.getElementById('negusChatStatus'),button=document.getElementById('negusChatSend');
+  const message=(input?.value||'').trim();
+  const accessPin=(pin?.value||'').trim();
+  if(!accessPin){status.textContent='እባክህ NEGUS AI Access PIN አስገባ።';pin?.focus();return;}
+  if(!message&&!negusChatImageData){status.textContent='ጽሑፍ ጻፍ ወይም Screenshot ጫን።';return;}
+  if(message.length>8000){status.textContent='መልዕክቱ ከ8000 ቁምፊ በላይ ነው። አጭር አድርገው።';return;}
+  negusChatBusy=true;button.disabled=true;button.textContent='Analyzing...';status.textContent='NEGUS AI መልዕክትህን እየመረመረ ነው...';
+  const imageData=negusChatImageData;
+  const shownText=message||'ይህን Screenshot ተንትንልኝ።';
+  negusChatAddMessage('user',shownText,imageData,false);
+  input.value='';negusClearImage();
+  const pending=negusChatAddMessage('assistant','ትንተና በመካሄድ ላይ...',null,true);
+  try{
+    const payload={message:shownText,accessPin,previousResponseId:negusChatResponseId||undefined,imageData:imageData||undefined,workspace:{pair:'EUR/USD',strategy:'NEGUS Strategy · Intraday · Price Action + SMC',riskRule:'Maximum planned risk 1% per trade; skip if minimum lot exceeds risk budget',accountNote:'Use only account values explicitly supplied in this conversation; do not assume live Exness access.'}};
+    const response=await fetch(NEGUS_CHAT_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    let data={};try{data=await response.json();}catch(_){throw new Error('Backend ትክክለኛ መልስ አልሰጠም።');}
+    if(!response.ok)throw new Error(data.error||('Request failed ('+response.status+')'));
+    if(!data.reply)throw new Error('AI መልስ አልተገኘም።');
+    pending.classList.remove('pending');pending.innerHTML='';
+    const tag=document.createElement('div');tag.className='chat-role';tag.textContent='NEGUS AI';pending.appendChild(tag);
+    const body=document.createElement('div');body.textContent=data.reply;pending.appendChild(body);
+    if(data.responseId){negusChatResponseId=data.responseId;sessionStorage.setItem('negus_ai_response_id',data.responseId);}
+    status.textContent='Analysis complete. ተጨማሪ ጥያቄ መጠየቅ ትችላለህ።';
+  }catch(error){
+    pending.classList.remove('pending');pending.innerHTML='';const tag=document.createElement('div');tag.className='chat-role';tag.textContent='NEGUS AI · ERROR';pending.appendChild(tag);const body=document.createElement('div');body.textContent=error.message||'የAI ግንኙነት አልተሳካም።';pending.appendChild(body);status.textContent='Connection error. PIN እና Backend Environment Variables አረጋግጥ።';
+  }finally{negusChatBusy=false;button.disabled=false;button.textContent='Send to NEGUS AI';document.getElementById('negusChatMessages')?.scrollTo({top:999999,behavior:'smooth'});}
+}
+
+function negusResetChat(){
+  negusChatResponseId='';sessionStorage.removeItem('negus_ai_response_id');negusClearImage();
+  const host=document.getElementById('negusChatMessages');if(host)host.innerHTML='<div class="negus-chat-welcome"><b>♛ NEGUS AI</b><br>አዲስ ውይይት ተጀምሯል። ጥያቄህን ወይም Screenshot ላክ።</div>';
+  const input=document.getElementById('negusChatInput');if(input)input.value='';
+  const status=document.getElementById('negusChatStatus');if(status)status.textContent='New conversation ready.';
+}
+
+document.getElementById('negusChatImage')?.addEventListener('change',async function(){
+  const file=this.files&&this.files[0];if(!file)return;
+  const status=document.getElementById('negusChatStatus');status.textContent='Screenshot እየተዘጋጀ ነው...';
+  try{negusChatImageData=await negusPrepareImage(file);document.getElementById('negusPreviewImage').src=negusChatImageData;document.getElementById('negusImagePreview').hidden=false;status.textContent='Screenshot ዝግጁ ነው። ከፈለግህ ጥያቄ ጨምርና Send ተጫን።';}
+  catch(error){negusClearImage();status.textContent=error.message||'Image error';}
+});
+
+document.getElementById('negusChatInput')?.addEventListener('keydown',function(event){if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();negusSendChatMessage();}});
+
 </script>
  
 </body>
