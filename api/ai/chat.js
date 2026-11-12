@@ -1,16 +1,14 @@
 
-// NEGUS AI V13 — Gemini API backend
-// Environment variables:
-// OPENAI_API_KEY = Gemini API key (existing Vercel variable name)
-// NEGUS_CHAT_PIN = private NEGUS access PIN
-
 import crypto from 'node:crypto';
 
 const ALLOWED_ORIGIN = 'https://amhasilasienigus-ops.github.io';
-const MODEL = 'gemini-2.5-flash-lite';
+const MODEL = 'gemini-3.5-flash-lite';
+
 const MAX_IMAGE_CHARS = 4_200_000;
 const MAX_MESSAGE_CHARS = 8_000;
-const MAX_HISTORY_TURNS = 6;
+const MAX_HISTORY_MESSAGES = 12;
+const MAX_HISTORY_TOKEN_CHARS = 80_000;
+const HISTORY_TTL_MS = 12 * 60 * 60 * 1000;
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', ALLOWED_ORIGIN);
@@ -22,15 +20,21 @@ function setCors(res) {
 
 function safeEqual(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
+
   const aa = Buffer.from(a, 'utf8');
   const bb = Buffer.from(b, 'utf8');
-  return aa.length === bb.length && crypto.timingSafeEqual(aa, bb);
+
+  return aa.length === bb.length &&
+    crypto.timingSafeEqual(aa, bb);
 }
 
-// Keep conversation history in a signed token.
-// This preserves follow-up chat without changing index.html.
-function signHistory(history, secret) {
-  const payload = Buffer.from(JSON.stringify(history)).toString('base64url');
+function createHistoryToken(history, secret) {
+  const payload = Buffer.from(JSON.stringify({
+    version: 1,
+    expiresAt: Date.now() + HISTORY_TTL_MS,
+    history
+  })).toString('base64url');
+
   const signature = crypto
     .createHmac('sha256', secret)
     .update(payload)
@@ -39,60 +43,155 @@ function signHistory(history, secret) {
   return `ctx_${payload}.${signature}`;
 }
 
-function readHistory(token, secret) {
-  try {
-    if (typeof token !== 'string' || token.length > 100000) return [];
+function readHistoryToken(token, secret) {
+  if (typeof token !== 'string' ||
+      !token.startsWith('ctx_') ||
+      token.length > MAX_HISTORY_TOKEN_CHARS) {
+    return [];
+  }
 
-    const value = token.startsWith('ctx_') ? token.slice(4) : '';
-    const parts = value.split('.');
+  try {
+    const parts = token.slice(4).split('.');
     if (parts.length !== 2) return [];
 
     const [payload, signature] = parts;
-    const expected = crypto
+
+    const expectedSignature = crypto
       .createHmac('sha256', secret)
       .update(payload)
       .digest('base64url');
 
-    if (!safeEqual(signature, expected)) return [];
+    if (!safeEqual(signature, expectedSignature)) return [];
 
-    const parsed = JSON.parse(
+    const decoded = JSON.parse(
       Buffer.from(payload, 'base64url').toString('utf8')
     );
 
-    if (!Array.isArray(parsed)) return [];
+    if (
+      decoded.version !== 1 ||
+      !Number.isFinite(decoded.expiresAt) ||
+      decoded.expiresAt < Date.now() ||
+      !Array.isArray(decoded.history)
+    ) {
+      return [];
+    }
 
-    return parsed
+    return decoded.history
       .filter(item =>
         item &&
-        typeof item.user === 'string' &&
-        typeof item.assistant === 'string'
+        ['user', 'model'].includes(item.role) &&
+        Array.isArray(item.parts) &&
+        item.parts.length > 0 &&
+        item.parts.every(part =>
+          part &&
+          typeof part.text === 'string'
+        )
       )
-      .slice(-MAX_HISTORY_TURNS)
-      .map(item => ({
-        user: item.user.slice(0, 8000),
-        assistant: item.assistant.slice(0, 12000)
-      }));
+      .slice(-MAX_HISTORY_MESSAGES);
+
   } catch {
     return [];
   }
 }
 
-function getReply(data) {
-  const parts = data?.candidates?.[0]?.content?.parts || [];
-  return parts
-    .filter(part => typeof part.text === 'string')
-    .map(part => part.text)
-    .join('\n')
-    .trim();
+function getGeminiText(data) {
+  const candidates = Array.isArray(data?.candidates)
+    ? data.candidates
+    : [];
+
+  for (const candidate of candidates) {
+    const parts = candidate?.content?.parts;
+
+    if (!Array.isArray(parts)) continue;
+
+    const text = parts
+      .filter(part => typeof part?.text === 'string')
+      .map(part => part.text)
+      .join('\n')
+      .trim();
+
+    if (text) return text;
+  }
+
+  return '';
+}
+
+function buildInstructions() {
+  return `
+You are NEGUS AI, a professional and disciplined forex trading analysis assistant.
+
+LANGUAGE:
+- Reply primarily in clear, natural Amharic.
+- Keep standard trading terms in English when useful.
+- Be respectful, direct, practical and professional.
+
+USER'S TRADING CONTEXT:
+- Preferred pair: EUR/USD.
+- Preferred approach: Intraday Price Action + SMC.
+- Broker context: Exness Standard.
+- Account currency: USD.
+- Minimum lot size: 0.01.
+- The user values discipline, capital protection and avoiding FOMO.
+
+ANALYSIS:
+When chart evidence is provided, analyze:
+1. Higher-timeframe direction and market bias.
+2. Market structure: HH, HL, LH, LL, BOS and CHoCH.
+3. Liquidity pools and liquidity sweeps.
+4. Order Blocks (OB) and Fair Value Gaps (FVG).
+5. Support and resistance.
+6. Entry confirmation and invalidation.
+7. Stop Loss and Take Profit logic.
+8. Risk-to-Reward.
+
+SCREENSHOTS:
+- Read only what is actually visible and legible.
+- Identify pair and timeframe only when clear.
+- Never invent prices, candle patterns, indicators or chart levels.
+- If the screenshot is unclear, explain what is missing.
+- If evidence is insufficient, choose WAIT.
+
+LIVE DATA:
+- Never pretend to have live market prices, live news, account balance or broker information unless it is explicitly provided in the conversation.
+- If current news information is not provided or verified, tell the user to check the economic calendar.
+- Never invent economic news or event times.
+
+RISK MANAGEMENT:
+- Maximum planned risk: 1% of account balance per trade.
+- Respect the broker's 0.01 minimum lot.
+- If 0.01 lot would exceed the user's risk budget, recommend skipping the trade.
+- Never recommend increasing risk to force a trade.
+- Stop Loss is essential.
+- Discourage revenge trading, FOMO and exceeding daily risk limits.
+
+FINAL DECISION:
+End every actual market analysis with one clear stance:
+BUY, SELL or WAIT.
+
+A trade idea must be conditional, never guaranteed.
+Explain the conditions that would confirm or invalidate it.
+
+SAFETY:
+- Never promise profits or guaranteed accuracy.
+- Never execute, place, modify or close trades.
+- Never ask the user to reveal API keys, passwords or private PINs.
+- Be honest about uncertainty.
+
+You are a disciplined trading analysis partner, not a signal-selling service.
+`;
 }
 
 export default async function handler(req, res) {
   setCors(res);
 
-  if (req.method === 'OPTIONS') return res.status(204).end();
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
 
   if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed.' });
+    return res.status(405).json({
+      error: 'Method not allowed.'
+    });
   }
 
   const expectedPin = process.env.NEGUS_CHAT_PIN;
@@ -129,95 +228,87 @@ export default async function handler(req, res) {
       });
     }
 
-    const instructions = `You are NEGUS AI, a professional and disciplined forex trading analysis assistant.
+    let workspaceText = '';
 
-Reply primarily in clear Amharic, retaining standard trading terms in English where useful.
-
-The user's preferred market is EUR/USD. Preferred approach: intraday Price Action + SMC.
-
-Analyze only evidence supplied in the conversation. Never claim access to live prices, news, account balances, chart candles, or broker data unless explicitly provided.
-
-For chart screenshots, identify the visible pair, timeframe, price scale, structure, levels and indicators only when legible. State what is unclear.
-
-Analyze:
-- Higher-timeframe bias and market structure
-- BOS and CHoCH
-- Liquidity pools and sweeps
-- Order Blocks and Fair Value Gaps
-- Entry confirmation and invalidation
-- Stop Loss and Take Profit logic
-- Risk-to-reward and market conditions
-
-Do not invent exact entry, SL or TP prices from an unreadable screenshot.
-
-End with one clear stance: BUY, SELL, or WAIT. If evidence is insufficient, choose WAIT. Give a conditional plan, never a guarantee.
-
-STRICT RISK RULE:
-Maximum planned risk is 1% per trade. If the broker's minimum lot 0.01 exceeds the risk budget, recommend skipping the trade. Never encourage increasing risk to force a trade.
-
-Warn about high-impact news only when verified calendar details are supplied. Otherwise tell the user to check a reliable economic calendar.
-
-Never execute, place, modify or close trades.
-Distinguish observation, interpretation and recommendation.
-Be professionally detailed, practical and disciplined.`;
-
-    const history = readHistory(body.previousResponseId, expectedPin);
-
-    const contents = [];
-
-    for (const turn of history) {
-      contents.push({
-        role: 'user',
-        parts: [{ text: turn.user }]
-      });
-      contents.push({
-        role: 'model',
-        parts: [{ text: turn.assistant }]
-      });
+    try {
+      workspaceText = JSON.stringify(body.workspace || {});
+    } catch {
+      workspaceText = '{}';
     }
 
-    let currentText = message;
-
-    if (body.workspace && typeof body.workspace === 'object') {
-      currentText +=
-        '\n\nWORKSPACE CONTEXT (not verified live market data): ' +
-        JSON.stringify(body.workspace);
+    if (workspaceText.length > 20_000) {
+      workspaceText = workspaceText.slice(0, 20_000);
     }
 
-    const currentParts = [{ text: currentText }];
+    const userText =
+      message +
+      '\n\nWORKSPACE CONTEXT (not verified live market data):\n' +
+      workspaceText;
 
-    if (body.imageData !== undefined) {
-      if (
-        typeof body.imageData !== 'string' ||
-        body.imageData.length > MAX_IMAGE_CHARS
-      ) {
+    const history = readHistoryToken(
+      body.previousResponseId,
+      expectedPin
+    );
+
+    const userParts = [
+      { text: userText }
+    ];
+
+    let imagePart = null;
+
+    if (body.imageData !== undefined && body.imageData !== null) {
+      if (typeof body.imageData !== 'string' ||
+          body.imageData.length > MAX_IMAGE_CHARS) {
         return res.status(400).json({
-          error: 'Invalid or oversized image. Upload a smaller chart screenshot.'
+          error: 'Image is too large. Upload a smaller chart screenshot.'
         });
       }
 
       const match = body.imageData.match(
-        /^data:(image\/(?:jpeg|png|webp));base64,([A-Za-z0-9+/=]+)$/
+        /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/=]+)$/
       );
 
       if (!match) {
         return res.status(400).json({
-          error: 'Invalid image format. Use PNG, JPG or WEBP.'
+          error: 'Invalid image. Use PNG, JPG or WEBP.'
         });
       }
 
-      currentParts.push({
+      const mimeType = match[1] === 'jpg'
+        ? 'image/jpeg'
+        : `image/${match[1]}`;
+
+      imagePart = {
         inlineData: {
-          mimeType: match[1],
+          mimeType,
           data: match[2]
         }
-      });
+      };
+
+      userParts.push(imagePart);
     }
 
-    contents.push({
-      role: 'user',
-      parts: currentParts
-    });
+    const contents = [
+      ...history,
+      {
+        role: 'user',
+        parts: userParts
+      }
+    ];
+
+    const requestBody = {
+      systemInstruction: {
+        parts: [
+          { text: buildInstructions() }
+        ]
+      },
+      contents,
+      generationConfig: {
+        temperature: 0.35,
+        maxOutputTokens: 1800,
+        topP: 0.9
+      }
+    };
 
     const endpoint =
       `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
@@ -228,17 +319,7 @@ Be professionally detailed, practical and disciplined.`;
         'Content-Type': 'application/json',
         'x-goog-api-key': apiKey
       },
-      body: JSON.stringify({
-        systemInstruction: {
-          parts: [{ text: instructions }]
-        },
-        contents,
-        generationConfig: {
-          temperature: 0.35,
-          topP: 0.9,
-          maxOutputTokens: 1400
-        }
-      })
+      body: JSON.stringify(requestBody)
     });
 
     const data = await upstream.json().catch(() => ({}));
@@ -255,24 +336,44 @@ Be professionally detailed, practical and disciplined.`;
       );
 
       return res.status(502).json({
-        error: 'Gemini service error: ' + providerMessage.slice(0, 260)
+        error: 'Gemini service error: ' +
+          providerMessage.slice(0, 300)
       });
     }
 
-    const reply = getReply(data);
+    const reply = getGeminiText(data);
 
     if (!reply) {
+      console.error(
+        'NEGUS AI: Gemini returned no readable text.',
+        data?.candidates?.[0]?.finishReason || 'No finish reason'
+      );
+
       return res.status(502).json({
-        error: 'Gemini returned no readable text. Try again.'
+        error: 'Gemini returned no readable answer. Please try again.'
       });
     }
 
     const updatedHistory = [
       ...history,
-      { user: message, assistant: reply }
-    ].slice(-MAX_HISTORY_TURNS);
+      {
+        role: 'user',
+        parts: [
+          { text: userText }
+        ]
+      },
+      {
+        role: 'model',
+        parts: [
+          { text: reply }
+        ]
+      }
+    ].slice(-MAX_HISTORY_MESSAGES);
 
-    const responseId = signHistory(updatedHistory, expectedPin);
+    const responseId = createHistoryToken(
+      updatedHistory,
+      expectedPin
+    );
 
     return res.status(200).json({
       reply,
