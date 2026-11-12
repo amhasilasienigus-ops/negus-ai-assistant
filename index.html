@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
  
 <html lang="am">
@@ -10,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v12.2</title>
+<title>NEGUS AI ASSISTANT v12.3</title>
  
 <style>
  
@@ -152,7 +153,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.2 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.3 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -241,8 +242,12 @@ window.negusOneSignalReady=new Promise(resolve=>{
     <div class="card"><div class="small">ACCOUNT STATUS</div><div class="metric" id="exnessAccountStatus">—</div></div>
   </div>
 
+  <div class="grid" style="margin-top:8px">
+    <button class="secondary" id="exnessSyncBalanceButton" type="button" disabled>Use Exness USD balance in Risk Calculator</button>
+  </div>
+  <p class="small" id="exnessAccountMeta">Account details and live trading snapshot will appear after a successful connection.</p>
   <p class="small" id="exnessAccountUpdated">Account values appear after a successful connection.</p>
-  <p class="small">Read-only access. Never enter your Exness trading password here.</p>
+  <p class="small">Read-only access. Never enter your Exness trading password here. PIN is sent only to the NEGUS backend and is not saved in browser storage.</p>
 </div>
 <!-- END EXNESS READ-ONLY ACCOUNT CARD -->
 
@@ -820,7 +825,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.2</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.3</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -1058,7 +1063,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.2 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
+<footer>NEGUS AI ASSISTANT v12.3 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
  
  
  
@@ -1447,28 +1452,52 @@ function inspectFrame(payload){
  return {ok:true,count:closed.length,rawCount:rawBars.length,bars:closed,last,prev,e20,e50,e200,rsi:rv,atr:av,trend};
 }
  
-async function fetchJSON(url){const res=await fetch(url,{cache:'no-store'});if(!res.ok)throw new Error('HTTP '+res.status);return await res.json();}
- 
-async function refreshLiveMarket(){
- 
- if(liveFetchBusy)return;liveFetchBusy=true;setText('feedStatus','Updating');
- 
+async function fetchJSON(url, timeoutMs=12000){
+ const controller=new AbortController();
+ const timeout=setTimeout(()=>controller.abort(),timeoutMs);
  try{
- 
-  const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
- 
-  const framePromises=TF_CONFIG.map(async([name,interval])=>{const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');return [name,inspectFrame(data)];});
- 
-  const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
- 
-  liveQuote=q;liveFrames=Object.fromEntries(frames);lastLiveError='';renderLiveMarket();renderSmartChart();
- 
- }catch(err){lastLiveError=String(err&&err.message?err.message:err);setText('feedStatus','ERROR');setText('feedUpdated','Market data could not be loaded: '+lastLiveError+'. Tap Refresh to try again.');setText('autoSignal','WAIT — LIVE DATA UNAVAILABLE. Do not use an old signal.');}
- 
- finally{liveFetchBusy=false;}
- 
+  const res=await fetch(url,{cache:'no-store',signal:controller.signal,redirect:'error'});
+  if(!res.ok)throw new Error('HTTP '+res.status+' from market data provider');
+  return await res.json();
+ }finally{clearTimeout(timeout);}
 }
- 
+
+async function refreshLiveMarket(){
+ if(liveFetchBusy)return;
+ liveFetchBusy=true;
+ setText('feedStatus','Updating');
+ try{
+  const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
+  const framePromises=TF_CONFIG.map(async([name,interval])=>{
+   try{
+    const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');
+    return [name,inspectFrame(data)];
+   }catch(error){
+    return [name,{ok:false,count:0,error:String(error&&error.message?error.message:error)}];
+   }
+  });
+  const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
+  if(!q||typeof q!=='object')throw new Error('Market quote response is invalid');
+  liveQuote=q;
+  liveFrames=Object.fromEntries(frames);
+  lastLiveError='';
+  renderLiveMarket();
+  renderSmartChart();
+  const failed=frames.filter(([,frame])=>!frame.ok);
+  if(failed.length){
+   setText('feedUpdated','Quote received. Candle data incomplete for: '+failed.map(([tf])=>tf).join(', ')+'. Automated signal remains WAIT until required timeframes are valid.');
+  }
+ }catch(err){
+  lastLiveError=String(err&&err.name==='AbortError'?'Market data request timed out':(err&&err.message?err.message:err));
+  liveQuote=null;
+  liveFrames={};
+  setText('feedStatus','ERROR');
+  setText('feedUpdated','Market data unavailable: '+lastLiveError+'. Previous data has been cleared. Tap Refresh to try again.');
+  setText('autoSignal','WAIT — LIVE DATA UNAVAILABLE. Do not use an old signal.');
+  updateChartQuote();
+ }finally{liveFetchBusy=false;}
+}
+
 function renderLiveMarket(){
  
  const q=liveQuote||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
@@ -2108,42 +2137,36 @@ function renderEconomicNews(){
 }
  
 /* =====================================================
-   NEGUS AI — EXNESS READ-ONLY ACCOUNT INTEGRATION
-   Credentials remain on the Vercel backend.
-   This browser code never places or modifies trades.
+   NEGUS AI V12.3 — EXNESS READ-ONLY ACCOUNT INTEGRATION
+   Browser receives account details + trading snapshot only.
+   API credentials/private key stay on the Vercel backend.
+   No order placement, modification, or closure is implemented.
    ===================================================== */
 
 const EXNESS_ACCOUNT_API =
   'https://negus-ai-assistant.vercel.app/api/exness/account';
 
-function exnessFindValue(obj, names) {
-  const wanted = names.map(name => name.toLowerCase());
-  const seen = new Set();
+let exnessActiveController = null;
+let exnessLastAccountData = null;
 
-  function walk(value, depth) {
-    if (!value || typeof value !== 'object' || depth > 6 || seen.has(value)) {
-      return undefined;
-    }
-    seen.add(value);
+function exnessGet(obj, path) {
+  return path.split('.').reduce((value, key) =>
+    value && typeof value === 'object' ? value[key] : undefined, obj);
+}
 
-    for (const [key, val] of Object.entries(value)) {
-      if (wanted.includes(key.toLowerCase()) && val !== null && val !== undefined && val !== '') {
-        return val;
-      }
-    }
-    for (const val of Object.values(value)) {
-      const found = walk(val, depth + 1);
-      if (found !== undefined) return found;
-    }
-    return undefined;
-  }
-  return walk(obj, 0);
+function exnessFirst(...values) {
+  return values.find(value => value !== undefined && value !== null && value !== '');
+}
+
+function exnessNumber(value) {
+  if (value === undefined || value === null || value === '') return null;
+  const n = Number(value);
+  return Number.isFinite(n) ? n : null;
 }
 
 function exnessMoney(value, currency) {
-  if (value === undefined || value === null || value === '') return '—';
-  const number = Number(value);
-  if (!Number.isFinite(number)) return String(value);
+  const number = exnessNumber(value);
+  if (number === null) return '—';
   return (currency ? currency + ' ' : '') + number.toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
@@ -2162,8 +2185,107 @@ function exnessResetDisplay() {
     const el = document.getElementById(id);
     if (el) el.textContent = '—';
   });
+  const meta = document.getElementById('exnessAccountMeta');
+  if (meta) meta.textContent = 'Account details and live trading snapshot will appear after a successful connection.';
   const updated = document.getElementById('exnessAccountUpdated');
   if (updated) updated.textContent = 'Account values appear after a successful connection.';
+  const sync = document.getElementById('exnessSyncBalanceButton');
+  if (sync) sync.disabled = true;
+  exnessLastAccountData = null;
+}
+
+function exnessErrorText(response, payload) {
+  const upstreamStatus = Number(payload.upstreamStatus || payload.upstream_status || 0);
+  const upstreamCode = String(payload.upstreamErrorCode || payload.upstream_error_code || '');
+  const upstreamMessage = String(payload.upstreamErrorMessage || payload.upstream_error_message || '');
+  const diagnostic = String(payload.diagnostic || payload.code || '');
+  const stage = String(payload.stage || payload.step || '');
+  let message;
+
+  if (upstreamCode === '1000' || upstreamMessage === 'AUTH_INVALID_API_KEY') {
+    message = 'Exness rejected the API key (AUTH_INVALID_API_KEY). This is an Exness backend authentication error, not a NEGUS website PIN error. Check the active API key ID and backend signing configuration.';
+  } else if (upstreamCode === '1001' || upstreamMessage === 'AUTH_INVALID_SIGNATURE') {
+    message = 'Exness rejected the request signature (AUTH_INVALID_SIGNATURE). Check the private-key format and exact request-signing code on the backend.';
+  } else if (upstreamCode === '1002' || upstreamMessage === 'AUTH_PERMISSION_DENIED') {
+    message = 'Exness denied API permission (AUTH_PERMISSION_DENIED). Verify that this API key has Trading: Read-only permission and is linked to the intended account.';
+  } else if (upstreamCode === '2000' || upstreamMessage === 'ACCOUNT_NOT_FOUND') {
+    message = 'Exness could not find this linked trading account (ACCOUNT_NOT_FOUND). Verify the account ID associated with the API key.';
+  } else if (response.status === 401) {
+    message = 'NEGUS Access PIN was rejected by the backend. Check the website Access PIN; do not change the Exness API key for this response alone.';
+  } else if (response.status === 403) {
+    message = 'Request forbidden. Check the website origin/CORS policy and Exness API account permissions.';
+  } else if (response.status === 429 || upstreamStatus === 429) {
+    message = 'API rate limit reached. Wait before retrying.';
+  } else if (response.status === 503) {
+    message = 'NEGUS backend is not configured or is temporarily unavailable. Check Vercel deployment and Production environment variables.';
+  } else {
+    message = String(payload.error || payload.message || upstreamMessage || ('Account request failed (HTTP ' + response.status + ').'));
+  }
+
+  const details = [];
+  if (diagnostic) details.push('diagnostic=' + diagnostic);
+  if (stage) details.push('stage=' + stage);
+  if (upstreamStatus) details.push('Exness HTTP=' + upstreamStatus);
+  if (upstreamCode) details.push('Exness code=' + upstreamCode);
+  return message + (details.length ? ' [' + details.join('; ') + ']' : '');
+}
+
+function exnessRenderAccount(payload) {
+  const root = payload && payload.data && typeof payload.data === 'object' ? payload.data : payload;
+  const account = exnessFirst(root.account, root.account_details, payload.account, payload.account_details) || {};
+  const snapshot = exnessFirst(root.snapshot, root.trading_state_snapshot, payload.snapshot, payload.trading_state_snapshot) || {};
+  const accountState = exnessFirst(snapshot.account_state, root.account_state, payload.account_state) || {};
+  const settings = account.settings || {};
+
+  // Exness account configuration contains currency/status/settings.
+  // Monetary balance/equity/margin values come from the trading snapshot.
+  const currency = String(exnessFirst(settings.currency, account.currency, account.account_currency, root.currency, '')).toUpperCase();
+  const balance = exnessNumber(exnessFirst(accountState.balance, snapshot.balance, account.balance, account.account_balance));
+  const equity = exnessNumber(exnessFirst(accountState.equity, snapshot.equity, account.equity, account.account_equity));
+  const usedMargin = exnessNumber(exnessFirst(accountState.used_margin, accountState.usedMargin, snapshot.used_margin));
+  const suppliedFreeMargin = exnessNumber(exnessFirst(accountState.free_margin, accountState.freeMargin, snapshot.free_margin, account.free_margin, account.available_margin));
+  const freeMargin = suppliedFreeMargin !== null ? suppliedFreeMargin : (equity !== null && usedMargin !== null ? equity - usedMargin : null);
+
+  const accountId = String(exnessFirst(account.account_id, account.id, root.account_id, 'Not provided'));
+  const accountStatus = String(exnessFirst(account.account_status, account.status, 'Unknown'));
+  const tradeMode = String(exnessFirst(settings.trade_mode, account.trade_mode, 'Unknown'));
+  const positions = Array.isArray(snapshot.positions) ? snapshot.positions.length : null;
+  const orders = Array.isArray(snapshot.orders) ? snapshot.orders.length : null;
+
+  const balanceEl = document.getElementById('exnessBalance');
+  const equityEl = document.getElementById('exnessEquity');
+  const marginEl = document.getElementById('exnessFreeMargin');
+  const statusEl = document.getElementById('exnessAccountStatus');
+  if (balanceEl) balanceEl.textContent = exnessMoney(balance, currency);
+  if (equityEl) equityEl.textContent = exnessMoney(equity, currency);
+  if (marginEl) marginEl.textContent = exnessMoney(freeMargin, currency);
+  if (statusEl) statusEl.textContent = accountStatus + ' / ' + tradeMode;
+
+  const meta = document.getElementById('exnessAccountMeta');
+  if (meta) {
+    const details = ['Account ID: ' + accountId, 'Currency: ' + (currency || 'Unknown')];
+    if (positions !== null) details.push('Open positions: ' + positions);
+    if (orders !== null) details.push('Active orders: ' + orders);
+    meta.textContent = details.join(' · ');
+  }
+
+  const updated = document.getElementById('exnessAccountUpdated');
+  if (updated) updated.textContent = 'Last successful response: ' + new Date().toLocaleString() + ' · Exness API · Read-only';
+
+  const hasSnapshot = balance !== null && equity !== null && freeMargin !== null;
+  const hasAnySnapshot = balance !== null || equity !== null || freeMargin !== null;
+  const sync = document.getElementById('exnessSyncBalanceButton');
+  if (sync) sync.disabled = !(balance !== null && currency === 'USD');
+
+  exnessLastAccountData = { balance, equity, freeMargin, currency, accountId, accountStatus, tradeMode };
+
+  if (hasSnapshot) {
+    exnessStatus('CONNECTED — account details and live trading snapshot received.');
+  } else if (hasAnySnapshot) {
+    exnessStatus('PARTIAL DATA — Exness responded, but one or more snapshot monetary fields are missing. Check the backend snapshot response.', true);
+  } else {
+    exnessStatus('ACCOUNT DETAILS RECEIVED, BUT NO TRADING SNAPSHOT WAS RETURNED. The backend must also request /v1/trading/accounts/{account_id}/snapshot and return it as payload.snapshot.', true);
+  }
 }
 
 async function connectExnessAccount(event) {
@@ -2178,11 +2300,13 @@ async function connectExnessAccount(event) {
     return;
   }
 
+  if (exnessActiveController) exnessActiveController.abort();
+  const controller = new AbortController();
+  exnessActiveController = controller;
+  exnessResetDisplay();
   button.disabled = true;
   button.textContent = 'Connecting…';
-  exnessStatus('Connecting securely to Exness…');
-
-  const controller = new AbortController();
+  exnessStatus('Connecting securely to the NEGUS backend and Exness…');
   const timeoutId = setTimeout(() => controller.abort(), 20000);
 
   try {
@@ -2202,74 +2326,55 @@ async function connectExnessAccount(event) {
     try {
       payload = responseText ? JSON.parse(responseText) : {};
     } catch (_) {
-      throw new Error('Backend returned an invalid response.');
+      throw new Error('NEGUS backend returned non-JSON content. Check the Vercel function response and deployment logs.');
     }
 
     if (!response.ok || payload.ok !== true) {
-      const messages = {
-        400: 'Invalid account/API configuration. Check the account ID and Gateway URL in Vercel.',
-        401: 'NEGUS Access PIN or Exness API authentication is incorrect.',
-        403: 'Website origin or Exness account/API permission was denied.',
-        405: 'Backend request method is not supported.',
-        429: 'Exness request limit reached. Wait before retrying.',
-        502: 'Exness API request failed. See the diagnostic code below.',
-        503: 'Vercel server configuration is incomplete.'
-      };
-      // Accept diagnostics from both deployed backend formats:
-      // v12.2 uses { code, stage }; the earlier backend uses { diagnostic }.
-      const diagnostic = payload.code || payload.diagnostic || '';
-      const detail = diagnostic ? ' [' + String(diagnostic) + ']' : '';
-      const stageName = payload.stage || payload.step || '';
-      const stage = stageName ? ' — ' + String(stageName) : '';
-      const backendMessage = payload.error || payload.message || 'Exness connection failed.';
-      throw new Error((messages[response.status] || backendMessage) + detail + stage);
+      throw new Error(exnessErrorText(response, payload));
     }
 
-    const account = payload.account || {};
-    const currency = exnessFindValue(account, ['currency', 'account_currency']) || '';
-    const balance = exnessFindValue(account, ['balance', 'account_balance']);
-    const equity = exnessFindValue(account, ['equity', 'account_equity']);
-    const freeMargin = exnessFindValue(account, ['free_margin', 'freeMargin', 'available_margin', 'availableMargin']);
-    const accountStatus = exnessFindValue(account, ['status', 'account_status', 'state']) || 'Connected';
-
-    const balanceEl = document.getElementById('exnessBalance');
-    const equityEl = document.getElementById('exnessEquity');
-    const marginEl = document.getElementById('exnessFreeMargin');
-    const statusEl = document.getElementById('exnessAccountStatus');
-
-    if (balanceEl) balanceEl.textContent = exnessMoney(balance, currency);
-    if (equityEl) equityEl.textContent = exnessMoney(equity, currency);
-    if (marginEl) marginEl.textContent = exnessMoney(freeMargin, currency);
-    if (statusEl) statusEl.textContent = String(accountStatus);
-
-    const updated = document.getElementById('exnessAccountUpdated');
-    if (updated) updated.textContent = 'Last successful update: ' + new Date().toLocaleString() + ' · Exness API · Read-only';
-
-    const hasAccountData = balance !== undefined || equity !== undefined || freeMargin !== undefined;
-    if (!hasAccountData) {
-      exnessStatus('Backend connected, but expected account fields were not found. Inspect the Exness response format.', true);
-    } else {
-      exnessStatus('CONNECTED — Exness account data received successfully.');
-    }
+    exnessRenderAccount(payload);
   } catch (error) {
-    const message = error && error.name === 'AbortError'
-      ? 'Connection timed out. Try again.'
-      : (error && error.message ? error.message : 'Connection failed.');
-    exnessStatus(message, true);
+    exnessResetDisplay();
+    if (error && error.name === 'AbortError' && !pinInput.value.trim()) {
+      exnessStatus('PIN cleared. Not connected.');
+    } else {
+      const message = error && error.name === 'AbortError'
+        ? 'Connection timed out or was cancelled. Check network/backend status and try again.'
+        : (error && error.message ? error.message : 'Connection failed.');
+      exnessStatus(message, true);
+    }
   } finally {
     clearTimeout(timeoutId);
+    if (exnessActiveController === controller) exnessActiveController = null;
     button.disabled = false;
     button.textContent = 'Connect / Refresh Exness';
   }
 }
 
+function syncExnessBalanceToRiskCalculator() {
+  if (!exnessLastAccountData || exnessLastAccountData.currency !== 'USD' || exnessLastAccountData.balance === null) {
+    exnessStatus('Balance sync unavailable. A valid USD Exness balance is required.', true);
+    return;
+  }
+  const balanceInput = document.getElementById('balance');
+  if (!balanceInput) return;
+  balanceInput.value = exnessLastAccountData.balance.toFixed(2);
+  updateDashboard();
+  calculateRisk();
+  exnessStatus('Exness USD balance copied into the Risk Calculator. No trade was placed or changed.');
+}
+
 function initExnessAccount() {
   const form = document.getElementById('exnessConnectForm');
   const clearButton = document.getElementById('exnessDisconnectButton');
+  const syncButton = document.getElementById('exnessSyncBalanceButton');
   if (!form || !clearButton) return;
 
   form.addEventListener('submit', connectExnessAccount);
+  if (syncButton) syncButton.addEventListener('click', syncExnessBalanceToRiskCalculator);
   clearButton.addEventListener('click', () => {
+    if (exnessActiveController) exnessActiveController.abort();
     const pinInput = document.getElementById('exnessAccessPin');
     if (pinInput) pinInput.value = '';
     exnessResetDisplay();
