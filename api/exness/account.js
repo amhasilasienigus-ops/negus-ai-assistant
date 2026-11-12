@@ -31,10 +31,7 @@ function getPrivateKey() {
   const value = process.env.EXN_PRIVATE_KEY;
 
   if (!value) {
-    throw makeError(
-      "Private key is missing",
-      "PRIVATE_KEY_MISSING"
-    );
+    throw makeError("Private key is missing", "PRIVATE_KEY_MISSING");
   }
 
   try {
@@ -46,10 +43,7 @@ function getPrivateKey() {
       );
 
       return crypto.createPrivateKey({
-        key: Buffer.concat([
-          prefix,
-          raw.subarray(0, 32)
-        ]),
+        key: Buffer.concat([prefix, raw.subarray(0, 32)]),
         format: "der",
         type: "pkcs8"
       });
@@ -75,10 +69,7 @@ function signRequest(method, path, timestamp, body = "") {
   const apiKey = process.env.EXN_API_KEY;
 
   if (!apiKey) {
-    throw makeError(
-      "API key is missing",
-      "API_KEY_MISSING"
-    );
+    throw makeError("API key is missing", "API_KEY_MISSING");
   }
 
   const privateKey = getPrivateKey();
@@ -91,9 +82,7 @@ function signRequest(method, path, timestamp, body = "") {
     method,
     path,
     body_hash: base64url(
-      crypto.createHash("sha256")
-        .update(body)
-        .digest()
+      crypto.createHash("sha256").update(body).digest()
     )
   };
 
@@ -104,10 +93,7 @@ function signRequest(method, path, timestamp, body = "") {
   try {
     signature = crypto.sign(null, data, privateKey);
   } catch (_) {
-    throw makeError(
-      "Request signing failed",
-      "SIGNING_FAILED"
-    );
+    throw makeError("Request signing failed", "SIGNING_FAILED");
   }
 
   return {
@@ -123,18 +109,11 @@ function signRequest(method, path, timestamp, body = "") {
 async function exnessGet(baseUrl, path) {
   const timestamp = Date.now();
 
-  const headers = signRequest(
-    "GET",
-    path,
-    timestamp
-  );
+  const headers = signRequest("GET", path, timestamp);
 
   const controller = new AbortController();
 
-  const timeout = setTimeout(
-    () => controller.abort(),
-    15000
-  );
+  const timeout = setTimeout(() => controller.abort(), 15000);
 
   let response;
 
@@ -152,7 +131,6 @@ async function exnessGet(baseUrl, path) {
       "EXNESS_NETWORK_ERROR"
     );
 
-    // Preserve the original network error for safe diagnostics.
     error.cause = cause;
     throw error;
   } finally {
@@ -164,9 +142,7 @@ async function exnessGet(baseUrl, path) {
   let data;
 
   try {
-    data = responseText
-      ? JSON.parse(responseText)
-      : {};
+    data = responseText ? JSON.parse(responseText) : {};
   } catch (_) {
     data = {};
   }
@@ -201,14 +177,52 @@ async function discoverAccessPoint(accountId) {
     );
   }
 
+  let parsedGateway;
+
+  try {
+    parsedGateway = new URL(gateway.trim());
+
+    if (
+      parsedGateway.protocol !== "https:" ||
+      !parsedGateway.hostname ||
+      parsedGateway.username ||
+      parsedGateway.password ||
+      parsedGateway.search ||
+      parsedGateway.hash ||
+      (parsedGateway.pathname !== "/" &&
+       parsedGateway.pathname !== "")
+    ) {
+      throw new Error("Invalid discovery URL format");
+    }
+  } catch (error) {
+    console.error("NEGUS_DISCOVERY_URL_DIAGNOSTIC", {
+      valuePresent: Boolean(gateway),
+      hasHttpsScheme:
+        typeof gateway === "string" &&
+        /^https:\/\//i.test(gateway.trim()),
+      parseError: error.name || "Error",
+      errorCode: error.code || null
+    });
+
+    throw makeError(
+      "Discovery URL format is invalid",
+      "DISCOVERY_URL_INVALID"
+    );
+  }
+
+  console.info("NEGUS_DISCOVERY_URL_DIAGNOSTIC", {
+    protocol: parsedGateway.protocol,
+    hostname: parsedGateway.hostname,
+    validHttps: true
+  });
+
+  const baseUrl = parsedGateway.origin;
+
   const path =
     "/v1/trading/access-point?account_id=" +
     encodeURIComponent(accountId);
 
-  const result = await exnessGet(
-    gateway.replace(/\/+$/, ""),
-    path
-  );
+  const result = await exnessGet(baseUrl, path);
 
   const accessPoint = result.access_point;
 
@@ -300,8 +314,7 @@ module.exports = async function handler(req, res) {
 
     stage = "ACCESS_POINT_DISCOVERY";
 
-    const accessPoint =
-      await discoverAccessPoint(accountId);
+    const accessPoint = await discoverAccessPoint(accountId);
 
     stage = "ACCOUNT_DATA_REQUEST";
 
@@ -310,10 +323,7 @@ module.exports = async function handler(req, res) {
       encodeURIComponent(accountId) +
       "/account";
 
-    const account = await exnessGet(
-      accessPoint,
-      path
-    );
+    const account = await exnessGet(accessPoint, path);
 
     return send(res, 200, {
       ok: true,
@@ -324,26 +334,20 @@ module.exports = async function handler(req, res) {
     const diagnostic = error.code || stage;
 
     const upstreamStatus =
-      Number.isInteger(error.status)
-        ? error.status
-        : null;
+      Number.isInteger(error.status) ? error.status : null;
 
-    // Never log API keys, PINs or private keys.
     const cause = error.cause || {};
     const nestedCause = cause.cause || {};
 
-    console.error(
-      "NEGUS_EXNESS_BACKEND_ERROR",
-      {
-        diagnostic,
-        stage,
-        upstreamStatus,
-        errorName: error.name || "Error",
-        causeName: cause.name || null,
-        causeCode: cause.code || null,
-        nestedCauseCode: nestedCause.code || null
-      }
-    );
+    console.error("NEGUS_EXNESS_BACKEND_ERROR", {
+      diagnostic,
+      stage,
+      upstreamStatus,
+      errorName: error.name || "Error",
+      causeName: cause.name || null,
+      causeCode: cause.code || null,
+      nestedCauseCode: nestedCause.code || null
+    });
 
     const status = upstreamStatus ? 502 : 500;
 
