@@ -11,7 +11,7 @@
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v12.3</title>
+<title>NEGUS AI ASSISTANT v12.4</title>
  
 <style>
  
@@ -153,7 +153,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.3 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.4 + EXNESS READ-ONLY + MANUAL ACCOUNT SNAPSHOT · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -176,6 +176,8 @@ window.negusOneSignalReady=new Promise(resolve=>{
  <button onclick="showPage('strategy',this)">Nigus's trading Strategy</button>
  
  <button onclick="showPage('performance',this)">Performance</button>
+
+ <button onclick="showPage('manualAccount',this)">Manual Account Sync</button>
  
 </nav>
  
@@ -825,7 +827,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.3</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.4</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -1031,6 +1033,46 @@ nalysis · All Timeframes</h3>
  
  
  
+<section id="manualAccount" class="page">
+
+ <h2>Manual Account Snapshot</h2>
+
+ <div class="card">
+  <h3>MT5 Account Details · Read-only Manual Entry</h3>
+  <p>ይህ ሜኑ ከMT5 መተግበሪያህ ላይ የምታየውን መረጃ በእጅ ለመመዝገብ ነው። ቀጥታ Exness API ግንኙነት አይደለም፤ መረጃው በዚህ ብራውዘር ውስጥ ብቻ ይቀመጣል።</p>
+  <div class="grid">
+   <div><label for="manualBalance">Balance (USD)</label><input id="manualBalance" type="number" min="0" step="0.01" placeholder="e.g. 15.00"></div>
+   <div><label for="manualEquity">Equity (USD)</label><input id="manualEquity" type="number" min="0" step="0.01" placeholder="e.g. 15.25"></div>
+   <div><label for="manualFreeMargin">Free Margin (USD)</label><input id="manualFreeMargin" type="number" min="0" step="0.01" placeholder="e.g. 14.80"></div>
+   <div><label for="manualFloatingPL">Floating P/L (USD)</label><input id="manualFloatingPL" type="number" step="0.01" placeholder="e.g. 0.25"></div>
+   <div><label for="manualOpenTrades">Open Positions (count)</label><input id="manualOpenTrades" type="number" min="0" step="1" placeholder="0"></div>
+   <div><label for="manualSnapshotTime">Snapshot Date / Time</label><input id="manualSnapshotTime" type="datetime-local"></div>
+  </div>
+  <label for="manualPositionsNotes">Open trades / Notes (optional)</label>
+  <textarea id="manualPositionsNotes" placeholder="Example: EURUSD BUY 0.01 · Entry 1.08000 · SL 1.07900 · TP 1.08200"></textarea>
+  <div class="grid">
+   <button class="action" type="button" onclick="saveManualAccountSnapshot()">Save Account Snapshot</button>
+   <button class="secondary" type="button" onclick="copyManualBalanceToRisk()">Use Balance in Risk Calculator</button>
+   <button class="secondary" type="button" onclick="clearManualAccountSnapshot()">Clear Saved Snapshot</button>
+  </div>
+  <div id="manualAccountStatus" class="result" role="status" aria-live="polite">No manual account snapshot saved yet.</div>
+ </div>
+
+ <div class="card">
+  <h3>Latest Saved Snapshot</h3>
+  <div class="grid">
+   <div><div class="small">BALANCE</div><div class="metric gold" id="manualViewBalance">—</div></div>
+   <div><div class="small">EQUITY</div><div class="metric" id="manualViewEquity">—</div></div>
+   <div><div class="small">FREE MARGIN</div><div class="metric" id="manualViewFreeMargin">—</div></div>
+   <div><div class="small">FLOATING P/L</div><div class="metric" id="manualViewFloatingPL">—</div></div>
+   <div><div class="small">OPEN POSITIONS</div><div class="metric" id="manualViewOpenTrades">—</div></div>
+  </div>
+  <p class="small" id="manualViewTime">No saved timestamp.</p>
+  <div id="manualViewNotes" class="result">No notes saved.</div>
+  <p class="small">Important: This is a manually entered snapshot, not a verified live feed. Update it yourself after checking MT5. Never enter your MT5 password, investor password, Exness PIN or API secret here.</p>
+ </div>
+</section>
+
 <section id="performance" class="page">
  
  <h2>Trading Performance</h2>
@@ -1063,7 +1105,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.3 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
+<footer>NEGUS AI ASSISTANT v12.4 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
  
  
  
@@ -1080,6 +1122,8 @@ function showPage(id,btn){
  btn.classList.add('active');
  
  if(id==='performance')renderPerformance();
+
+ if(id==='manualAccount')renderManualAccountSnapshot();
  
  if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});resizeOverlayCanvas();renderSmartChart(true);},120);}
  
@@ -2424,6 +2468,95 @@ async function refreshEconomicNews(){
  
 }
  
+
+
+/* NEGUS AI v12.4 — MANUAL MT5 ACCOUNT SNAPSHOT (LOCAL BROWSER ONLY) */
+const NEGUS_MANUAL_ACCOUNT_KEY = 'negus_manual_account_snapshot_v124';
+function manualAccountMoney(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? '$' + n.toFixed(2) : '—';
+}
+function saveManualAccountSnapshot() {
+  const ids = ['manualBalance','manualEquity','manualFreeMargin','manualFloatingPL','manualOpenTrades'];
+  const values = {};
+  for (const id of ids) {
+    const el = document.getElementById(id);
+    if (!el || el.value.trim() === '') {
+      const status = document.getElementById('manualAccountStatus');
+      if (status) status.textContent = 'Please enter all five account values. Use 0 for values that are zero.';
+      return;
+    }
+    const n = Number(el.value);
+    if (!Number.isFinite(n) || (id !== 'manualFloatingPL' && n < 0) || (id === 'manualOpenTrades' && !Number.isInteger(n))) {
+      const status = document.getElementById('manualAccountStatus');
+      if (status) status.textContent = 'Invalid value. Check the account numbers and try again.';
+      return;
+    }
+    values[id] = n;
+  }
+  const snapshot = {
+    balance: values.manualBalance,
+    equity: values.manualEquity,
+    freeMargin: values.manualFreeMargin,
+    floatingPL: values.manualFloatingPL,
+    openTrades: values.manualOpenTrades,
+    snapshotTime: document.getElementById('manualSnapshotTime').value || new Date().toISOString(),
+    notes: document.getElementById('manualPositionsNotes').value.trim(),
+    savedAt: new Date().toISOString()
+  };
+  try {
+    localStorage.setItem(NEGUS_MANUAL_ACCOUNT_KEY, JSON.stringify(snapshot));
+    const status = document.getElementById('manualAccountStatus');
+    if (status) status.textContent = 'Snapshot saved on this browser only. It is not a live Exness connection.';
+    renderManualAccountSnapshot();
+  } catch (error) {
+    const status = document.getElementById('manualAccountStatus');
+    if (status) status.textContent = 'Could not save in this browser. Check browser storage settings.';
+  }
+}
+function renderManualAccountSnapshot() {
+  let snapshot = null;
+  try { snapshot = JSON.parse(localStorage.getItem(NEGUS_MANUAL_ACCOUNT_KEY) || 'null'); } catch (_) {}
+  const set = (id, value) => { const el = document.getElementById(id); if (el) el.textContent = value; };
+  if (!snapshot) {
+    set('manualViewBalance','—'); set('manualViewEquity','—'); set('manualViewFreeMargin','—');
+    set('manualViewFloatingPL','—'); set('manualViewOpenTrades','—'); set('manualViewTime','No saved timestamp.'); set('manualViewNotes','No notes saved.');
+    return;
+  }
+  set('manualViewBalance',manualAccountMoney(snapshot.balance));
+  set('manualViewEquity',manualAccountMoney(snapshot.equity));
+  set('manualViewFreeMargin',manualAccountMoney(snapshot.freeMargin));
+  set('manualViewFloatingPL',manualAccountMoney(snapshot.floatingPL));
+  set('manualViewOpenTrades',String(snapshot.openTrades));
+  const when = snapshot.snapshotTime ? new Date(snapshot.snapshotTime) : null;
+  set('manualViewTime',when && !Number.isNaN(when.getTime()) ? 'Snapshot time: ' + when.toLocaleString() : 'Snapshot time not recorded.');
+  set('manualViewNotes',snapshot.notes || 'No notes saved.');
+  const fill = (id,value) => { const el=document.getElementById(id); if(el && value !== undefined && value !== null) el.value=String(value); };
+  fill('manualBalance',snapshot.balance); fill('manualEquity',snapshot.equity); fill('manualFreeMargin',snapshot.freeMargin);
+  fill('manualFloatingPL',snapshot.floatingPL); fill('manualOpenTrades',snapshot.openTrades); fill('manualPositionsNotes',snapshot.notes || '');
+  const dt = when && !Number.isNaN(when.getTime()) ? new Date(when.getTime()-when.getTimezoneOffset()*60000).toISOString().slice(0,16) : '';
+  fill('manualSnapshotTime',dt);
+}
+function copyManualBalanceToRisk() {
+  let snapshot = null;
+  try { snapshot = JSON.parse(localStorage.getItem(NEGUS_MANUAL_ACCOUNT_KEY) || 'null'); } catch (_) {}
+  if (!snapshot || !Number.isFinite(Number(snapshot.balance))) {
+    const status=document.getElementById('manualAccountStatus'); if(status) status.textContent='Save a valid account snapshot first.';
+    return;
+  }
+  const balanceInput=document.getElementById('balance');
+  if(balanceInput){ balanceInput.value=Number(snapshot.balance).toFixed(2); updateDashboard(); calculateRisk(); }
+  const status=document.getElementById('manualAccountStatus'); if(status) status.textContent='Saved manual balance copied to Risk Calculator. No broker connection or trade execution occurred.';
+}
+function clearManualAccountSnapshot() {
+  try { localStorage.removeItem(NEGUS_MANUAL_ACCOUNT_KEY); } catch (_) {}
+  ['manualBalance','manualEquity','manualFreeMargin','manualFloatingPL','manualOpenTrades','manualSnapshotTime','manualPositionsNotes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const status=document.getElementById('manualAccountStatus'); if(status) status.textContent='Saved manual snapshot cleared from this browser.';
+  renderManualAccountSnapshot();
+}
+document.addEventListener('DOMContentLoaded', renderManualAccountSnapshot);
+/* END NEGUS AI v12.4 — MANUAL MT5 ACCOUNT SNAPSHOT */
+
 refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLiveUpdates();
  
 </script>
