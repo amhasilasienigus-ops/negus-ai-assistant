@@ -31,28 +31,59 @@ function getPrivateKey() {
   const value = process.env.EXN_PRIVATE_KEY;
 
   if (!value) {
-    throw makeError("Private key is missing", "PRIVATE_KEY_MISSING");
+    throw makeError(
+      "Private key is missing",
+      "PRIVATE_KEY_MISSING"
+    );
   }
 
   try {
     if (/^[0-9a-fA-F]{128}$/.test(value)) {
       const raw = Buffer.from(value, "hex");
+
       const prefix = Buffer.from(
         "302e020100300506032b657004220420",
         "hex"
       );
 
-      return crypto.createPrivateKey({
-        key: Buffer.concat([prefix, raw.subarray(0, 32)]),
+      const privateKey = crypto.createPrivateKey({
+        key: Buffer.concat([
+          prefix,
+          raw.subarray(0, 32)
+        ]),
         format: "der",
         type: "pkcs8"
       });
+
+      // Verify that the public half of Exness's 64-byte
+      // private key matches the public key derived from its seed.
+      const derivedPublicKey = crypto.createPublicKey(
+        privateKey
+      );
+
+      const publicDer = derivedPublicKey.export({
+        format: "der",
+        type: "spki"
+      });
+
+      const derivedPublicRaw = publicDer.subarray(-32);
+      const suppliedPublicRaw = raw.subarray(32, 64);
+
+      if (!crypto.timingSafeEqual(
+        derivedPublicRaw,
+        suppliedPublicRaw
+      )) {
+        throw new Error("Private key public half mismatch");
+      }
+
+      return privateKey;
     }
 
     return crypto.createPrivateKey(value);
+
   } catch (_) {
     throw makeError(
-      "Private key format is invalid",
+      "Private key format or key pair is invalid",
       "PRIVATE_KEY_INVALID"
     );
   }
@@ -69,7 +100,10 @@ function signRequest(method, path, timestamp, body = "") {
   const apiKey = process.env.EXN_API_KEY;
 
   if (!apiKey) {
-    throw makeError("API key is missing", "API_KEY_MISSING");
+    throw makeError(
+      "API key is missing",
+      "API_KEY_MISSING"
+    );
   }
 
   const privateKey = getPrivateKey();
@@ -82,18 +116,30 @@ function signRequest(method, path, timestamp, body = "") {
     method,
     path,
     body_hash: base64url(
-      crypto.createHash("sha256").update(body).digest()
+      crypto.createHash("sha256")
+        .update(body)
+        .digest()
     )
   };
 
-  const data = Buffer.from(JSON.stringify(payload));
+  const data = Buffer.from(
+    JSON.stringify(payload),
+    "utf8"
+  );
 
   let signature;
 
   try {
-    signature = crypto.sign(null, data, privateKey);
+    signature = crypto.sign(
+      null,
+      data,
+      privateKey
+    );
   } catch (_) {
-    throw makeError("Request signing failed", "SIGNING_FAILED");
+    throw makeError(
+      "Request signing failed",
+      "SIGNING_FAILED"
+    );
   }
 
   return {
@@ -109,11 +155,18 @@ function signRequest(method, path, timestamp, body = "") {
 async function exnessGet(baseUrl, path) {
   const timestamp = Date.now();
 
-  const headers = signRequest("GET", path, timestamp);
+  const headers = signRequest(
+    "GET",
+    path,
+    timestamp
+  );
 
   const controller = new AbortController();
 
-  const timeout = setTimeout(() => controller.abort(), 15000);
+  const timeout = setTimeout(
+    () => controller.abort(),
+    15000
+  );
 
   let response;
 
@@ -125,6 +178,7 @@ async function exnessGet(baseUrl, path) {
       redirect: "error",
       signal: controller.signal
     });
+
   } catch (cause) {
     const error = makeError(
       "Could not reach Exness API",
@@ -133,16 +187,22 @@ async function exnessGet(baseUrl, path) {
 
     error.cause = cause;
     throw error;
+
   } finally {
     clearTimeout(timeout);
   }
 
+  const contentType =
+    response.headers.get("content-type") || "";
+
   const responseText = await response.text();
 
-  let data;
+  let data = {};
 
   try {
-    data = responseText ? JSON.parse(responseText) : {};
+    data = responseText
+      ? JSON.parse(responseText)
+      : {};
   } catch (_) {
     data = {};
   }
@@ -154,6 +214,36 @@ async function exnessGet(baseUrl, path) {
     );
 
     error.status = response.status;
+
+    // Extract only safe diagnostic fields.
+    // Never log the complete response or request headers.
+    const errorCode =
+      data.error_code ??
+      data.code ??
+      data.error?.code ??
+      null;
+
+    const errorMessage =
+      data.error_message ??
+      data.description ??
+      data.message ??
+      data.error?.message ??
+      null;
+
+    error.upstreamErrorCode =
+      typeof errorCode === "string" ||
+      typeof errorCode === "number"
+        ? String(errorCode).slice(0, 100)
+        : null;
+
+    error.upstreamErrorMessage =
+      typeof errorMessage === "string"
+        ? errorMessage.slice(0, 300)
+        : null;
+
+    error.upstreamContentType =
+      contentType.slice(0, 100);
+
     throw error;
   }
 
@@ -168,7 +258,8 @@ async function discoverAccessPoint(accountId) {
     return cachedAccessPoint;
   }
 
-  const gateway = process.env.EXN_DISCOVERY_BASE_URL;
+  const gateway =
+    process.env.EXN_DISCOVERY_BASE_URL;
 
   if (!gateway) {
     throw makeError(
@@ -189,20 +280,26 @@ async function discoverAccessPoint(accountId) {
       parsedGateway.password ||
       parsedGateway.search ||
       parsedGateway.hash ||
-      (parsedGateway.pathname !== "/" &&
-       parsedGateway.pathname !== "")
+      (
+        parsedGateway.pathname !== "/" &&
+        parsedGateway.pathname !== ""
+      )
     ) {
       throw new Error("Invalid discovery URL format");
     }
+
   } catch (error) {
-    console.error("NEGUS_DISCOVERY_URL_DIAGNOSTIC", {
-      valuePresent: Boolean(gateway),
-      hasHttpsScheme:
-        typeof gateway === "string" &&
-        /^https:\/\//i.test(gateway.trim()),
-      parseError: error.name || "Error",
-      errorCode: error.code || null
-    });
+    console.error(
+      "NEGUS_DISCOVERY_URL_DIAGNOSTIC",
+      {
+        valuePresent: Boolean(gateway),
+        hasHttpsScheme:
+          typeof gateway === "string" &&
+          /^https:\/\//i.test(gateway.trim()),
+        parseError: error.name || "Error",
+        errorCode: error.code || null
+      }
+    );
 
     throw makeError(
       "Discovery URL format is invalid",
@@ -210,11 +307,14 @@ async function discoverAccessPoint(accountId) {
     );
   }
 
-  console.info("NEGUS_DISCOVERY_URL_DIAGNOSTIC", {
-    protocol: parsedGateway.protocol,
-    hostname: parsedGateway.hostname,
-    validHttps: true
-  });
+  console.info(
+    "NEGUS_DISCOVERY_URL_DIAGNOSTIC",
+    {
+      protocol: parsedGateway.protocol,
+      hostname: parsedGateway.hostname,
+      validHttps: true
+    }
+  );
 
   const baseUrl = parsedGateway.origin;
 
@@ -222,7 +322,10 @@ async function discoverAccessPoint(accountId) {
     "/v1/trading/access-point?account_id=" +
     encodeURIComponent(accountId);
 
-  const result = await exnessGet(baseUrl, path);
+  const result = await exnessGet(
+    baseUrl,
+    path
+  );
 
   const accessPoint = result.access_point;
 
@@ -236,7 +339,9 @@ async function discoverAccessPoint(accountId) {
     );
   }
 
-  cachedAccessPoint = accessPoint.replace(/\/+$/, "");
+  cachedAccessPoint =
+    accessPoint.replace(/\/+$/, "");
+
   cachedAt = Date.now();
 
   return cachedAccessPoint;
@@ -295,7 +400,8 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const suppliedPin = req.headers["x-negus-access-pin"];
+  const suppliedPin =
+    req.headers["x-negus-access-pin"];
 
   if (
     !suppliedPin ||
@@ -310,11 +416,13 @@ module.exports = async function handler(req, res) {
   let stage = "ACCOUNT_REQUEST";
 
   try {
-    const accountId = process.env.EXN_ACCOUNT_ID;
+    const accountId =
+      process.env.EXN_ACCOUNT_ID;
 
     stage = "ACCESS_POINT_DISCOVERY";
 
-    const accessPoint = await discoverAccessPoint(accountId);
+    const accessPoint =
+      await discoverAccessPoint(accountId);
 
     stage = "ACCOUNT_DATA_REQUEST";
 
@@ -323,7 +431,10 @@ module.exports = async function handler(req, res) {
       encodeURIComponent(accountId) +
       "/account";
 
-    const account = await exnessGet(accessPoint, path);
+    const account = await exnessGet(
+      accessPoint,
+      path
+    );
 
     return send(res, 200, {
       ok: true,
@@ -331,25 +442,39 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
-    const diagnostic = error.code || stage;
+    const diagnostic =
+      error.code || stage;
 
     const upstreamStatus =
-      Number.isInteger(error.status) ? error.status : null;
+      Number.isInteger(error.status)
+        ? error.status
+        : null;
 
     const cause = error.cause || {};
     const nestedCause = cause.cause || {};
 
-    console.error("NEGUS_EXNESS_BACKEND_ERROR", {
-      diagnostic,
-      stage,
-      upstreamStatus,
-      errorName: error.name || "Error",
-      causeName: cause.name || null,
-      causeCode: cause.code || null,
-      nestedCauseCode: nestedCause.code || null
-    });
+    // Never log API keys, PINs, private keys or signed headers.
+    console.error(
+      "NEGUS_EXNESS_BACKEND_ERROR",
+      {
+        diagnostic,
+        stage,
+        upstreamStatus,
+        upstreamErrorCode:
+          error.upstreamErrorCode || null,
+        upstreamErrorMessage:
+          error.upstreamErrorMessage || null,
+        upstreamContentType:
+          error.upstreamContentType || null,
+        errorName: error.name || "Error",
+        causeName: cause.name || null,
+        causeCode: cause.code || null,
+        nestedCauseCode: nestedCause.code || null
+      }
+    );
 
-    const status = upstreamStatus ? 502 : 500;
+    const status =
+      upstreamStatus ? 502 : 500;
 
     return send(res, status, {
       ok: false,
