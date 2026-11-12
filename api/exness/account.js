@@ -18,9 +18,7 @@ function send(res, status, body) {
 
 function allowedOrigin(origin) {
   if (!origin) return true;
-
-  return origin ===
-    "https://amhasilasienigus-ops.github.io";
+  return origin === "https://amhasilasienigus-ops.github.io";
 }
 
 function makeError(message, code) {
@@ -42,7 +40,6 @@ function getPrivateKey() {
   try {
     if (/^[0-9a-fA-F]{128}$/.test(value)) {
       const raw = Buffer.from(value, "hex");
-
       const prefix = Buffer.from(
         "302e020100300506032b657004220420",
         "hex"
@@ -149,11 +146,15 @@ async function exnessGet(baseUrl, path) {
       redirect: "error",
       signal: controller.signal
     });
-  } catch (_) {
-    throw makeError(
+  } catch (cause) {
+    const error = makeError(
       "Could not reach Exness API",
       "EXNESS_NETWORK_ERROR"
     );
+
+    // Preserve the original network error for safe diagnostics.
+    error.cause = cause;
+    throw error;
   } finally {
     clearTimeout(timeout);
   }
@@ -221,9 +222,7 @@ async function discoverAccessPoint(accountId) {
     );
   }
 
-  cachedAccessPoint =
-    accessPoint.replace(/\/+$/, "");
-
+  cachedAccessPoint = accessPoint.replace(/\/+$/, "");
   cachedAt = Date.now();
 
   return cachedAccessPoint;
@@ -275,17 +274,14 @@ module.exports = async function handler(req, res) {
     "EXN_DISCOVERY_BASE_URL"
   ];
 
-  if (
-    required.some(name => !process.env[name])
-  ) {
+  if (required.some(name => !process.env[name])) {
     return send(res, 503, {
       ok: false,
       error: "Server configuration incomplete"
     });
   }
 
-  const suppliedPin =
-    req.headers["x-negus-access-pin"];
+  const suppliedPin = req.headers["x-negus-access-pin"];
 
   if (
     !suppliedPin ||
@@ -325,8 +321,7 @@ module.exports = async function handler(req, res) {
     });
 
   } catch (error) {
-    const diagnostic =
-      error.code || stage;
+    const diagnostic = error.code || stage;
 
     const upstreamStatus =
       Number.isInteger(error.status)
@@ -334,17 +329,23 @@ module.exports = async function handler(req, res) {
         : null;
 
     // Never log API keys, PINs or private keys.
+    const cause = error.cause || {};
+    const nestedCause = cause.cause || {};
+
     console.error(
       "NEGUS_EXNESS_BACKEND_ERROR",
       {
         diagnostic,
+        stage,
         upstreamStatus,
-        errorName: error.name || "Error"
+        errorName: error.name || "Error",
+        causeName: cause.name || null,
+        causeCode: cause.code || null,
+        nestedCauseCode: nestedCause.code || null
       }
     );
 
-    const status =
-      upstreamStatus ? 502 : 500;
+    const status = upstreamStatus ? 502 : 500;
 
     return send(res, status, {
       ok: false,
