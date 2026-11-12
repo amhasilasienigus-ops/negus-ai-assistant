@@ -1,4 +1,4 @@
-ht<!DOCTYPE html>
+<!DOCTYPE html>
  
 <html lang="am">
  
@@ -10,7 +10,7 @@ ht<!DOCTYPE html>
  
 <meta name="theme-color" content="#101827">
  
-<title>NEGUS AI ASSISTANT v12.1</title>
+<title>NEGUS AI ASSISTANT v12.2</title>
  
 <style>
  
@@ -152,7 +152,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="brand">♛ NEGUS AI ASSISTANT</div>
  
- <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.1 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
+ <div class="sub">EUR/USD TRADING WORKSPACE · VERSION 12.2 + EXNESS READ-ONLY ACCOUNT DATA · ONE TRADINGVIEW LIGHTWEIGHT CHART + NEGUS OVERLAYS</div>
  
 </header>
  
@@ -820,7 +820,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <div class="card">
  
-   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.1</h3>
+   <h3>EUR/USD · NEGUS TradingView Lightweight Chart · V12.2</h3>
 
    <p><b>አንድ ቻርት ብቻ፦</b> TradingView Lightweight Charts ካንድል ቻርት ላይ NEGUS SMC overlays በቀጥታ ይታያሉ። የዋጋ መረጃው BiQuote ነው፤ ከExness MT5 ዋጋ ጋር ሊለያይ ይችላል። <a href="https://www.tradingview.com/" target="_blank" rel="noopener noreferrer">TradingView Lightweight Charts</a></p>
 
@@ -1058,7 +1058,7 @@ nalysis · All Timeframes</h3>
  
  
  
-<footer>NEGUS AI ASSISTANT v12.1 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
+<footer>NEGUS AI ASSISTANT v12.2 · የውሳኔ ድጋፍ ብቻ · Exness Read-Only Account Data · የትሬድ ማስፈጸሚያ የለም · የሰው ማረጋገጫ ያስፈልጋል</footer>
  
  
  
@@ -2207,13 +2207,22 @@ async function connectExnessAccount(event) {
 
     if (!response.ok || payload.ok !== true) {
       const messages = {
-        401: 'Incorrect Access PIN. Check the Vercel NEGUS_ACCESS_PIN setting.',
-        403: 'Website origin is not permitted by the backend.',
+        400: 'Invalid account/API configuration. Check the account ID and Gateway URL in Vercel.',
+        401: 'NEGUS Access PIN or Exness API authentication is incorrect.',
+        403: 'Website origin or Exness account/API permission was denied.',
         405: 'Backend request method is not supported.',
-        502: 'Exness rejected or could not complete the request. Check API access and signing.',
+        429: 'Exness request limit reached. Wait before retrying.',
+        502: 'Exness API request failed. See the diagnostic code below.',
         503: 'Vercel server configuration is incomplete.'
       };
-      throw new Error(messages[response.status] || payload.error || 'Exness connection failed.');
+      // Accept diagnostics from both deployed backend formats:
+      // v12.2 uses { code, stage }; the earlier backend uses { diagnostic }.
+      const diagnostic = payload.code || payload.diagnostic || '';
+      const detail = diagnostic ? ' [' + String(diagnostic) + ']' : '';
+      const stageName = payload.stage || payload.step || '';
+      const stage = stageName ? ' — ' + String(stageName) : '';
+      const backendMessage = payload.error || payload.message || 'Exness connection failed.';
+      throw new Error((messages[response.status] || backendMessage) + detail + stage);
     }
 
     const account = payload.account || {};
@@ -2234,7 +2243,7 @@ async function connectExnessAccount(event) {
     if (statusEl) statusEl.textContent = String(accountStatus);
 
     const updated = document.getElementById('exnessAccountUpdated');
-    if (updated) updated.textContent = 'Last successful update: ' + new Date().toLocaleString();
+    if (updated) updated.textContent = 'Last successful update: ' + new Date().toLocaleString() + ' · Exness API · Read-only';
 
     const hasAccountData = balance !== undefined || equity !== undefined || freeMargin !== undefined;
     if (!hasAccountData) {
