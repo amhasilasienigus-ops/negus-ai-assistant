@@ -2466,7 +2466,7 @@ async function refreshEconomicNews(){
  
    const time=Date.parse(raw);if(!Number.isFinite(time)||!e.title)return null;
  
-   return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual||''),forecast:String(e.forecast||''),previous:String(e.previous||'')};
+   return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual??''),forecast:String(e.forecast??''),previous:String(e.previous??'')};
  
   }).filter(Boolean).sort((a,b)=>a.time-b.time);
  
@@ -2577,12 +2577,14 @@ function negusBuildLiveWorkspace(){
     };
   }
   const events=(newsEvents||[])
-    .filter(e=>e.time>=now-8*60*60*1000&&e.time<=now+48*60*60*1000)
-    .sort((a,b)=>a.time-b.time).slice(0,20)
+    .filter(e=>e.time>=now-24*60*60*1000&&e.time<=now+48*60*60*1000)
+    .sort((a,b)=>a.time-b.time).slice(0,30)
     .map(e=>({
       time:new Date(e.time).toISOString(),
       ...negusFormatEventTimes(e.time,now),
-      currency:e.currency,title:e.title,impact:e.impact,actual:e.actual||null,forecast:e.forecast||null,previous:e.previous||null
+      currency:e.currency,title:e.title,impact:e.impact,actual:e.actual??null,forecast:e.forecast??null,previous:e.previous??null,
+      releaseStatus:e.time<=now?'released':'upcoming',
+      actualAvailable:e.actual!==''&&e.actual!==null&&e.actual!==undefined
     }));
   return {
     dataContractVersion:'1.0',
