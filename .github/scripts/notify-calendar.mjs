@@ -60,6 +60,11 @@ async function sendPush(message) {
   console.log("Push accepted:", result.id, "recipients:", result.recipients ?? "not reported");
 }
 
+if (process.env.SEND_TEST_PUSH === "true") {
+  await sendPush("TEST: NEGUS AI push notifications are connected on this device.");
+  console.log("Manual test push request completed.");
+}
+
 const now = Date.now();
 
 const validEvents = events.filter(event =>
