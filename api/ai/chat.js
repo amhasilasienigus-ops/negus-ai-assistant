@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 
 const ALLOWED_ORIGIN = 'https://amhasilasienigus-ops.github.io';
 const MODEL = 'gemini-3.5-flash-lite';
+const FALLBACK_MODEL = 'gemini-3.1-flash-lite';
 
 const MAX_IMAGE_CHARS = 4_200_000;
 const MAX_MESSAGE_CHARS = 8_000;
@@ -114,6 +115,61 @@ function getGeminiText(data) {
   }
 
   return '';
+}
+
+async function requestGeminiWithFallback(apiKey, requestBody) {
+  const models = [MODEL, FALLBACK_MODEL];
+  let lastFailure = null;
+
+  for (const model of models) {
+    const endpoint =
+      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`;
+
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const upstream = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-goog-api-key': apiKey
+          },
+          body: JSON.stringify(requestBody)
+        });
+
+        const data = await upstream.json().catch(() => ({}));
+
+        if (upstream.ok) {
+          return { upstream, data, model };
+        }
+
+        const providerMessage =
+          data?.error?.message || `Gemini returned HTTP ${upstream.status}.`;
+
+        lastFailure = {
+          status: upstream.status,
+          message: providerMessage,
+          model
+        };
+
+        const temporary = [429, 500, 502, 503, 504].includes(upstream.status);
+        if (!temporary) {
+          return { upstream, data, model };
+        }
+      } catch (error) {
+        lastFailure = {
+          status: 0,
+          message: error?.message || 'Network request failed.',
+          model
+        };
+      }
+
+      if (attempt < 2) {
+        await new Promise(resolve => setTimeout(resolve, 800 * attempt));
+      }
+    }
+  }
+
+  return { upstream: null, data: {}, model: lastFailure?.model || MODEL, lastFailure };
 }
 
 function buildInstructions() {
@@ -332,34 +388,31 @@ export default async function handler(req, res) {
       }
     };
 
-    const endpoint =
-      `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
+    const result = await requestGeminiWithFallback(apiKey, requestBody);
+    const { upstream, data, model } = result;
 
-    const upstream = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': apiKey
-      },
-      body: JSON.stringify(requestBody)
-    });
-
-    const data = await upstream.json().catch(() => ({}));
-
-    if (!upstream.ok) {
+    if (!upstream || !upstream.ok) {
+      const status = result.lastFailure?.status || upstream?.status || 502;
       const providerMessage =
+        result.lastFailure?.message ||
         data?.error?.message ||
-        `Gemini returned HTTP ${upstream.status}.`;
+        `Gemini returned HTTP ${status}.`;
 
       console.error(
-        'NEGUS AI Gemini error:',
-        upstream.status,
-        providerMessage
+        'NEGUS AI Gemini error after retry/fallback:',
+        status,
+        providerMessage,
+        'Last model:',
+        model
       );
 
+      const friendlyMessage = status === 503 || status === 429
+        ? 'Gemini AI አገልጋይ በጊዜያዊ ጫና ላይ ነው። ራስ-ሰር retry እና fallback ተሞክረዋል፤ እባክዎ ከ1-2 ደቂቃ በኋላ ይሞክሩ።'
+        : 'Gemini service error: ' + providerMessage.slice(0, 240);
+
       return res.status(502).json({
-        error: 'Gemini service error: ' +
-          providerMessage.slice(0, 300)
+        error: friendlyMessage,
+        retryable: status === 503 || status === 429
       });
     }
 
@@ -400,7 +453,7 @@ export default async function handler(req, res) {
     return res.status(200).json({
       reply,
       responseId,
-      model: MODEL
+      model
     });
 
   } catch (error) {
