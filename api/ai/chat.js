@@ -725,16 +725,7 @@ export default async function handler(req, res) {
     }
 
     const aiReply = getGeminiText(data);
-    const reply = aiReply ? aiReply + formatStructureEvidenceReport(
-      (() => {
-        try {
-          const suppliedWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : {};
-          return buildStructureEvidence(suppliedWorkspace);
-        } catch {
-          return { status: 'calculation_error' };
-        }
-      })()
-    ) : '';
+    const reply = aiReply ? aiReply + formatStructureEvidenceReport(serverEvidence) : '';
 
     if (!reply) {
       console.error(
