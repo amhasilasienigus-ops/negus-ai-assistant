@@ -4,6 +4,12 @@ on:
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
+    inputs:
+      send_test_push:
+        description: 'Send a test push notification to subscribed devices'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -34,6 +40,7 @@ jobs:
         env:
           ONESIGNAL_APP_ID: ${{ secrets.ONESIGNAL_APP_ID }}
           ONESIGNAL_REST_API_KEY: ${{ secrets.ONESIGNAL_REST_API_KEY }}
+          SEND_TEST_PUSH: ${{ inputs.send_test_push }}
         run: node .github/scripts/notify-calendar.mjs
 
       - name: Save calendar and notification state
