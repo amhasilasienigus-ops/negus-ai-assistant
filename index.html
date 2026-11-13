@@ -205,6 +205,12 @@ window.negusOneSignalReady=new Promise(resolve=>{
 <section id="dashboard" class="page active">
  
  <h2>Trading Dashboard</h2>
+
+ <div id="accountModeBanner" role="status" aria-live="polite" style="display:flex;flex-direction:column;gap:6px;margin:12px 0 16px;padding:14px 16px;border:2px solid #e5b94f;border-radius:12px;background:#302817">
+  <div style="font-size:15px;font-weight:900;letter-spacing:.5px;color:#ffd76a">⚠ DEMO – TESTING ONLY</div>
+  <div style="font-size:13px;font-weight:800;color:#edf3fa">REAL ACCOUNT NOT CONNECTED</div>
+  <div style="font-size:11px;line-height:1.5;color:#d5c9a8">የተገናኘው Exness MT5 መለያ DEMO ነው። የሚታዩ የAccount መረጃዎች ለሙከራ ብቻ ናቸው፤ Real Account እንደተገናኘ አይቆጠርም።</div>
+ </div>
  
  
  
@@ -241,7 +247,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
 <!-- NEGUS AI — EXNESS READ-ONLY ACCOUNT CARD -->
 <div class="card" id="exnessAccountCard">
-  <h3>Exness Real Account · Read Only</h3>
+  <h3>Exness Account Connection · Read Only</h3>
   <p class="small">Secure account connection. This dashboard only reads account information and cannot place or modify trades.</p>
 
   <form id="exnessConnectForm" autocomplete="off">
