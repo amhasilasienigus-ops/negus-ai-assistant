@@ -284,6 +284,62 @@ function buildStructureEvidence(workspace) {
   return { methodNote: 'Mechanical OHLC evidence aid only; equal levels, sweeps, FVGs, breaks and OBs are candidates, not proof of institutional intent.', timeframes: output };
 }
 
+
+function formatStructureEvidenceReport(evidence) {
+  if (!evidence || !evidence.timeframes) {
+    return '\n\n## SMC EVIDENCE AUDIT\\nNOT CONFIRMED — Server-side OHLC evidence unavailable.';
+  }
+
+  const fmt = value => Number.isFinite(Number(value)) ? Number(value).toFixed(5) : 'N/A';
+  const candle = c => c
+    ? `UTC ${c.time} | O ${fmt(c.open)} H ${fmt(c.high)} L ${fmt(c.low)} C ${fmt(c.close)}`
+    : 'Candle data unavailable';
+  const lines = [
+    '',
+    '',
+    '## SMC EVIDENCE AUDIT — SERVER-CALCULATED FROM SUPPLIED CLOSED OHLC',
+    'This audit is deterministic evidence output. Candidates are not proof of institutional orders. The scan is limited to the supplied candle window.'
+  ];
+
+  for (const tf of ['D1', 'H4', 'H1', 'M30', 'M15', 'M5']) {
+    const f = evidence.timeframes[tf];
+    lines.push('', `### ${tf}`);
+    if (!f || f.status !== 'calculated_from_supplied_closed_candles') {
+      lines.push(`DATA STATUS: ${f?.status || 'unavailable'} — ${f?.reason || 'No validated closed OHLC evidence.'}`);
+      for (const label of ['Swing High/Low', 'Equal High/Low', 'BOS/CHoCH', 'Liquidity Sweep', 'FVG', 'Displacement', 'Order Block']) lines.push(`${label}: NOT CONFIRMED`);
+      continue;
+    }
+
+    lines.push(`Data: ${f.candleCount} valid closed candles; structure bias: ${f.structureBias || 'undetermined'}.`);
+    const highs = f.latestSwingHighs || [], lows = f.latestSwingLows || [];
+    lines.push('SWING HIGHS: ' + (highs.length ? highs.map(x => `${fmt(x.price)} | ${candle(x.candle)}`).join(' || ') : 'NOT CONFIRMED'));
+    lines.push('SWING LOWS: ' + (lows.length ? lows.map(x => `${fmt(x.price)} | ${candle(x.candle)}`).join(' || ') : 'NOT CONFIRMED'));
+
+    const eh = f.equalHighLiquidityCandidates || [], el = f.equalLowLiquidityCandidates || [];
+    lines.push('EQUAL HIGH: ' + (eh.length ? eh.map(x => `candidate avg ${fmt(x.averageLevel)} tolerance ${fmt(x.tolerance)}; ${(x.pivots || []).map(p => `${p.time} @ ${fmt(p.price)} [${candle(p.candle)}]`).join(' AND ')}`).join(' || ') : 'NOT CONFIRMED'));
+    lines.push('EQUAL LOW: ' + (el.length ? el.map(x => `candidate avg ${fmt(x.averageLevel)} tolerance ${fmt(x.tolerance)}; ${(x.pivots || []).map(p => `${p.time} @ ${fmt(p.price)} [${candle(p.candle)}]`).join(' AND ')}`).join(' || ') : 'NOT CONFIRMED'));
+
+    const breaks = f.breakCandidates || [];
+    lines.push('BOS / CHoCH / STRUCTURE BREAK: ' + (breaks.length ? breaks.map(x => `${x.type}; ${x.direction}; level ${fmt(x.level)}; prior bias ${x.priorBias}; closed beyond=${x.closeBeyondLevel}; pivot [${candle(x.pivotCandle)}]; previous [${candle(x.previousCandle)}]; confirmation [${candle(x.confirmationCandle)}]`).join(' || ') : 'NOT CONFIRMED'));
+
+    const sweeps = f.liquiditySweepCandidates || [];
+    lines.push('LIQUIDITY SWEEP: ' + (sweeps.length ? sweeps.map(x => `${x.direction}; level ${fmt(x.level)}; pivot [${candle(x.pivotCandle)}]; sweep [${candle(x.sweepCandle)}]; wick beyond and close back inside=${Boolean(x.wickBeyondLevel && x.closeBackInside)}`).join(' || ') : 'NOT CONFIRMED'));
+
+    const fvgs = f.fvgCandidates || [];
+    lines.push('FVG: ' + (fvgs.length ? fvgs.map(x => `${x.direction}; zone ${fmt(x.lowerBound)}–${fmt(x.upperBound)}; mitigation ${x.mitigation}; first [${candle(x.firstCandle)}]; middle [${candle(x.middleCandle)}]; third [${candle(x.thirdCandle)}]`).join(' || ') : 'NOT CONFIRMED'));
+
+    const disps = f.displacementCandidates || [];
+    lines.push('DISPLACEMENT: ' + (disps.length ? disps.map(x => `${x.direction}; body/median ratio ${x.bodyToPriorMedianRatio}x; close location ${x.closeLocation}; ${candle(x.candle)}`).join(' || ') : 'NOT CONFIRMED'));
+
+    const obs = f.orderBlockCandidates || [];
+    lines.push('ORDER BLOCK: ' + (obs.length ? obs.map(x => `OB CANDIDATE only; ${x.direction}; break level ${fmt(x.breakLevel)}; origin [${candle(x.originCandle)}]; confirmation/displacement [${candle(x.confirmationCandle)}]`).join(' || ') : 'NOT CONFIRMED'));
+    if ((f.unconfirmedObBreaks || []).length) lines.push('UNCONFIRMED OB BREAKS: ' + f.unconfirmedObBreaks.map(x => `${x.direction}; level ${fmt(x.breakLevel)}; confirmation [${candle(x.confirmationCandle)}]`).join(' || '));
+  }
+
+  lines.push('', 'Interpretation rule: BOS/CHoCH labels remain candidates unless prior structure context supports the classification. Equal levels, sweeps, FVGs, displacement and OBs are mechanical candidates, not proof of institutional intent.');
+  return lines.join('\\n');
+}
+
 async function requestGeminiWithFallback(apiKey, requestBody) {
   const models = [MODEL, FALLBACK_MODEL];
   let lastFailure = null;
@@ -605,7 +661,17 @@ export default async function handler(req, res) {
       });
     }
 
-    const reply = getGeminiText(data);
+    const aiReply = getGeminiText(data);
+    const reply = aiReply ? aiReply + formatStructureEvidenceReport(
+      (() => {
+        try {
+          const suppliedWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : {};
+          return buildStructureEvidence(suppliedWorkspace);
+        } catch {
+          return { status: 'calculation_error' };
+        }
+      })()
+    ) : '';
 
     if (!reply) {
       console.error(
