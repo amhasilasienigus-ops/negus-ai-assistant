@@ -1915,16 +1915,17 @@ function drawSmartOverlays(){
  if(overlayOn('overlayFVG')||overlayOn('overlayOB')){
   tfs.forEach(frameTF=>{const en=analyzeEntry(frames[frameTF]);if(!en.ok)return;if(overlayOn('overlayFVG')&&en.fvg)zone(en.fvg.low,en.fvg.high,'#5ba7ff',frameTF+' '+en.fvg.side+' FVG',en.fvg.time,en.fvg.endTime);if(overlayOn('overlayOB')&&en.ob)zone(en.ob.low,en.ob.high,'#b18cff',frameTF+' '+en.ob.side+' OB*',en.ob.time,en.ob.endTime);});
  }
- // Keep all level lines, but stack their text labels at the right edge to prevent collisions.
+ // Keep every price line, but render a compact, collision-safe label rail inside the plot
+ // area (left of the right-hand price scale). Hidden labels never hide their levels.
  const seen=new Set(),unique=labelQueue.filter(item=>{const k=item.label+'|'+Math.round(item.y/5);if(seen.has(k))return false;seen.add(k);return true;}).sort((a,b)=>a.y-b.y);
- const maxLabels=Math.max(1,Math.floor((h-24)/16));
+ const maxLabels=Math.max(1,Math.min(18,Math.floor((h-28)/17)));
  let visible=unique;
  if(visible.length>maxLabels){const center=h/2;visible=visible.sort((a,b)=>Math.abs(a.y-center)-Math.abs(b.y-center)).slice(0,maxLabels).sort((a,b)=>a.y-b.y);}
- const gap=15,topPad=12,bottomPad=8,available=Math.max(0,h-topPad-bottomPad);
- const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y,i===0?topPad:0))}));
+ const gap=16,topPad=12,bottomPad=10;
+ const positions=visible.map((item,i)=>({item,y:Math.min(h-bottomPad,Math.max(topPad,item.y))}));
  for(let i=1;i<positions.length;i++)positions[i].y=Math.max(positions[i].y,positions[i-1].y+gap);
  if(positions.length&&positions[positions.length-1].y>h-bottomPad){const shift=positions[positions.length-1].y-(h-bottomPad);positions.forEach(p=>p.y-=shift);}
- positions.forEach(({item,y})=>{ctx.save();ctx.font='10px Arial';const label=item.label.length>24?item.label.slice(0,22)+'…':item.label,tw=ctx.measureText(label).width;const x=Math.max(4,w-tw-10);ctx.fillStyle='rgba(8,16,28,.88)';ctx.fillRect(x-4,Math.max(2,y-11),tw+8,14);ctx.fillStyle=item.color;ctx.fillText(label,x,Math.max(12,y));ctx.restore();});
+ positions.forEach(({item,y})=>{ctx.save();ctx.font='9px Arial';const full=item.label.length>22?item.label.slice(0,20)+'…':item.label,tw=ctx.measureText(full).width;const x=Math.max(4,w-tw-72);ctx.fillStyle='rgba(8,16,28,.90)';ctx.fillRect(x-4,Math.max(2,y-10),tw+8,13);ctx.fillStyle=item.color;ctx.fillText(full,x,Math.max(11,y));ctx.restore();});
 }
 
 function renderSmartChart(forceFit=false){
