@@ -316,7 +316,7 @@ function formatStructureEvidenceReport(evidence) {
     lines.push('SWING LOWS: ' + (lows.length ? lows.map(x => `${fmt(x.price)} | ${candle(x.candle)}`).join(' || ') : 'NOT CONFIRMED'));
 
     const eh = f.equalHighLiquidityCandidates || [], el = f.equalLowLiquidityCandidates || [];
-    lines.push('EQUAL HIGH: ' + (eh.length ? eh.map(x => `candidate avg ${fmt(x.averageLevel)} tolerance ${fmt(x.tolerance)}; ${(x.pivots || []).map(p => `${p.time} @ ${fmt(p.price)} [${candle(p.candle)}]`).join(' AND ')}`).join(' || ') : 'NOT CONFIRMED'));
+    lines.push('EQUAL HIGH: ' + (eh.length ? eh.map(x => `candidate avg ${fmt(x.averageLevel)} tolerance ${fmt(x.tolerance)} (0.5 pip); ${(x.pivots || []).map(p => `${p.time} @ ${fmt(p.price)} [${candle(p.candle)}]`).join(' AND ')}`).join(' || ') : 'NOT CONFIRMED'));
     lines.push('EQUAL LOW: ' + (el.length ? el.map(x => `candidate avg ${fmt(x.averageLevel)} tolerance ${fmt(x.tolerance)}; ${(x.pivots || []).map(p => `${p.time} @ ${fmt(p.price)} [${candle(p.candle)}]`).join(' AND ')}`).join(' || ') : 'NOT CONFIRMED'));
 
     const breaks = f.breakCandidates || [];
@@ -337,7 +337,7 @@ function formatStructureEvidenceReport(evidence) {
   }
 
   lines.push('', 'Interpretation rule: BOS/CHoCH labels remain candidates unless prior structure context supports the classification. Equal levels, sweeps, FVGs, displacement and OBs are mechanical candidates, not proof of institutional intent.');
-  return lines.join('\\n');
+  return lines.join('\n');
 }
 
 async function requestGeminiWithFallback(apiKey, requestBody) {
