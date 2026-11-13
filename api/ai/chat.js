@@ -125,59 +125,109 @@ function buildStructureEvidence(workspace) {
   for (const name of ['D1', 'H4', 'H1', 'M30', 'M15', 'M5']) {
     const frame = frames[name];
     if (!frame?.available || !Array.isArray(frame.candles)) {
-      output[name] = { status: 'unavailable', reason: frame?.reason || 'Validated candles unavailable.' };
+      output[name] = { status: 'unavailable', reason: frame?.reason || 'Validated closed candles unavailable.' };
       continue;
     }
-    const candles = frame.candles
-      .filter(c => c && Number.isFinite(Date.parse(c.time)) &&
-        ['open', 'high', 'low', 'close'].every(k => Number.isFinite(Number(c[k]))) &&
-        Number(c.high) >= Math.max(Number(c.open), Number(c.close), Number(c.low)) &&
-        Number(c.low) <= Math.min(Number(c.open), Number(c.close), Number(c.high)))
-      .map(c => ({ time: new Date(c.time).toISOString(), open: Number(c.open), high: Number(c.high), low: Number(c.low), close: Number(c.close) }))
-      .sort((a, b) => Date.parse(a.time) - Date.parse(b.time)).slice(-24);
-    if (candles.length < 5) {
-      output[name] = { status: 'insufficient', candleCount: candles.length, reason: 'At least five valid closed candles are required for a two-left/two-right pivot check.' };
+    const byTime = new Map();
+    for (const raw of frame.candles) {
+      if (!raw || !Number.isFinite(Date.parse(raw.time))) continue;
+      const open = Number(raw.open), high = Number(raw.high), low = Number(raw.low), close = Number(raw.close);
+      if (![open, high, low, close].every(Number.isFinite)) continue;
+      if (high < Math.max(open, close, low) || low > Math.min(open, close, high)) continue;
+      const time = new Date(raw.time).toISOString();
+      byTime.set(time, { time, open, high, low, close });
+    }
+    const candles = [...byTime.values()].sort((x, y) => Date.parse(x.time) - Date.parse(y.time)).slice(-60);
+    if (candles.length < 7) {
+      output[name] = { status: 'insufficient', candleCount: candles.length, reason: 'At least seven valid closed candles required.' };
       continue;
     }
-    const swingsHigh = [], swingsLow = [];
+    const highs = [], lows = [];
     for (let i = 2; i < candles.length - 2; i++) {
       const c = candles[i], left = candles.slice(i - 2, i), right = candles.slice(i + 1, i + 3);
-      if (left.every(x => c.high > x.high) && right.every(x => c.high >= x.high)) swingsHigh.push({ time: c.time, price: c.high, candle: 'high' });
-      if (left.every(x => c.low < x.low) && right.every(x => c.low <= x.low)) swingsLow.push({ time: c.time, price: c.low, candle: 'low' });
+      if (left.every(x => c.high > x.high) && right.every(x => c.high >= x.high)) highs.push({ index: i, time: c.time, price: c.high, candle: c });
+      if (left.every(x => c.low < x.low) && right.every(x => c.low <= x.low)) lows.push({ index: i, time: c.time, price: c.low, candle: c });
     }
-    const last = candles[candles.length - 1], previous = candles[candles.length - 2];
-    const lastTwoHighs = swingsHigh.slice(-2), lastTwoLows = swingsLow.slice(-2);
-    let structureBias = 'undetermined';
-    if (lastTwoHighs.length === 2 && lastTwoLows.length === 2) {
-      const lh = lastTwoHighs[1].price < lastTwoHighs[0].price, ll = lastTwoLows[1].price < lastTwoLows[0].price;
-      const hh = lastTwoHighs[1].price > lastTwoHighs[0].price, hl = lastTwoLows[1].price > lastTwoLows[0].price;
-      if (lh && ll) structureBias = 'bearish';
-      else if (hh && hl) structureBias = 'bullish';
-      else structureBias = 'mixed';
+    function biasAt(index) {
+      const hh = highs.filter(p => p.index + 2 < index).slice(-2);
+      const ll = lows.filter(p => p.index + 2 < index).slice(-2);
+      if (hh.length < 2 || ll.length < 2) return 'undetermined';
+      if (hh[1].price < hh[0].price && ll[1].price < ll[0].price) return 'bearish';
+      if (hh[1].price > hh[0].price && ll[1].price > ll[0].price) return 'bullish';
+      return 'mixed';
     }
-    const latestHigh = swingsHigh.at(-1) || null, latestLow = swingsLow.at(-1) || null;
     const breaks = [], sweeps = [];
-    if (latestHigh && previous.close <= latestHigh.price && last.close > latestHigh.price) {
-      breaks.push({ direction: 'bullish', level: latestHigh.price, levelCandleTime: latestHigh.time, confirmationCandleTime: last.time, confirmationClose: last.close, type: structureBias === 'bearish' ? 'possible_bullish_CHoCH' : 'bullish_BOS_or_structure_break' });
-    } else if (latestHigh && last.high > latestHigh.price && last.close <= latestHigh.price) {
-      sweeps.push({ direction: 'buy_side', level: latestHigh.price, levelCandleTime: latestHigh.time, sweepCandleTime: last.time, candleHigh: last.high, candleClose: last.close });
+    for (let i = 3; i < candles.length; i++) {
+      const c = candles[i], prev = candles[i - 1];
+      const ph = highs.filter(p => p.index + 2 < i).slice(-1)[0];
+      const pl = lows.filter(p => p.index + 2 < i).slice(-1)[0];
+      const bias = biasAt(i);
+      if (ph && prev.close <= ph.price && c.close > ph.price) {
+        breaks.push({ direction: 'bullish', type: bias === 'bearish' ? 'possible_bullish_CHoCH' : bias === 'bullish' ? 'possible_bullish_BOS' : 'possible_bullish_structure_break', priorBias: bias, level: ph.price, pivotCandle: ph.candle, previousCandle: prev, confirmationCandle: c });
+      } else if (ph && c.high > ph.price && c.close <= ph.price) {
+        sweeps.push({ direction: 'buy_side', level: ph.price, pivotCandle: ph.candle, sweepCandle: c });
+      }
+      if (pl && prev.close >= pl.price && c.close < pl.price) {
+        breaks.push({ direction: 'bearish', type: bias === 'bullish' ? 'possible_bearish_CHoCH' : bias === 'bearish' ? 'possible_bearish_BOS' : 'possible_bearish_structure_break', priorBias: bias, level: pl.price, pivotCandle: pl.candle, previousCandle: prev, confirmationCandle: c });
+      } else if (pl && c.low < pl.price && c.close >= pl.price) {
+        sweeps.push({ direction: 'sell_side', level: pl.price, pivotCandle: pl.candle, sweepCandle: c });
+      }
     }
-    if (latestLow && previous.close >= latestLow.price && last.close < latestLow.price) {
-      breaks.push({ direction: 'bearish', level: latestLow.price, levelCandleTime: latestLow.time, confirmationCandleTime: last.time, confirmationClose: last.close, type: structureBias === 'bullish' ? 'possible_bearish_CHoCH' : 'bearish_BOS_or_structure_break' });
-    } else if (latestLow && last.low < latestLow.price && last.close >= latestLow.price) {
-      sweeps.push({ direction: 'sell_side', level: latestLow.price, levelCandleTime: latestLow.time, sweepCandleTime: last.time, candleLow: last.low, candleClose: last.close });
+    const fvgs = [];
+    for (let i = 2; i < candles.length; i++) {
+      const first = candles[i - 2], middle = candles[i - 1], third = candles[i];
+      let direction = '', lower = 0, upper = 0;
+      if (third.low > first.high) { direction = 'bullish'; lower = first.high; upper = third.low; }
+      if (third.high < first.low) { direction = 'bearish'; lower = third.high; upper = first.low; }
+      if (!direction) continue;
+      let mitigation = 'unfilled_in_supplied_window';
+      for (let j = i + 1; j < candles.length; j++) {
+        if (direction === 'bullish') {
+          if (candles[j].low <= lower) mitigation = 'filled';
+          else if (candles[j].low < upper && mitigation !== 'filled') mitigation = 'partially_filled';
+        } else {
+          if (candles[j].high >= upper) mitigation = 'filled';
+          else if (candles[j].high > lower && mitigation !== 'filled') mitigation = 'partially_filled';
+        }
+      }
+      fvgs.push({ direction, lowerBound: lower, upperBound: upper, mitigation, firstCandle: first, middleCandle: middle, thirdCandle: third });
+    }
+    const bodies = candles.map(c => Math.abs(c.close - c.open));
+    const displacementCandidates = [];
+    for (let i = 10; i < candles.length; i++) {
+      const c = candles[i], prior = bodies.slice(i - 10, i).sort((x, y) => x - y);
+      const median = (prior[4] + prior[5]) / 2, range = c.high - c.low;
+      if (!(median > 0) || !(range > 0)) continue;
+      const ratio = Math.abs(c.close - c.open) / median, location = (c.close - c.low) / range;
+      let direction = null;
+      if (c.close > c.open && location >= 0.75) direction = 'bullish';
+      if (c.close < c.open && location <= 0.25) direction = 'bearish';
+      if (direction && ratio >= 1.5) displacementCandidates.push({ direction, candle: c, bodyToPriorMedianRatio: Number(ratio.toFixed(2)) });
+    }
+    const obs = [];
+    for (const br of breaks) {
+      const ix = candles.findIndex(c => c.time === br.confirmationCandle.time);
+      let origin = null;
+      for (let j = ix - 1; j >= Math.max(0, ix - 4); j--) {
+        const opposing = br.direction === 'bullish' ? candles[j].close < candles[j].open : candles[j].close > candles[j].open;
+        if (opposing) { origin = candles[j]; break; }
+      }
+      if (origin) obs.push({ direction: br.direction, originCandle: origin, breakLevel: br.level, confirmationCandle: br.confirmationCandle, status: 'candidate_only' });
     }
     output[name] = {
       status: 'calculated_from_supplied_closed_candles',
-      method: 'Two-left/two-right local pivot; break requires previous close at/inside level and latest closed candle close beyond it.',
-      candleCount: candles.length, latestClosedCandle: last, previousClosedCandle: previous,
-      structureBias, latestSwingHighs: lastTwoHighs, latestSwingLows: lastTwoLows,
-      breaks, liquiditySweepCandidates: sweeps
+      method: 'Up to 60 validated closed candles; two-left/two-right pivots; close-cross break candidates.',
+      candleCount: candles.length, structureBias: biasAt(candles.length),
+      latestClosedCandle: candles[candles.length - 1], previousClosedCandle: candles[candles.length - 2],
+      latestSwingHighs: highs.slice(-4).map(p => ({ time: p.time, price: p.price, candle: p.candle })),
+      latestSwingLows: lows.slice(-4).map(p => ({ time: p.time, price: p.price, candle: p.candle })),
+      breakCandidates: breaks.slice(-6), liquiditySweepCandidates: sweeps.slice(-6),
+      fvgCandidates: fvgs.slice(-6), displacementCandidates: displacementCandidates.slice(-6),
+      orderBlockCandidates: obs.slice(-4)
     };
   }
-  return { methodNote: 'Mechanical evidence aid, not a complete discretionary SMC model. A pivot requires two candles on each side.', timeframes: output };
+  return { methodNote: 'Mechanical OHLC evidence aid only; candidate labels do not prove institutional intent.', timeframes: output };
 }
-
 async function requestGeminiWithFallback(apiKey, requestBody) {
   const models = [MODEL, FALLBACK_MODEL];
   let lastFailure = null;
