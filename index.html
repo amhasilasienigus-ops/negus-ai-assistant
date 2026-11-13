@@ -1423,7 +1423,7 @@ renderTrades();updateDashboard();renderPerformance();calculateRisk();updateCheck
  
 const LIVE_API='https://biquote.io/api';
  
-let liveQuote=null,liveFrames={},liveFetchBusy=false,lastLiveError='';
+let liveQuote=null,liveFrames={},liveFetchBusy=false,lastQuoteError='',lastCandleErrors={};
  
 const TF_CONFIG=[['D1','1d'],['H4','4h'],['H1','1h'],['M30','30m'],['M15','15m'],['M5','5m']];
  
@@ -1527,37 +1527,47 @@ async function refreshLiveMarket(){
  liveFetchBusy=true;
  setText('feedStatus','Updating');
  try{
-  const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
+  const quotePromise=fetchJSON(LIVE_API+'/EURUSD')
+   .then(q=>({ok:!!q&&typeof q==='object',data:q,error:!!q&&typeof q==='object'?'':'Market quote response is invalid'}))
+   .catch(error=>({ok:false,data:null,error:String(error&&error.name==='AbortError'?'Quote request timed out':(error&&error.message?error.message:error))}));
   const framePromises=TF_CONFIG.map(async([name,interval])=>{
    try{
     const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250',25000);
     return [name,inspectFrame(data)];
    }catch(error){
-    return [name,{ok:false,count:0,error:String(error&&error.message?error.message:error)}];
+    return [name,{ok:false,count:0,error:String(error&&error.name==='AbortError'?'Candle request timed out':(error&&error.message?error.message:error))}];
    }
   });
-  const [q,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
-  if(!q||typeof q!=='object')throw new Error('Market quote response is invalid');
-  liveQuote=q;
-  liveFrames=Object.fromEntries(frames);
-  lastLiveError='';
-  renderLiveMarket();
-  renderSmartChart();
-  const failed=frames.filter(([,frame])=>!frame.ok);
-  if(failed.length){
-   setText('feedUpdated','Quote received. Candle data incomplete for: '+failed.map(([tf])=>tf).join(', ')+'. Automated signal remains WAIT until required timeframes are valid.');
+  const [quoteResult,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
+  if(quoteResult.ok){
+   liveQuote=quoteResult.data;
+   lastQuoteError='';
+  }else{
+   lastQuoteError=quoteResult.error||'Quote unavailable';
   }
- }catch(err){
-  lastLiveError=String(err&&err.name==='AbortError'?'Market data request timed out':(err&&err.message?err.message:err));
-  liveQuote=null;
-  liveFrames={};
-  setText('feedStatus','ERROR');
-  setText('feedUpdated','Market data unavailable: '+lastLiveError+'. Previous data has been cleared. Tap Refresh to try again.');
-  setText('autoSignal','WAIT — LIVE DATA UNAVAILABLE. Do not use an old signal.');
-  updateChartQuote();
- }finally{liveFetchBusy=false;}
+  liveFrames=Object.fromEntries(frames);
+  lastCandleErrors=Object.fromEntries(frames.filter(([,frame])=>!frame.ok).map(([name,frame])=>[name,frame.error||'Candle validation failed']));
+  if(liveQuote){
+   renderLiveMarket();
+   renderSmartChart();
+  }else{
+   setText('feedStatus','ERROR');
+   setText('feedUpdated','Quote unavailable: '+lastQuoteError+'. Candle data was checked independently and has not been discarded.');
+   setText('autoSignal','WAIT — LIVE QUOTE UNAVAILABLE. Do not use an old signal.');
+   updateChartQuote();
+  }
+  const failed=frames.filter(([,frame])=>!frame.ok);
+  const quoteNote=lastQuoteError?'Quote error: '+lastQuoteError+'. ':'';
+  const candleNote=failed.length?'Candle data incomplete: '+failed.map(([tf,frame])=>tf+' ('+(frame.error||'validation failed')+')').join('; ')+'.':'All six timeframe candle feeds validated.';
+  setText('feedUpdated',quoteNote+candleNote+' Quote and candle status are tracked independently.');
+ }catch(error){
+  const message=String(error&&error.message?error.message:error);
+  setText('feedUpdated','Market refresh internal error: '+message+'. Existing quote/candle data was preserved where available.');
+  if(!liveQuote)setText('feedStatus','ERROR');
+ }finally{
+  liveFetchBusy=false;
+ }
 }
-
 function renderLiveMarket(){
  
  const q=liveQuote||{},bid=Number(q.bid),ask=Number(q.ask),mid=Number(q.mid);
@@ -2039,7 +2049,7 @@ function startLiveUpdates(){
  
  refreshLiveMarket();setInterval(refreshLiveMarket,60000);
  
- setInterval(async()=>{try{const q=await fetchJSON(LIVE_API+'/EURUSD');liveQuote=q;if(!lastLiveError)renderLiveMarket();}catch(e){setText('feedStatus','ERROR');}},10000);
+ setInterval(async()=>{try{const q=await fetchJSON(LIVE_API+'/EURUSD');if(q&&typeof q==='object'){liveQuote=q;lastQuoteError='';renderLiveMarket();}}catch(e){lastQuoteError=String(e&&e.name==='AbortError'?'Quote request timed out':(e&&e.message?e.message:e));setText('feedStatus','ERROR');setText('feedUpdated','Quote refresh failed: '+lastQuoteError+'. Candle feed status is unchanged.');}},10000);
  
 }
  
@@ -2613,7 +2623,7 @@ function negusBuildLiveWorkspace(){
     generatedAtEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',dateStyle:'medium',timeStyle:'medium'}).format(now),
     generatedAtTraditional:negusFormatEventTimes(now,now).dateEthiopia+' · '+negusFormatEventTimes(now,now).timeTraditional,
     pair:'EUR/USD',
-    marketData:{source:'BiQuote public market-data endpoint',status:lastLiveError?'error':(quote?'loaded':'unavailable'),error:lastLiveError||null,quote,timeframes},
+    marketData:{source:'BiQuote public market-data endpoint',status:quote?(quote.stale===true?'stale':String(quote.marketState||'loaded')):'unavailable',quoteError:lastQuoteError||null,candleStatus:Object.keys(lastCandleErrors).length?'incomplete':'validated_or_not_yet_loaded',candleErrors:lastCandleErrors,quote,timeframes},
     economicCalendar:{
       source:'NEGUS AI calendar.json weekly schedule feed',
       status:newsCalendarState.status,
