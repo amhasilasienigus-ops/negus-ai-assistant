@@ -287,6 +287,15 @@ LIVE DATA AND DATA QUALITY:
 - Calendar status wording: never label the whole calendar simply "clear" when any upcoming event exists in the supplied 48-hour window. Separate the statement "no high-impact event in the next 30 minutes" (only if verified) from the full upcoming-event list. State the feed coverage window and remind the user it is a scheduled calendar feed, not a live newswire.
 - Time sanity check: preserve the supplied timeTraditional, timeEAT and timeUTC fields verbatim. For Ethiopia dawn-based time, 10:00 EAT should display as 04:00 ቀን; 16:30 EAT as 10:30 ቀን; 18:00 EAT as 12:00 ሌሊት. Do not call a correctly converted dawn-based time an error.
 - Candle evidence audit: when claiming a swing high/low, range, BOS, CHoCH, displacement or momentum, cite its timeframe and the actual closed-candle price level(s) or candle sequence in the explanation. If you cannot point to those supplied candle values, downgrade the statement to unconfirmed/possible or omit it. Do not call an EMA trend label proof of market structure.
+- MANDATORY SMC evidence format: For each relevant timeframe, show event/type, exact level, UTC timestamp and source candle OHLC (Open/High/Low/Close). Swing pivots must include pivot candle OHLC and note that two right-side closed candles are needed for confirmation.
+- BOS/CHoCH candidates must show broken pivot candle OHLC, prior candle OHLC and confirmation candle OHLC; state explicitly whether the candle CLOSED beyond the level. If prior structure is undetermined or mixed, call it POSSIBLE STRUCTURE BREAK, not BOS/CHoCH.
+- Liquidity sweeps must show pivot candle and sweep candle OHLC and prove wick beyond the level with close back inside. If the evidence object has no matching record, write NOT CONFIRMED. A single candle high/low is not automatically a swing or liquidity pool.
+- FVG: use only structureEvidence.fvgCandidates. Show all three candles' timestamps and OHLC, boundaries and mitigation state. If absent, write NOT CONFIRMED.
+- Order Block: use only structureEvidence.orderBlockCandidates. Show origin candle OHLC/time, associated break level and confirmation candle; label OB CANDIDATE only. Do not claim institutional intent.
+- The analysis lookback is limited to up to 60 supplied closed candles per timeframe. Do not claim that no historical BOS/CHoCH/sweep ever occurred; report only what was detected in this supplied window.
+- Exact-level rule: every numeric Entry, SL, TP, support, resistance and liquidity level must cite its timeframe and source candle/pivot. If no source exists, omit the price and say WAIT / NOT CONFIRMED. Never present illustrative prices as live levels.
+- Risk arithmetic is mandatory when a valid setup exists: EUR/USD stop pips = absolute(entry - SL) / 0.0001. Strategy reference balance USD 15; 1% cap = USD 0.15. At 0.01 lot, estimated pip value is USD 0.10/pip before spread, commission and slippage. Gross stop risk = stop pips × 0.10 USD. If gross risk exceeds USD 0.15, or total costs cannot be verified within the cap, mark SKIP / NO TRADE. Never tighten a structural SL to force compliance. If entry is unconfirmed, do not invent an executable trade plan.
+- Calendar integrity: economicCalendar.status='clear' means only that the app's high-impact news gate is not currently blocked; it does not mean there are no upcoming events. Inspect economicCalendar.events independently. Never infer Actual values or observed price reactions from Forecast/Previous.
 - Server-calculated structure evidence: WORKSPACE CONTEXT may contain structureEvidence.timeframes, calculated on the backend from validated closed OHLC candles using a two-left/two-right local pivot rule. Treat this as a deterministic evidence aid, not an infallible SMC label. When status is calculated_from_supplied_closed_candles, use the exact pivot prices/timestamps and break/sweep candle values supplied there; do not invent or silently change them. Explain timeframe and candle timestamp. A break requires a close beyond the pivot after the prior close was at/inside it. A wick beyond a level with close back inside is only a liquidity-sweep candidate, not BOS. The labels possible_*_CHoCH and *_BOS_or_structure_break are candidates: confirm directional context from the swing sequence before naming BOS/CHoCH. If status is unavailable/insufficient/calculation_error, say evidence is insufficient and do not fabricate structure. Never call this pivot algorithm a full SMC engine.
 - Risk calculation for the user's stated baseline: if no newer verified Exness balance is supplied, use the strategy reference balance of USD 15, 1% maximum risk = USD 0.15, and Exness minimum volume 0.01 lot. For EUR/USD in a USD-denominated account, 0.01 lot is approximately USD 0.10 per pip before spread/commission/slippage; show this as an estimate, not a guaranteed contract value. A 1.5-pip stop would already consume about USD 0.15 before costs, so if the structural stop is wider, or costs make the risk exceed the cap, explicitly recommend SKIP/NO TRADE. Never force an artificially tight stop to fit the risk cap. If a newer live balance or contract specification is supplied, use that instead of the reference balance.
 - Calendar retrieval failure: distinguish "calendar unavailable/error" from "no scheduled events". If the calendar fetch failed or its coverage/status is unknown, do not say the next 48 hours are clear or that no events exist. Explicitly state that the calendar could not be verified and that news risk remains unknown. If calendar status is loaded and events are supplied, analyze relevant RELEASED events in the previous 24 hours and UPCOMING events in the next 48 hours. This is a scheduled weekly feed, not a live newswire. Missing Actual values must remain unknown and must never be inferred.
@@ -385,8 +394,8 @@ export default async function handler(req, res) {
       workspaceText = JSON.stringify({ structureEvidence: { status: 'calculation_error', reason: 'Server-side candle evidence calculation failed; do not infer structure.' } });
     }
 
-    if (workspaceText.length > 30_000) {
-      workspaceText = workspaceText.slice(0, 30_000);
+    if (workspaceText.length > 80_000) {
+      return res.status(413).json({ error: 'Market workspace is too large. Reduce chart/context size and try again.' });
     }
 
     const userText =
@@ -454,7 +463,7 @@ export default async function handler(req, res) {
       contents,
       generationConfig: {
         temperature: 0.35,
-        maxOutputTokens: 2800,
+        maxOutputTokens: 3600,
         topP: 0.9
       }
     };
