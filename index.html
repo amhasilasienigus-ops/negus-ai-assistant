@@ -1287,11 +1287,11 @@ function calculateRisk(){
  
  if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>cap||lot<0.01||sl<=0||tp<=0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and risk percentage. Maximum for selected mode: '+cap+'%.</span>';return;}
  
- const loss=sl*10*lot,profit=tp*10*lot,budget=bal*rp/100,percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*10);
+ const pipValuePerLot=10,loss=sl*pipValuePerLot*lot,profit=tp*pipValuePerLot*lot,budget=bal*rp/100,percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*pipValuePerLot),minimumLotRisk=sl*pipValuePerLot*0.01;
  
  const status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within selected risk budget, before costs.</span>';
  
- out.innerHTML='Estimated stop loss: <b>'+money(loss)+'</b><br>Risk budget: <b>'+money(budget)+'</b><br>Account risk: <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit: <b>'+money(profit)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot: <b>'+maxLot.toFixed(4)+'</b><br><br>'+status+'<br><span class="small">Do not tighten a technically valid stop to fit minimum lot. Include spread, commission and slippage. High-risk mode can cause rapid account loss.</span>';
+ out.innerHTML='Estimated stop loss (before costs): <b>'+money(loss)+'</b><br>Risk budget: <b>'+money(budget)+'</b><br>Account risk (before costs): <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit (before costs): <b>'+money(profit)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot (before costs): <b>'+maxLot.toFixed(4)+'</b><br>Risk at broker minimum 0.01 lot: <b>'+money(minimumLotRisk)+'</b><br><br>'+status+'<br><span class="small">For EUR/USD USD account, pip value is an estimate (~$10 per 1.00 lot). Spread, commission, conversion and slippage are not included. If the structural SL makes 0.01 lot exceed the risk budget, SKIP; never tighten the SL to fit.</span>';
  
  updateDashboard();
  
@@ -2602,7 +2602,7 @@ function negusBuildLiveWorkspace(){
     timeframes[name]={
       available:true,closedCandleCount:f.count,trend:f.trend,
       ema20:f.e20,ema50:f.e50,ema200:f.e200,rsi14:f.rsi,atr14:f.atr,
-      candles:f.bars.slice(-24).map(b=>({
+      candles:f.bars.slice(-60).map(b=>({
         time:new Date(b.time*1000).toISOString(),
         open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume
       }))
