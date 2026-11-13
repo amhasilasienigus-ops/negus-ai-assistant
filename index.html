@@ -2185,12 +2185,18 @@ function renderEconomicNews(){
  
  if(rows){
  
-  const upcoming=newsEvents.slice().sort((a,b)=>a.time-b.time).filter(e=>e.time>now),shown=upcoming.slice(0,18);
+  const released=newsEvents.filter(e=>e.time<=now&&e.time>=now-24*60*60*1000).sort((a,b)=>b.time-a.time);
+  const upcoming=newsEvents.filter(e=>e.time>now).sort((a,b)=>a.time-b.time),shown=upcoming.slice(0,18);
   renderNewsProfessionalSummary(upcoming);
-  rows.innerHTML=shown.length?shown.map(e=>{
+  const releasedHtml=released.length?'<div class="news-summary"><b>የወጡ ዜናዎች · ያለፉት 24 ሰዓታት</b>'+released.map(e=>{
+   const hasActual=String(e.actual??'').trim()!=='',a=explainNewsEvent(e);
+   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · '+escapeNewsText(e.impact)+'<br><b>'+escapeNewsText(e.title)+'</b><br>Actual: '+(hasActual?escapeNewsText(e.actual):'የFeed ውስጥ የለም')+' · Forecast: '+(e.forecast?escapeNewsText(e.forecast):'—')+' · Previous: '+(e.previous?escapeNewsText(e.previous):'—')+'<div class="news-impact"><b>ተፅዕኖ፦</b> '+(hasActual?escapeNewsText(newsConclusionAm(e,a)):'Actual ስለሌለ የተፈጸመው ተፅዕኖ አልተረጋገጠም። አጠቃላይ የኢኮኖሚ ትርጉሙ ብቻ ሊገለጽ ይችላል።')+'</div></div>';
+  }).join('')+'</div>':'<div class="news-summary"><b>የወጡ ዜናዎች:</b> ባለፉት 24 ሰዓታት ውስጥ በዚህ Feed የተመዘገበ የUSD/EUR ዜና የለም።</div>';
+  const upcomingHtml=shown.length?shown.map(e=>{
    const impact=String(e.impact||'').toLowerCase(),color=impact.includes('high')?'warning':impact.includes('medium')?'gold':'small',a=explainNewsEvent(e);
-   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br><b>'+escapeNewsText(e.title)+'</b>'+(e.forecast?' · ትንበያ: '+escapeNewsText(e.forecast):'')+(e.previous?' · ቀዳሚ: '+escapeNewsText(e.previous):'')+(e.actual?' · ትክክለኛ: '+escapeNewsText(e.actual):'')+'<div class="news-explain"><b>የሚለካው፦</b> '+escapeNewsText(newsExplainAm(a.kind))+'</div><div class="news-impact"><b>EUR/USD ተፅዕኖ፦</b> '+escapeNewsText(newsPairAm(a))+'<br><b>የገበያ ንባብ፦</b> '+escapeNewsText(newsSurpriseAm(e,a))+'<br><b>መደምደሚያ፦</b> '+escapeNewsText(newsConclusionAm(e,a))+'<br><b>ሙያዊ ምክር፦</b> '+escapeNewsText(newsRecommendationAm(e,a))+'</div></div>';
-  }).join(''):'በዚህ ሳምንታዊ ምንጭ ውስጥ ቀጣይ USD/EUR ዜና የለም። ያለፉ ዜናዎች ተደብቀዋል።';
+   return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · <span class="'+color+'">'+escapeNewsText(e.impact)+'</span><br><b>'+escapeNewsText(e.title)+'</b>'+(e.forecast?' · ትንበያ: '+escapeNewsText(e.forecast):'')+(e.previous?' · ቀዳሚ: '+escapeNewsText(e.previous):'')+'<div class="news-explain"><b>የሚለካው፦</b> '+escapeNewsText(newsExplainAm(a.kind))+'</div><div class="news-impact"><b>EUR/USD ተፅዕኖ፦</b> '+escapeNewsText(newsPairAm(a))+'<br><b>የገበያ ንባብ፦</b> '+escapeNewsText(newsSurpriseAm(e,a))+'<br><b>ሙያዊ ምክር፦</b> '+escapeNewsText(newsRecommendationAm(e,a))+'</div></div>';
+  }).join(''):'በዚህ ሳምንታዊ ምንጭ ውስጥ ቀጣይ USD/EUR ዜና የለም።';
+  rows.innerHTML=releasedHtml+'<div class="news-summary"><b>ቀጣይ የታቀዱ ዜናዎች</b>'+upcomingHtml+'</div>';
  
  }
  
@@ -2452,27 +2458,28 @@ async function refreshEconomicNews(){
  
  try{
  
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);let response;
- 
-  try{response=await fetch(NEWS_API,{cache:'no-store',signal:controller.signal});}finally{clearTimeout(timeout);}
- 
-  if(!response.ok)throw new Error('Calendar HTTP '+response.status);
- 
-  const data=await response.json();if(!Array.isArray(data)||!data.length)throw new Error('Calendar response was empty or invalid');
- 
-  const parsed=data.filter(e=>e&&['USD','EUR'].includes(String(e.country||'').toUpperCase())).map(e=>{
- 
-   const raw=String(e.date||'').trim();if(!raw||!/(Z|[+-]\d{2}:?\d{2})$/i.test(raw))return null;
- 
-   const time=Date.parse(raw);if(!Number.isFinite(time)||!e.title)return null;
- 
-   return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual??''),forecast:String(e.forecast??''),previous:String(e.previous??'')};
- 
-  }).filter(Boolean).sort((a,b)=>a.time-b.time);
- 
-  if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
- 
-  newsEvents=parsed;newsCalendarFetchedAt=Date.now();newsCalendarState={status:'clear',message:'Calendar loaded'};renderEconomicNews();evaluateLiveSignal();
+  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);let lastFetchError=null;
+  const calendarUrls=[NEWS_API,'https://amhasilasienigus-ops.github.io/negus-ai-assistant/calendar.json'];
+  for(const url of calendarUrls){
+   try{
+    const response=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store',signal:controller.signal});
+    if(!response.ok)throw new Error('Calendar HTTP '+response.status+' from '+url);
+    const data=await response.json();
+    if(!Array.isArray(data)||!data.length)throw new Error('Calendar response was empty or invalid');
+    const parsed=data.filter(e=>e&&['USD','EUR'].includes(String(e.country||'').toUpperCase())).map(e=>{
+     const raw=String(e.date||'').trim();if(!raw||!/(Z|[+-]\\d{2}:?\\d{2})$/i.test(raw))return null;
+     const time=Date.parse(raw);if(!Number.isFinite(time)||!e.title)return null;
+     return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual??''),forecast:String(e.forecast??''),previous:String(e.previous??'')};
+    }).filter(Boolean).sort((a,b)=>a.time-b.time);
+    if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
+    clearTimeout(timeout);
+    newsEvents=parsed;newsCalendarFetchedAt=Date.now();newsCalendarState={status:'clear',message:'Calendar loaded; '+parsed.length+' USD/EUR events'};
+    try{renderEconomicNews();}catch(renderError){console.error('NEGUS calendar display error:',renderError);const rows=document.getElementById('newsRows');if(rows)rows.textContent='Calendar data loaded, but display failed: '+String(renderError.message||renderError);}
+    evaluateLiveSignal();return;
+   }catch(urlError){lastFetchError=urlError;}
+  }
+  clearTimeout(timeout);
+  throw lastFetchError||new Error('Calendar could not be loaded');
  
  }catch(err){
  
@@ -2559,8 +2566,10 @@ function negusBuildLiveWorkspace(){
     ask:Number.isFinite(Number(liveQuote.ask))?Number(liveQuote.ask):null,
     mid:Number.isFinite(Number(liveQuote.mid))?Number(liveQuote.mid):null,
     spread:Number.isFinite(Number(liveQuote.spread))?Number(liveQuote.spread):null,
+    spreadPips:Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?Number(((Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001).toFixed(2)):null,
+    spreadPoints:Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?Number(((Number(liveQuote.ask)-Number(liveQuote.bid))/0.00001).toFixed(1)):null,
     marketState:String(liveQuote.marketState||'unknown'),
-    stale:liveQuote.stale===true,
+    stale:typeof liveQuote.stale==='boolean'?liveQuote.stale:null,
     quoteAgeSeconds:Number.isFinite(Number(liveQuote.quoteAgeSeconds))?Number(liveQuote.quoteAgeSeconds):null
   }:null;
   const timeframes={};
@@ -2598,7 +2607,7 @@ function negusBuildLiveWorkspace(){
       status:newsCalendarState.status,
       statusMessage:newsCalendarState.message,
       fetchedAt:newsCalendarFetchedAt?new Date(newsCalendarFetchedAt).toISOString():null,
-      eventsWindow:'previous 8 hours through next 48 hours',
+      eventsWindow:'previous 24 hours through next 48 hours',
       events,
       limitation:'Scheduled calendar only; not a live news-wire, central-bank statement feed, bond-yield feed or independently verified release service.'
     },
