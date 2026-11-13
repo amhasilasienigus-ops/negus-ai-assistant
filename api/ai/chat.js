@@ -335,11 +335,11 @@ function compactWorkspaceForAI(workspace) {
       reason: typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined,
       closedCandleCount: Number.isFinite(Number(frame.closedCandleCount)) ? Number(frame.closedCandleCount) : undefined,
       trend: typeof frame.trend === 'string' ? frame.trend.slice(0, 40) : undefined,
-      ema20: Number.isFinite(Number(frame.ema20)) ? Number(frame.ema20) : null,
-      ema50: Number.isFinite(Number(frame.ema50)) ? Number(frame.ema50) : null,
-      ema200: Number.isFinite(Number(frame.ema200)) ? Number(frame.ema200) : null,
-      rsi14: Number.isFinite(Number(frame.rsi14)) ? Number(frame.rsi14) : null,
-      atr14: Number.isFinite(Number(frame.atr14)) ? Number(frame.atr14) : null
+      ema20: frame.ema20 !== null && frame.ema20 !== undefined && Number.isFinite(Number(frame.ema20)) ? Number(frame.ema20) : null,
+      ema50: frame.ema50 !== null && frame.ema50 !== undefined && Number.isFinite(Number(frame.ema50)) ? Number(frame.ema50) : null,
+      ema200: frame.ema200 !== null && frame.ema200 !== undefined && Number.isFinite(Number(frame.ema200)) ? Number(frame.ema200) : null,
+      rsi14: frame.rsi14 !== null && frame.rsi14 !== undefined && Number.isFinite(Number(frame.rsi14)) ? Number(frame.rsi14) : null,
+      atr14: frame.atr14 !== null && frame.atr14 !== undefined && Number.isFinite(Number(frame.atr14)) ? Number(frame.atr14) : null
     };
   }
   const quote = md.quote && typeof md.quote === 'object' ? {
@@ -815,8 +815,11 @@ export default async function handler(req, res) {
       ...history,
       {
         role: 'user',
+        // Keep only the user's conversational message in history. The latest
+        // request already carries fresh market context; repeating full market
+        // snapshots in every historical turn needlessly multiplies tokens.
         parts: [
-          { text: userText }
+          { text: message }
         ]
       },
       {
