@@ -230,7 +230,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <div class="card"><div class="small">TODAY'S CLOSED P/L</div><div class="metric" id="todayPL">$0.00</div></div>
  
-  <div class="card"><div class="small">DAILY LOSS LIMIT</div><div class="metric" id="dailyLimit">$0.30</div></div>
+  <div class="card"><div class="small">MAX DAILY LOSS</div><div class="metric" id="dailyLimit">$0.85</div></div>
  
  </div>
  
@@ -320,7 +320,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <h3>Capital Protection</h3>
  
-  <p class="warning">Below $50: the 1% per-trade rule is not applied. Use the strategy's structural Stop Loss and the existing Daily Maximum Loss Guard. When the daily limit is reached, stop trading for the rest of the day. At $50 and above, the 1% per-trade rule becomes active. This journal-based guard does not block Exness orders automatically.</p>
+  <p class="warning">Below $50: the 1% per-trade rule is not applied. The fixed Daily Maximum Loss is $0.85. Use the strategy's structural Stop Loss; when the daily limit is reached, stop trading for the rest of the day. At $50 and above, the 1% per-trade rule becomes active alongside the $0.85 daily guard. This journal-based guard does not block Exness orders automatically.</p>
  
   <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  
@@ -496,7 +496,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
     <p>Risk management is the foundation of long-term trading survival.</p>
  
-    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li><li>Below $50 balance, do not force the 1% per-trade rule or tighten a structural SL to fit it; follow the existing Daily Maximum Loss Guard.</li><li>When the Daily Maximum Loss Guard is reached, stop trading for the remainder of that trading day.</li><li>At $50 balance and above, apply the 1% maximum planned risk per trade.</li></ol>
+    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li><li>Below $50 balance, do not force the 1% per-trade rule or tighten a structural SL to fit it; the fixed Daily Maximum Loss Guard is $0.85.</li><li>When the Daily Maximum Loss Guard is reached, stop trading for the remainder of that trading day.</li><li>At $50 balance and above, apply the 1% maximum planned risk per trade.</li></ol>
  
     <h4>6.2 Risk Calculation</h4><p>Approximate formula: <b>Cash Risk = Stop Distance (Pips) × Pip Value × Lot Size</b></p>
  
@@ -1233,7 +1233,7 @@ function localDateString(date=new Date()){
 }
  
 function dailyLimit(balance){
- return Math.max(0,Number(balance)||0)*0.02;
+ return 0.85;
 }
  
 function money(n){return (n<0?'-$':'$')+Math.abs(n).toFixed(2);}
