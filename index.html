@@ -496,7 +496,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
     <p>Risk management is the foundation of long-term trading survival.</p>
  
-    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li><li>Below $50 balance, do not force the 1% per-trade rule or tighten a structural SL to fit it; the fixed Daily Maximum Loss Guard is $0.85.</li><li>When the Daily Maximum Loss Guard is reached, stop trading for the remainder of that trading day.</li><li>At $50 balance and above, apply the 1% maximum planned risk per trade.</li></ol>
+    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li><li>Every planned setup must offer at least 1:2 net reward-to-risk after spread; otherwise WAIT / SKIP.</li><li>Below $50 balance, do not force the 1% per-trade rule or tighten a structural SL to fit it; the fixed Daily Maximum Loss Guard is $0.85.</li><li>When the Daily Maximum Loss Guard is reached, stop trading for the remainder of that trading day.</li><li>At $50 balance and above, apply the 1% maximum planned risk per trade.</li></ol>
  
     <h4>6.2 Risk Calculation</h4><p>Approximate formula: <b>Cash Risk = Stop Distance (Pips) × Pip Value × Lot Size</b></p>
  
@@ -524,7 +524,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
     <p>This ladder is a planning preference, not an automatic trading instruction. Actual position size must be evaluated against the structural SL, account equity, margin, and trading costs.</p>
  
-    <h4>7.1 Aspirational Weekly Growth Targets</h4>
+    <h4>7.1 Aspirational Weekly Growth Targets</h4><p><b>NEGUS conditional growth rule:</b> A trading day qualifies toward weekly growth only when that day's net closed-trade P/L is at least $1.70 (2R against the fixed $0.85 maximum daily loss). If daily net P/L is below $1.70, do not count that day's profit toward the weekly growth calculation; keep the existing lot size and $0.85 daily loss limit unchanged. Add qualifying daily net profits across the week and compare that total with the weekly target calculated from the week's opening balance and the applicable target rate. The target rates are aspirational, not guaranteed. Do not force trades to meet them.</p>
  
     <div class="tablewrap"><table><thead><tr><th>Starting Balance</th><th>Weekly Target</th></tr></thead><tbody>
  
@@ -1296,7 +1296,7 @@ function analyze(){
  const loss=valid?(sl+spread)*10*lot:Infinity;
  const perTradeBudget=onePercentActive?bal*rp/100:Infinity;
  const riskOK=valid&&loss<=dailyRemaining&&loss<=perTradeBudget;
- const rrOK=valid&&(tp-spread)/(sl+spread)>=1;
+ const rrOK=valid&&(tp-spread)/(sl+spread)>=2;
  
  const checks=[aligned,l==='Yes',!!c&&c!=='None',!!t&&t!=='None',riskOK,rrOK],score=checks.filter(Boolean).length;
  
@@ -1318,7 +1318,7 @@ function analyze(){
  
  if(!riskOK){out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop risk including spread: '+money(loss)+'; remaining daily allowance: '+money(dailyRemaining)+(onePercentActive?'; 1% per-trade cap: '+money(perTradeBudget):'; 1% per-trade rule inactive below $50')+'.';return;}
  
- if(!rrOK){out.innerHTML=heading+'<span class="warning">NET REWARD/RISK BELOW 1:1 — WAIT.</span>';return;}
+ if(!rrOK){out.innerHTML=heading+'<span class="warning">NET REWARD/RISK BELOW 1:2 — WAIT. Minimum required is 2R after spread.</span>';return;}
  
  out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk including spread: '+money(loss)+'. Daily loss allowance checked. Human decision required.';
  
@@ -1336,11 +1336,11 @@ function calculateRisk(){
  const dailyLimitUsd=dailyLimit(bal),dailyPnl=getDailyPnl(),dailyRemaining=Math.max(0,dailyLimitUsd+dailyPnl);
  const perTradeBudget=onePercentActive?bal*rp/100:Infinity;
  const allowedBudget=Math.min(dailyRemaining,perTradeBudget);
- const accountRisk=stopCost/bal*100,rr=(tp-spread)/(sl+spread),maxLot=dailyRemaining/((sl+spread)*pipValuePerLot),minimumLotRisk=(sl+spread)*pipValuePerLot*0.01;
+ const accountRisk=stopCost/bal*100,rr=(tp-spread)/(sl+spread),rrOK=rr>=2,maxLot=dailyRemaining/((sl+spread)*pipValuePerLot),minimumLotRisk=(sl+spread)*pipValuePerLot*0.01;
  const dailyStopped=isDailyLossLimitReached(bal),withinDaily=stopCost<=dailyRemaining,withinPerTrade=stopCost<=perTradeBudget;
- const status=dailyStopped?'<span class="warning">DAILY LOSS LIMIT REACHED — NO TRADE FOR THE REST OF TODAY.</span>':(!withinDaily?'<span class="warning">STOP RISK EXCEEDS REMAINING DAILY LOSS ALLOWANCE — SKIP.</span>':(!withinPerTrade?'<span class="warning">STOP RISK EXCEEDS THE 1% PER-TRADE LIMIT — SKIP.</span>':'<span class="ok">Within the active guard, using estimated spread.</span>'));
+ const status=dailyStopped?'<span class="warning">DAILY LOSS LIMIT REACHED — NO TRADE FOR THE REST OF TODAY.</span>':(!withinDaily?'<span class="warning">STOP RISK EXCEEDS REMAINING DAILY LOSS ALLOWANCE — SKIP.</span>':(!withinPerTrade?'<span class="warning">STOP RISK EXCEEDS THE 1% PER-TRADE LIMIT — SKIP.</span>':(!rrOK?'<span class="warning">NET REWARD/RISK BELOW 1:2 — WAIT.</span>':'<span class="ok">Risk guard passed; minimum 1:2 R:R checked using estimated spread.</span>')));
  const perTradeText=onePercentActive?'1% per-trade budget: <b>'+money(perTradeBudget)+'</b><br>':'1% per-trade rule: <b>inactive below $50</b><br>';
- out.innerHTML='Estimated structural stop distance: <b>'+sl.toFixed(1)+' pips</b><br>Spread used: <b>'+spread.toFixed(2)+' pips</b>'+(quoteSpread!==null?' (live quote)':' (manual estimate)')+'<br>Estimated loss including spread: <b>'+money(stopCost)+'</b><br>Daily maximum loss: <b>'+money(dailyLimitUsd)+'</b><br>Recorded today P/L: <b>'+money(dailyPnl)+'</b><br>Remaining daily allowance: <b>'+money(dailyRemaining)+'</b><br>'+perTradeText+'Estimated target after spread: <b>'+money(targetNet)+'</b><br>Estimated reward/risk after spread: <b>'+rr.toFixed(2)+':1</b><br>Estimated account risk: <b>'+accountRisk.toFixed(2)+'%</b><br>Maximum theoretical lot against daily allowance: <b>'+maxLot.toFixed(4)+'</b><br>Estimated stop risk at 0.01 lot: <b>'+money(minimumLotRisk)+'</b><br><br>'+status+'<br><span class="small">EUR/USD pip value is an estimate (~$10 per 1.00 lot). Live spread is used when available; otherwise the entered spread estimate is used. Commission, slippage and conversion may add costs. Daily P/L is based on manually recorded journal trades in this browser and does not automatically block Exness orders.</span>';
+ out.innerHTML='Estimated structural stop distance: <b>'+sl.toFixed(1)+' pips</b><br>Spread used: <b>'+spread.toFixed(2)+' pips</b>'+(quoteSpread!==null?' (live quote)':' (manual estimate)')+'<br>Estimated loss including spread: <b>'+money(stopCost)+'</b><br>Daily maximum loss: <b>'+money(dailyLimitUsd)+'</b><br>Recorded today P/L: <b>'+money(dailyPnl)+'</b><br>Remaining daily allowance: <b>'+money(dailyRemaining)+'</b><br>'+perTradeText+'Estimated target after spread: <b>'+money(targetNet)+'</b><br>Estimated reward/risk after spread: <b>'+rr.toFixed(2)+':1</b> (minimum required 2:1)<br>Estimated account risk: <b>'+accountRisk.toFixed(2)+'%</b><br>Maximum theoretical lot against daily allowance: <b>'+maxLot.toFixed(4)+'</b><br>Estimated stop risk at 0.01 lot: <b>'+money(minimumLotRisk)+'</b><br><br>'+status+'<br><span class="small">EUR/USD pip value is an estimate (~$10 per 1.00 lot). Live spread is used when available; otherwise the entered spread estimate is used. Commission, slippage and conversion may add costs. Daily P/L is based on manually recorded journal trades in this browser and does not automatically block Exness orders.</span>';
  updateDashboard();
 }
  
