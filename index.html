@@ -2591,7 +2591,7 @@ function negusBuildLiveWorkspace(){
     timeframes[name]={
       available:true,closedCandleCount:f.count,trend:f.trend,
       ema20:f.e20,ema50:f.e50,ema200:f.e200,rsi14:f.rsi,atr14:f.atr,
-      candles:f.bars.slice(-24).map(b=>({
+      candles:f.bars.slice(-60).map(b=>({
         time:new Date(b.time*1000).toISOString(),
         open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume
       }))
@@ -2608,7 +2608,7 @@ function negusBuildLiveWorkspace(){
       actualAvailable:e.actual!==''&&e.actual!==null&&e.actual!==undefined
     }));
   return {
-    dataContractVersion:'1.0',
+    dataContractVersion:'1.1',
     generatedAt:new Date(now).toISOString(),
     generatedAtEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',dateStyle:'medium',timeStyle:'medium'}).format(now),
     generatedAtTraditional:negusFormatEventTimes(now,now).dateEthiopia+' · '+negusFormatEventTimes(now,now).timeTraditional,
