@@ -2529,6 +2529,28 @@ async function negusPrepareImage(file){
   return canvas.toDataURL('image/jpeg',0.82);
 }
 
+function negusFormatEventTimes(timestamp,referenceNow=Date.now()){
+ const date=new Date(timestamp),eatParts=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
+ const get=(parts,key)=>parts.find(p=>p.type===key)?.value||'';
+ const hour=Number(get(eatParts,'hour'))%24,minute=get(eatParts,'minute');
+ const traditionalHour=((hour+6)%12)||12,period=hour>=6&&hour<18?'ቀን':'ሌሊት';
+ const traditionalDate=new Intl.DateTimeFormat('am-ET',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'short',day:'2-digit'}).format(date);
+ const eatDateTime=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date);
+ const utcDateTime=new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(date);
+ const delta=timestamp-referenceNow;
+ let countdown='የቀረው ጊዜ አይተገበርም';
+ if(delta>0){
+  const totalMinutes=Math.ceil(delta/60000),days=Math.floor(totalMinutes/1440),hours=Math.floor((totalMinutes%1440)/60),minutes=totalMinutes%60;
+  const chunks=[];if(days)chunks.push(days+' ቀን');if(hours)chunks.push(hours+' ሰዓት');if(minutes||!chunks.length)chunks.push(minutes+' ደቂቃ');
+  countdown='ከአሁኑ ሰዓት በኋላ '+chunks.join(' ')+' ይቀራል';
+ }else if(delta<0){
+  const totalMinutes=Math.floor(-delta/60000),days=Math.floor(totalMinutes/1440),hours=Math.floor((totalMinutes%1440)/60),minutes=totalMinutes%60;
+  const chunks=[];if(days)chunks.push(days+' ቀን');if(hours)chunks.push(hours+' ሰዓት');if(minutes||!chunks.length)chunks.push(minutes+' ደቂቃ');
+  countdown='ከ'+chunks.join(' ')+' በፊት ተካሂዷል';
+ }else countdown='አሁን እየተካሄደ ነው';
+ return {dateEthiopia:traditionalDate,timeTraditional:String(traditionalHour).padStart(2,'0')+':'+minute+' '+period,timeEAT:eatDateTime,timeUTC:utcDateTime,countdown};
+}
+
 function negusBuildLiveWorkspace(){
   const now=Date.now();
   const quote=liveQuote&&typeof liveQuote==='object'?{
@@ -2559,14 +2581,14 @@ function negusBuildLiveWorkspace(){
     .sort((a,b)=>a.time-b.time).slice(0,20)
     .map(e=>({
       time:new Date(e.time).toISOString(),
-      timeEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(e.time)),
-      timeUTC:new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(e.time)),
+      ...negusFormatEventTimes(e.time,now),
       currency:e.currency,title:e.title,impact:e.impact,actual:e.actual||null,forecast:e.forecast||null,previous:e.previous||null
     }));
   return {
     dataContractVersion:'1.0',
     generatedAt:new Date(now).toISOString(),
     generatedAtEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',dateStyle:'medium',timeStyle:'medium'}).format(now),
+    generatedAtTraditional:negusFormatEventTimes(now,now).dateEthiopia+' · '+negusFormatEventTimes(now,now).timeTraditional,
     pair:'EUR/USD',
     marketData:{source:'BiQuote public market-data endpoint',status:lastLiveError?'error':(quote?'loaded':'unavailable'),error:lastLiveError||null,quote,timeframes},
     economicCalendar:{
