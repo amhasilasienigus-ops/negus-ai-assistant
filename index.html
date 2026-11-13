@@ -2049,7 +2049,7 @@ function startLiveUpdates(){
  
 const NEWS_API='./calendar.json',NEWS_REFRESH_MS=5*60*1000,NEWS_BLOCK_MS=30*60*1000;
  
-let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false;
+let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false,newsCalendarFetchedAt=null;
  
 function newsTimeEAT(date){
  const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',weekday:'short',day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).formatToParts(date);
@@ -2472,7 +2472,7 @@ async function refreshEconomicNews(){
  
   if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
  
-  newsEvents=parsed;newsCalendarState={status:'clear',message:'Calendar loaded'};renderEconomicNews();evaluateLiveSignal();
+  newsEvents=parsed;newsCalendarFetchedAt=Date.now();newsCalendarState={status:'clear',message:'Calendar loaded'};renderEconomicNews();evaluateLiveSignal();
  
  }catch(err){
  
@@ -2529,6 +2529,63 @@ async function negusPrepareImage(file){
   return canvas.toDataURL('image/jpeg',0.82);
 }
 
+function negusBuildLiveWorkspace(){
+  const now=Date.now();
+  const quote=liveQuote&&typeof liveQuote==='object'?{
+    source:'BiQuote',pair:'EUR/USD',
+    bid:Number.isFinite(Number(liveQuote.bid))?Number(liveQuote.bid):null,
+    ask:Number.isFinite(Number(liveQuote.ask))?Number(liveQuote.ask):null,
+    mid:Number.isFinite(Number(liveQuote.mid))?Number(liveQuote.mid):null,
+    spread:Number.isFinite(Number(liveQuote.spread))?Number(liveQuote.spread):null,
+    marketState:String(liveQuote.marketState||'unknown'),
+    stale:liveQuote.stale===true,
+    quoteAgeSeconds:Number.isFinite(Number(liveQuote.quoteAgeSeconds))?Number(liveQuote.quoteAgeSeconds):null
+  }:null;
+  const timeframes={};
+  for(const [name] of TF_CONFIG){
+    const f=liveFrames&&liveFrames[name];
+    if(!f||!f.ok){timeframes[name]={available:false,reason:f&&f.error?String(f.error):'No validated candle data'};continue;}
+    timeframes[name]={
+      available:true,closedCandleCount:f.count,trend:f.trend,
+      ema20:f.e20,ema50:f.e50,ema200:f.e200,rsi14:f.rsi,atr14:f.atr,
+      candles:f.bars.slice(-24).map(b=>({
+        time:new Date(b.time*1000).toISOString(),
+        open:b.open,high:b.high,low:b.low,close:b.close,volume:b.volume
+      }))
+    };
+  }
+  const events=(newsEvents||[])
+    .filter(e=>e.time>=now-8*60*60*1000&&e.time<=now+48*60*60*1000)
+    .sort((a,b)=>a.time-b.time).slice(0,20)
+    .map(e=>({
+      time:new Date(e.time).toISOString(),currency:e.currency,title:e.title,
+      impact:e.impact,actual:e.actual||null,forecast:e.forecast||null,previous:e.previous||null
+    }));
+  return {
+    dataContractVersion:'1.0',
+    generatedAt:new Date(now).toISOString(),
+    generatedAtEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',dateStyle:'medium',timeStyle:'medium'}).format(now),
+    pair:'EUR/USD',
+    marketData:{source:'BiQuote public market-data endpoint',status:lastLiveError?'error':(quote?'loaded':'unavailable'),error:lastLiveError||null,quote,timeframes},
+    economicCalendar:{
+      source:'NEGUS AI calendar.json weekly schedule feed',
+      status:newsCalendarState.status,
+      statusMessage:newsCalendarState.message,
+      fetchedAt:newsCalendarFetchedAt?new Date(newsCalendarFetchedAt).toISOString():null,
+      eventsWindow:'previous 8 hours through next 48 hours',
+      events,
+      limitation:'Scheduled calendar only; not a live news-wire, central-bank statement feed, bond-yield feed or independently verified release service.'
+    },
+    analysisRules:{
+      timeframeRoles:'D1/H4 for context; H1 for intraday directional structure; M30/M15 for setup; M5 for entry trigger only.',
+      candles:'Only closed, validated OHLC candles are supplied. Candle timestamps are UTC.',
+      risk:'Maximum planned risk 1%; Exness minimum volume 0.01 lot; if minimum volume exceeds risk budget, skip.',
+      account:'No live account balance/equity is included. Do not assume account values.',
+      execution:'Analysis only; never place trades.'
+    }
+  };
+}
+
 async function negusSendChatMessage(){
   if(negusChatBusy)return;
   const input=document.getElementById('negusChatInput'),pin=document.getElementById('negusChatPin'),status=document.getElementById('negusChatStatus'),button=document.getElementById('negusChatSend');
@@ -2544,7 +2601,7 @@ async function negusSendChatMessage(){
   input.value='';negusClearImage();
   const pending=negusChatAddMessage('assistant','ትንተና በመካሄድ ላይ...',null,true);
   try{
-    const payload={message:shownText,accessPin,previousResponseId:negusChatResponseId||undefined,imageData:imageData||undefined,workspace:{pair:'EUR/USD',strategy:'NEGUS Strategy · Intraday · Price Action + SMC',riskRule:'Maximum planned risk 1% per trade; skip if minimum lot exceeds risk budget',accountNote:'Use only account values explicitly supplied in this conversation; do not assume live Exness access.'}};
+    const payload={message:shownText,accessPin,previousResponseId:negusChatResponseId||undefined,imageData:imageData||undefined,workspace:{...negusBuildLiveWorkspace(),strategy:'NEGUS Strategy · Intraday · Price Action + SMC'}};
     const response=await fetch(NEGUS_CHAT_API,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     let data={};try{data=await response.json();}catch(_){throw new Error('Backend ትክክለኛ መልስ አልሰጠም።');}
     if(!response.ok)throw new Error(data.error||('Request failed ('+response.status+')'));
