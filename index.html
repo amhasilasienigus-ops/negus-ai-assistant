@@ -154,7 +154,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
    resolve(OneSignal);
  
-  }catch(error){console.error("OneSignal initialization failed:",error);resolve(null);}
+  }catch(error){window.negusOneSignalInitError=error&&error.message?error.message:String(error);console.error("OneSignal initialization failed:",error);resolve(null);}
  
  });
  
@@ -1154,7 +1154,7 @@ async function subscribeToNegusNotifications(){
  status.textContent='Checking browser support and OneSignal subscription...';
  try{
   const OneSignal=await window.negusOneSignalReady;
-  if(!OneSignal)throw new Error('OneSignal SDK initialization failed. Reload the page and check the service worker.');
+  if(!OneSignal)throw new Error('OneSignal SDK initialization failed: '+(window.negusOneSignalInitError||'unknown initialization error')+'. Check the OneSignal App ID, allowed site URL, and service worker path.');
   if(!OneSignal.Notifications.isPushSupported())throw new Error('This browser or browsing mode does not support Web Push. Use current Chrome over HTTPS.');
   const subscription=OneSignal.User&&OneSignal.User.PushSubscription;
   if(!subscription)throw new Error('OneSignal PushSubscription API is unavailable.');
