@@ -2452,15 +2452,10 @@ document.addEventListener('DOMContentLoaded', initExnessAccount);
 
 /* END NEGUS AI — EXNESS READ-ONLY ACCOUNT INTEGRATION */
 
-async function refreshEconomicNews(){
- 
- if(newsFetchBusy)return;newsFetchBusy=true;const status=document.getElementById('newsFeedStatus');if(status)status.textContent='UPDATING';
- 
- try{
- 
-  const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);let lastFetchError=null;
+  let lastFetchError=null;
   const calendarUrls=[NEWS_API,'https://amhasilasienigus-ops.github.io/negus-ai-assistant/calendar.json'];
   for(const url of calendarUrls){
+   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
    try{
     const response=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now(),{cache:'no-store',signal:controller.signal});
     if(!response.ok)throw new Error('Calendar HTTP '+response.status+' from '+url);
@@ -2472,13 +2467,11 @@ async function refreshEconomicNews(){
      return {time,currency:String(e.country).toUpperCase(),title:String(e.title),impact:String(e.impact||'Unknown'),actual:String(e.actual??''),forecast:String(e.forecast??''),previous:String(e.previous??'')};
     }).filter(Boolean).sort((a,b)=>a.time-b.time);
     if(!parsed.length)throw new Error('No valid dated USD/EUR events in calendar response');
-    clearTimeout(timeout);
     newsEvents=parsed;newsCalendarFetchedAt=Date.now();newsCalendarState={status:'clear',message:'Calendar loaded; '+parsed.length+' USD/EUR events'};
     try{renderEconomicNews();}catch(renderError){console.error('NEGUS calendar display error:',renderError);const rows=document.getElementById('newsRows');if(rows)rows.textContent='Calendar data loaded, but display failed: '+String(renderError.message||renderError);}
     evaluateLiveSignal();return;
-   }catch(urlError){lastFetchError=urlError;}
+   }catch(urlError){lastFetchError=urlError;}finally{clearTimeout(timeout);}
   }
-  clearTimeout(timeout);
   throw lastFetchError||new Error('Calendar could not be loaded');
  
  }catch(err){
