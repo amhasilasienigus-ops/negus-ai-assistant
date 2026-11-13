@@ -1462,6 +1462,8 @@ function updateClocks(){
  
 }
  
+let liveQuote=null,liveFrames={},liveFetchBusy=false,lastQuoteError='',lastCandleErrors={};
+
 renderTrades();updateDashboard();renderPerformance();calculateRisk();updateChecks();updateClocks();setInterval(updateClocks,1000);
  
  
@@ -1470,7 +1472,7 @@ renderTrades();updateDashboard();renderPerformance();calculateRisk();updateCheck
  
 const LIVE_API='https://biquote.io/api';
  
-let liveQuote=null,liveFrames={},liveFetchBusy=false,lastQuoteError='',lastCandleErrors={};
+
  
 const TF_CONFIG=[['D1','1d'],['H4','4h'],['H1','1h'],['M30','30m'],['M15','15m'],['M5','5m']];
  
