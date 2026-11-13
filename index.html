@@ -2088,11 +2088,12 @@ function evaluateLiveSignal(){
  
   if(direction){
  
-   const atr5=m5.atr,slPips=atr5?Math.max(5,(atr5*1.5)*10000):0,tpPips=slPips*2;
+   const atr5=m5.atr,slPips=atr5?Math.max(5,(atr5*1.5)*10000):0;
  
    const bal=Number(document.getElementById('balance').value)||15,onePercentActive=bal>=50;
    const dailyRemaining=getDailyLossRemaining(bal);
    const quoteSpread=liveQuote&&liveQuote.stale!==true&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:(Number(document.getElementById('spreadPips')?.value)||0);
+   const tpPips=2*slPips+3*quoteSpread;
    const riskBudget=onePercentActive?Math.min(dailyRemaining,bal*0.01):dailyRemaining;
    const maxLot=slPips>0?(riskBudget/((slPips+quoteSpread)*10)):0,allowed=maxLot>=0.01&&!isDailyLossLimitReached(bal);
  
