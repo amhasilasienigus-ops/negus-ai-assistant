@@ -150,7 +150,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   try{
  
-   await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6",serviceWorkerPath:"/negus-ai-assistant/OneSignalSDKWorker.js",serviceWorkerParam:{scope:"/negus-ai-assistant/"}});
+   await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6",serviceWorkerPath:"/negus-ai-assistant/OneSignalSDKWorker.js",serviceWorkerParam:{scope:"/negus-ai-assistant/"},serviceWorkerOverrideForTypical:true});
  
    resolve(OneSignal);
  
