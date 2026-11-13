@@ -382,7 +382,7 @@ function compactWorkspaceForAI(workspace) {
   };
 }
 
-function formatStructureEvidenceReport(evidence) {
+function formatStructureEvidenceDetails(evidence) {
   if (!evidence || !evidence.timeframes) {
     return '\n\n## SMC EVIDENCE AUDIT\\nNOT CONFIRMED — Server-side OHLC evidence unavailable.';
   }
@@ -435,6 +435,42 @@ function formatStructureEvidenceReport(evidence) {
 
   lines.push('', 'Interpretation rule: BOS/CHoCH labels remain candidates unless prior structure context supports the classification. Equal levels, sweeps, FVGs, displacement and OBs are mechanical candidates, not proof of institutional intent.');
   return lines.join('\n');
+}
+
+
+function formatStructureEvidenceReport(evidence) {
+  const detail = formatStructureEvidenceDetails(evidence);
+  const lines = [
+    '',
+    '',
+    '## SMC QUICK SUMMARY — validated closed-candle evidence',
+    'Compact view: latest relevant candidates only. Full candle-by-candle audit is expandable below.'
+  ];
+  const price = value => Number.isFinite(Number(value)) ? Number(value).toFixed(5) : 'N/A';
+  for (const tf of ['D1', 'H4', 'H1', 'M30', 'M15', 'M5']) {
+    const f = evidence && evidence.timeframes && evidence.timeframes[tf];
+    if (!f || f.status !== 'calculated_from_supplied_closed_candles') {
+      lines.push('- ' + tf + ': DATA UNAVAILABLE — ' + (f && (f.reason || f.status) || 'No validated closed-candle evidence'));
+      continue;
+    }
+    const highs = f.latestSwingHighs || [], lows = f.latestSwingLows || [];
+    const breaks = f.breakCandidates || [], sweeps = f.liquiditySweepCandidates || [];
+    const fvgs = f.fvgCandidates || [], obs = f.orderBlockCandidates || [];
+    const latest = arr => arr.length ? arr[arr.length - 1] : null;
+    const b = latest(breaks), s = latest(sweeps), g = latest(fvgs), o = latest(obs);
+    const parts = [
+      'structure ' + (f.structureBias || 'undetermined'),
+      'SH ' + (highs.length ? price(latest(highs).price) : 'not confirmed'),
+      'SL ' + (lows.length ? price(latest(lows).price) : 'not confirmed'),
+      b ? 'break candidate ' + b.direction + ' @ ' + price(b.level) : 'no break candidate',
+      s ? 'sweep candidate ' + s.direction + ' @ ' + price(s.level) : 'no sweep candidate',
+      g ? g.direction + ' FVG ' + price(g.lowerBound) + '–' + price(g.upperBound) + ' (' + g.mitigation + ')' : 'no FVG candidate',
+      o ? o.direction + ' OB candidate' : 'no OB candidate'
+    ];
+    lines.push('- ' + tf + ' (' + f.candleCount + ' closed candles): ' + parts.join(' · ') + '.');
+  }
+  lines.push('', 'Candidates are not proof of institutional orders. Open the full audit below for source candles and timestamps.');
+  return lines.join('\n') + '\n\n<!-- NEGUS_SMC_DETAILS_START -->' + detail + '<!-- NEGUS_SMC_DETAILS_END -->';
 }
 
 async function requestGeminiWithFallback(apiKey, requestBody) {
