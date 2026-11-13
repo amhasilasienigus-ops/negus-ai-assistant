@@ -117,6 +117,67 @@ function getGeminiText(data) {
   return '';
 }
 
+
+function buildStructureEvidence(workspace) {
+  const frames = workspace?.marketData?.timeframes;
+  if (!frames || typeof frames !== 'object') return { status: 'unavailable', reason: 'No timeframe candle data supplied.' };
+  const output = {};
+  for (const name of ['D1', 'H4', 'H1', 'M30', 'M15', 'M5']) {
+    const frame = frames[name];
+    if (!frame?.available || !Array.isArray(frame.candles)) {
+      output[name] = { status: 'unavailable', reason: frame?.reason || 'Validated candles unavailable.' };
+      continue;
+    }
+    const candles = frame.candles
+      .filter(c => c && Number.isFinite(Date.parse(c.time)) &&
+        ['open', 'high', 'low', 'close'].every(k => Number.isFinite(Number(c[k]))) &&
+        Number(c.high) >= Math.max(Number(c.open), Number(c.close), Number(c.low)) &&
+        Number(c.low) <= Math.min(Number(c.open), Number(c.close), Number(c.high)))
+      .map(c => ({ time: new Date(c.time).toISOString(), open: Number(c.open), high: Number(c.high), low: Number(c.low), close: Number(c.close) }))
+      .sort((a, b) => Date.parse(a.time) - Date.parse(b.time)).slice(-24);
+    if (candles.length < 5) {
+      output[name] = { status: 'insufficient', candleCount: candles.length, reason: 'At least five valid closed candles are required for a two-left/two-right pivot check.' };
+      continue;
+    }
+    const swingsHigh = [], swingsLow = [];
+    for (let i = 2; i < candles.length - 2; i++) {
+      const c = candles[i], left = candles.slice(i - 2, i), right = candles.slice(i + 1, i + 3);
+      if (left.every(x => c.high > x.high) && right.every(x => c.high >= x.high)) swingsHigh.push({ time: c.time, price: c.high, candle: 'high' });
+      if (left.every(x => c.low < x.low) && right.every(x => c.low <= x.low)) swingsLow.push({ time: c.time, price: c.low, candle: 'low' });
+    }
+    const last = candles[candles.length - 1], previous = candles[candles.length - 2];
+    const lastTwoHighs = swingsHigh.slice(-2), lastTwoLows = swingsLow.slice(-2);
+    let structureBias = 'undetermined';
+    if (lastTwoHighs.length === 2 && lastTwoLows.length === 2) {
+      const lh = lastTwoHighs[1].price < lastTwoHighs[0].price, ll = lastTwoLows[1].price < lastTwoLows[0].price;
+      const hh = lastTwoHighs[1].price > lastTwoHighs[0].price, hl = lastTwoLows[1].price > lastTwoLows[0].price;
+      if (lh && ll) structureBias = 'bearish';
+      else if (hh && hl) structureBias = 'bullish';
+      else structureBias = 'mixed';
+    }
+    const latestHigh = swingsHigh.at(-1) || null, latestLow = swingsLow.at(-1) || null;
+    const breaks = [], sweeps = [];
+    if (latestHigh && previous.close <= latestHigh.price && last.close > latestHigh.price) {
+      breaks.push({ direction: 'bullish', level: latestHigh.price, levelCandleTime: latestHigh.time, confirmationCandleTime: last.time, confirmationClose: last.close, type: structureBias === 'bearish' ? 'possible_bullish_CHoCH' : 'bullish_BOS_or_structure_break' });
+    } else if (latestHigh && last.high > latestHigh.price && last.close <= latestHigh.price) {
+      sweeps.push({ direction: 'buy_side', level: latestHigh.price, levelCandleTime: latestHigh.time, sweepCandleTime: last.time, candleHigh: last.high, candleClose: last.close });
+    }
+    if (latestLow && previous.close >= latestLow.price && last.close < latestLow.price) {
+      breaks.push({ direction: 'bearish', level: latestLow.price, levelCandleTime: latestLow.time, confirmationCandleTime: last.time, confirmationClose: last.close, type: structureBias === 'bullish' ? 'possible_bearish_CHoCH' : 'bearish_BOS_or_structure_break' });
+    } else if (latestLow && last.low < latestLow.price && last.close >= latestLow.price) {
+      sweeps.push({ direction: 'sell_side', level: latestLow.price, levelCandleTime: latestLow.time, sweepCandleTime: last.time, candleLow: last.low, candleClose: last.close });
+    }
+    output[name] = {
+      status: 'calculated_from_supplied_closed_candles',
+      method: 'Two-left/two-right local pivot; break requires previous close at/inside level and latest closed candle close beyond it.',
+      candleCount: candles.length, latestClosedCandle: last, previousClosedCandle: previous,
+      structureBias, latestSwingHighs: lastTwoHighs, latestSwingLows: lastTwoLows,
+      breaks, liquiditySweepCandidates: sweeps
+    };
+  }
+  return { methodNote: 'Mechanical evidence aid, not a complete discretionary SMC model. A pivot requires two candles on each side.', timeframes: output };
+}
+
 async function requestGeminiWithFallback(apiKey, requestBody) {
   const models = [MODEL, FALLBACK_MODEL];
   let lastFailure = null;
@@ -226,6 +287,7 @@ LIVE DATA AND DATA QUALITY:
 - Calendar status wording: never label the whole calendar simply "clear" when any upcoming event exists in the supplied 48-hour window. Separate the statement "no high-impact event in the next 30 minutes" (only if verified) from the full upcoming-event list. State the feed coverage window and remind the user it is a scheduled calendar feed, not a live newswire.
 - Time sanity check: preserve the supplied timeTraditional, timeEAT and timeUTC fields verbatim. For Ethiopia dawn-based time, 10:00 EAT should display as 04:00 ቀን; 16:30 EAT as 10:30 ቀን; 18:00 EAT as 12:00 ሌሊት. Do not call a correctly converted dawn-based time an error.
 - Candle evidence audit: when claiming a swing high/low, range, BOS, CHoCH, displacement or momentum, cite its timeframe and the actual closed-candle price level(s) or candle sequence in the explanation. If you cannot point to those supplied candle values, downgrade the statement to unconfirmed/possible or omit it. Do not call an EMA trend label proof of market structure.
+- Server-calculated structure evidence: WORKSPACE CONTEXT may contain structureEvidence.timeframes, calculated on the backend from validated closed OHLC candles using a two-left/two-right local pivot rule. Treat this as a deterministic evidence aid, not an infallible SMC label. When status is calculated_from_supplied_closed_candles, use the exact pivot prices/timestamps and break/sweep candle values supplied there; do not invent or silently change them. Explain timeframe and candle timestamp. A break requires a close beyond the pivot after the prior close was at/inside it. A wick beyond a level with close back inside is only a liquidity-sweep candidate, not BOS. The labels possible_*_CHoCH and *_BOS_or_structure_break are candidates: confirm directional context from the swing sequence before naming BOS/CHoCH. If status is unavailable/insufficient/calculation_error, say evidence is insufficient and do not fabricate structure. Never call this pivot algorithm a full SMC engine.
 - Risk calculation for the user's stated baseline: if no newer verified Exness balance is supplied, use the strategy reference balance of USD 15, 1% maximum risk = USD 0.15, and Exness minimum volume 0.01 lot. For EUR/USD in a USD-denominated account, 0.01 lot is approximately USD 0.10 per pip before spread/commission/slippage; show this as an estimate, not a guaranteed contract value. A 1.5-pip stop would already consume about USD 0.15 before costs, so if the structural stop is wider, or costs make the risk exceed the cap, explicitly recommend SKIP/NO TRADE. Never force an artificially tight stop to fit the risk cap. If a newer live balance or contract specification is supplied, use that instead of the reference balance.
 - Calendar retrieval failure: distinguish "calendar unavailable/error" from "no scheduled events". If the calendar fetch failed or its coverage/status is unknown, do not say the next 48 hours are clear or that no events exist. Explicitly state that the calendar could not be verified and that news risk remains unknown. If calendar status is loaded and events are supplied, analyze relevant RELEASED events in the previous 24 hours and UPCOMING events in the next 48 hours. This is a scheduled weekly feed, not a live newswire. Missing Actual values must remain unknown and must never be inferred.
 - Quote validity: check marketData.status, quote.stale, quoteAgeSeconds and marketState. If unavailable, stale, closed-market or too old, do not call it a live price. State the exact limitation.
@@ -316,9 +378,11 @@ export default async function handler(req, res) {
     let workspaceText = '';
 
     try {
-      workspaceText = JSON.stringify(body.workspace || {});
+      const suppliedWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : {};
+      const enrichedWorkspace = { ...suppliedWorkspace, structureEvidence: buildStructureEvidence(suppliedWorkspace) };
+      workspaceText = JSON.stringify(enrichedWorkspace);
     } catch {
-      workspaceText = '{}';
+      workspaceText = JSON.stringify({ structureEvidence: { status: 'calculation_error', reason: 'Server-side candle evidence calculation failed; do not infer structure.' } });
     }
 
     if (workspaceText.length > 30_000) {
