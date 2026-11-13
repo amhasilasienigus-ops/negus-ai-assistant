@@ -150,7 +150,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   try{
  
-   await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6"});
+   await OneSignal.init({appId:"fd0ae484-0f2a-4ecc-959e-2d8a26b0cfa6",serviceWorkerPath:"/negus-ai-assistant/OneSignalSDKWorker.js",serviceWorkerParam:{scope:"/negus-ai-assistant/"}});
  
    resolve(OneSignal);
  
@@ -214,7 +214,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
  
-  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button>
+  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button> <button class="secondary" type="button" onclick="checkNegusNotificationSubscription()">Check Subscription</button>
  
   <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
  
@@ -1148,37 +1148,67 @@ function showPage(id,btn){
  
  
 async function subscribeToNegusNotifications(){
- 
- const status=document.getElementById('pushStatus'),button=document.getElementById('pushSubscribeButton');
- 
+ const status=document.getElementById('pushStatus');
+ const button=document.getElementById('pushSubscribeButton');
  button.disabled=true;button.textContent='Connecting...';
- 
- status.textContent='Connecting to OneSignal notification service...';
- 
+ status.textContent='Checking browser support and OneSignal subscription...';
  try{
- 
   const OneSignal=await window.negusOneSignalReady;
- 
-  if(!OneSignal)throw new Error('OneSignal initialization failed.');
- 
-  await OneSignal.Slidedown.promptPush();
- 
-  status.textContent='Notification prompt opened. If Chrome asks for permission, tap ALLOW. Subscription is not confirmed until the browser and OneSignal show it as subscribed.';
- 
-  button.textContent='Notification Setup Requested';
- 
+  if(!OneSignal)throw new Error('OneSignal SDK initialization failed. Reload the page and check the service worker.');
+  if(!OneSignal.Notifications.isPushSupported())throw new Error('This browser or browsing mode does not support Web Push. Use current Chrome over HTTPS.');
+  const subscription=OneSignal.User&&OneSignal.User.PushSubscription;
+  if(!subscription)throw new Error('OneSignal PushSubscription API is unavailable.');
+  if(subscription.optedIn&&subscription.id&&subscription.token){
+   status.textContent='ACTIVE — this device is subscribed to NEGUS AI notifications.';
+   button.textContent='Notifications Enabled';button.disabled=true;return;
+  }
+  if(OneSignal.Notifications.permissionNative==='denied'){
+   status.textContent='BLOCKED — open Chrome site settings for this website, set Notifications to Allow, then reload NEGUS AI.';
+   button.textContent='Try Again';button.disabled=false;return;
+  }
+  await subscription.optIn();
+  await new Promise(resolve=>setTimeout(resolve,1200));
+  const current=OneSignal.User.PushSubscription;
+  const permission=OneSignal.Notifications.permissionNative;
+  if(current&&current.optedIn&&current.id&&current.token){
+   status.textContent='ACTIVE — OneSignal subscription confirmed on this device. Calendar alerts can now be delivered.';
+   button.textContent='Notifications Enabled';button.disabled=true;
+  }else if(permission==='denied'){
+   status.textContent='Chrome permission was denied. Enable notifications in Chrome site settings, then reload.';
+   button.textContent='Try Again';button.disabled=false;
+  }else{
+   status.textContent='Permission request completed, but OneSignal has not confirmed a subscription yet. Wait briefly, then tap Check Subscription.';
+   button.textContent='Check Subscription';button.disabled=false;
+  }
  }catch(error){
- 
-  console.error('Notification subscription error:',error);
- 
-  status.textContent='Could not open the notification prompt. Check Chrome site notification permission and internet connection, then reload this page.';
- 
+  console.error('NEGUS push subscription error:',error);
+  status.textContent='NOT ACTIVE — '+(error&&error.message?error.message:'Push setup failed')+'. Check HTTPS, Chrome notification permission, and the OneSignal service worker.';
   button.textContent='Try Again';button.disabled=false;
- 
  }
- 
 }
- 
+
+async function checkNegusNotificationSubscription(){
+ const status=document.getElementById('pushStatus');
+ const button=document.getElementById('pushSubscribeButton');
+ button.disabled=true;
+ try{
+  const OneSignal=await window.negusOneSignalReady;
+  if(!OneSignal)throw new Error('OneSignal SDK did not initialize.');
+  const sub=OneSignal.User&&OneSignal.User.PushSubscription;
+  if(sub&&sub.optedIn&&sub.id&&sub.token){
+   status.textContent='ACTIVE — OneSignal subscription confirmed on this device.';
+   button.textContent='Notifications Enabled';button.disabled=true;
+  }else{
+   const permission=OneSignal.Notifications.permissionNative;
+   status.textContent=permission==='denied'?'BLOCKED — allow notifications in Chrome site settings, then reload.':'NOT SUBSCRIBED — tap Enable Notifications and approve the browser prompt.';
+   button.textContent='Enable Notifications';button.disabled=false;
+  }
+ }catch(error){
+  status.textContent='STATUS UNKNOWN — '+(error&&error.message?error.message:'OneSignal connection failed');
+  button.textContent='Try Again';button.disabled=false;
+ }
+}
+
  
  
 function changeChart(){
@@ -1530,15 +1560,20 @@ async function refreshLiveMarket(){
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD')
    .then(q=>({ok:!!q&&typeof q==='object',data:q,error:!!q&&typeof q==='object'?'':'Market quote response is invalid'}))
    .catch(error=>({ok:false,data:null,error:String(error&&error.name==='AbortError'?'Quote request timed out':(error&&error.message?error.message:error))}));
-  const framePromises=TF_CONFIG.map(async([name,interval])=>{
-   try{
-    const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250',25000);
-    return [name,inspectFrame(data)];
-   }catch(error){
-    return [name,{ok:false,count:0,error:String(error&&error.name==='AbortError'?'Candle request timed out':(error&&error.message?error.message:error))}];
-   }
-  });
-  const [quoteResult,frames]=await Promise.all([quotePromise,Promise.all(framePromises)]);
+  const [quoteResult]=await Promise.all([quotePromise]);
+  const frames=[];
+  // Limit provider burst traffic by fetching three timeframes at a time.
+  for(let i=0;i<TF_CONFIG.length;i+=3){
+   const batch=TF_CONFIG.slice(i,i+3).map(async([name,interval])=>{
+    try{
+     const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250',35000);
+     return [name,inspectFrame(data)];
+    }catch(error){
+     return [name,{ok:false,count:0,error:String(error&&error.name==='AbortError'?'Candle request timed out':(error&&error.message?error.message:error))}];
+    }
+   });
+   frames.push(...await Promise.all(batch));
+  }
   if(quoteResult.ok){
    liveQuote=quoteResult.data;
    lastQuoteError='';
