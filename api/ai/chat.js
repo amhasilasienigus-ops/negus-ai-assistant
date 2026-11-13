@@ -384,7 +384,7 @@ function compactWorkspaceForAI(workspace) {
 
 function formatStructureEvidenceDetails(evidence) {
   if (!evidence || !evidence.timeframes) {
-    return '\n\n## SMC EVIDENCE AUDIT\\nNOT CONFIRMED — Server-side OHLC evidence unavailable.';
+    return '\n\n## SMC EVIDENCE AUDIT\nNOT CONFIRMED — Server-side OHLC evidence unavailable.';
   }
 
   const fmt = value => Number.isFinite(Number(value)) ? Number(value).toFixed(5) : 'N/A';
