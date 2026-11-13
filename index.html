@@ -496,7 +496,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
     <p>Risk management is the foundation of long-term trading survival.</p>
  
-    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li></ol>
+    <h4>6.1 Mandatory Rules</h4><ol><li>Every trade must have a defined Stop Loss.</li><li>Never widen SL simply to avoid realizing a loss.</li><li>Never average down to rescue a losing trade.</li><li>Never revenge trade.</li><li>Never increase lot size emotionally after a loss.</li><li>Avoid opening opposite positions merely to hide a loss.</li><li>Account for spread, commission, swap, and slippage.</li><li>Below $50 balance, do not force the 1% per-trade rule or tighten a structural SL to fit it; follow the existing Daily Maximum Loss Guard.</li><li>When the Daily Maximum Loss Guard is reached, stop trading for the remainder of that trading day.</li><li>At $50 balance and above, apply the 1% maximum planned risk per trade.</li></ol>
  
     <h4>6.2 Risk Calculation</h4><p>Approximate formula: <b>Cash Risk = Stop Distance (Pips) × Pip Value × Lot Size</b></p>
  
@@ -506,7 +506,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
     <h4>6.3 Example</h4><p>At 0.01 lot: 10-pip SL ≈ $1; 20-pip SL ≈ $2. With a $15 account: $1 risk ≈ 6.67% of balance; $2 risk ≈ 13.33% of balance.</p>
  
-    <p>This demonstrates why small accounts face significant risk when the broker's minimum lot is 0.01.</p>
+    <p>This demonstrates why small accounts face significant risk when the broker's minimum lot is 0.01. For balances below $50, the 1% per-trade rule is inactive because it can force structurally invalid, overly tight stops. The existing Daily Maximum Loss Guard is the account-level stop: once reached, NO TRADE for the rest of the day. From $50 upward, the 1% per-trade rule applies.</p>
  
     <p><b>Important:</b> Never make a structural Stop Loss artificially tight just to fit the account. If the risk is too high, skip the trade or continue practising on demo.</p>
  
@@ -1312,13 +1312,15 @@ function analyze(){
  
  if(!aligned){out.innerHTML=heading+'<span class="warning">CONFLICTING DIRECTION — WAIT.</span><br>Higher timeframe and H1 bias do not agree.';return;}
  
- if(!valid){out.innerHTML=heading+'<span class="warning">INVALID RISK DETAILS.</span><br>Enter valid balance, lot, stop and target. Risk cap for selected mode: '+cap+'%.';return;}
+ if(!valid){out.innerHTML=heading+'<span class="warning">INVALID RISK DETAILS.</span><br>Enter valid balance, lot, structural stop, target and spread.';return;}
  
- if(!riskOK){out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop loss '+money(loss)+'; selected risk budget '+money(budget)+'.';return;}
+ if(isDailyLossLimitReached(bal)){out.innerHTML=heading+'<span class="warning">DAILY LOSS LIMIT REACHED — NO TRADE FOR THE REST OF TODAY.</span>';return;}
  
- if(!rrOK){out.innerHTML=heading+'<span class="warning">REWARD/RISK BELOW 1:1 — WAIT.</span>';return;}
+ if(!riskOK){out.innerHTML=heading+'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span><br>Estimated stop risk including spread: '+money(loss)+'; remaining daily allowance: '+money(dailyRemaining)+(onePercentActive?'; 1% per-trade cap: '+money(perTradeBudget):'; 1% per-trade rule inactive below $50')+'.';return;}
  
- out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk: '+money(loss)+' before costs. Verify chart, news, spread and broker prices. Human decision required.';
+ if(!rrOK){out.innerHTML=heading+'<span class="warning">NET REWARD/RISK BELOW 1:1 — WAIT.</span>';return;}
+ 
+ out.innerHTML=heading+'<span class="ok">MANUAL CHECKS PASSED — NOT A TRADE SIGNAL.</span><br>Estimated stop risk including spread: '+money(loss)+'. Daily loss allowance checked. Human decision required.';
  
 }
  
@@ -2687,10 +2689,17 @@ function negusBuildLiveWorkspace(){
     analysisRules:{
       timeframeRoles:'D1/H4 for context; H1 for intraday directional structure; M30/M15 for setup; M5 for entry trigger only.',
       candles:'Only closed, validated OHLC candles are supplied. Candle timestamps are UTC.',
-      risk:'Maximum planned risk 1%; Exness minimum volume 0.01 lot; if minimum volume exceeds risk budget, skip.',
-      account:'No live account balance/equity is included. Do not assume account values.',
+      risk:'Below USD 50: no 1% per-trade cap; use the supplied Daily Maximum Loss Guard and stop trading for the rest of the day when reached. At USD 50 and above: maximum planned risk is 1% per trade. Use live spread when valid; never tighten structural SL to fit a risk number.',
+      account:'The supplied balance and daily P/L are local calculator/journal values, not a broker-verified account statement.',
       execution:'Analysis only; never place trades.'
-    }
+    },
+    riskControl:(()=>{
+      const balance=Number(document.getElementById('balance')?.value)||15;
+      const dailyPnl=typeof getDailyPnl==='function'?getDailyPnl():0;
+      const limit=dailyLimit(balance);
+      const spreadPips=quote&&Number.isFinite(quote.spreadPips)?quote.spreadPips:null;
+      return {balanceUSD:balance,perTradeOnePercentActive:balance>=50,perTradeRiskCapPercent:balance>=50?1:null,dailyLossLimitUSD:limit,dailyClosedPnlUSD:dailyPnl,remainingDailyLossUSD:Math.max(0,limit+dailyPnl),dailyLimitReached:dailyPnl<=-limit,dailyLimitSource:'NEGUS browser journal guard; manually recorded closed trades only; not broker-enforced',spreadPips};
+    })()
   };
 }
 
