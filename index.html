@@ -1474,7 +1474,7 @@ const LIVE_API='https://biquote.io/api';
  
 
  
-const TF_CONFIG=[['D1','1d'],['H4','4h'],['H1','1h'],['M30','30m'],['M15','15m'],['M5','5m']];
+const TF_CONFIG=[['D1','1d',86400],['H4','4h',14400],['H1','1h',3600],['M30','30m',1800],['M15','15m',900],['M5','5m',300]];
  
 function fmtPrice(n){return Number.isFinite(n)?n.toFixed(5):'--';}
  
@@ -1548,13 +1548,22 @@ function extractCandles(payload){
  return [];
 }
  
-function inspectFrame(payload){
+function inspectFrame(payload,intervalSeconds){
  const rawBars=extractCandles(payload);
  const normalized=rawBars.map(normalizeCandle).filter(Boolean);
+ const nowSeconds=Math.floor(Date.now()/1000);
  const byTime=new Map();
- normalized.forEach(b=>{if(!b.isOpen)byTime.set(b.time,b);});
+ normalized.forEach(b=>{
+  // BiQuote timestamps are candle OPEN times. Exclude the active candle even
+  // if a provider response omits or mislabels its isOpen flag.
+  const isClosed=!b.isOpen&&Number.isFinite(intervalSeconds)&&b.time+intervalSeconds<=nowSeconds;
+  if(isClosed)byTime.set(b.time,b);
+ });
  const closed=[...byTime.values()].sort((a,b)=>a.time-b.time);
- if(closed.length<30)return {ok:false,count:closed.length,rawCount:rawBars.length,error:'Need at least 30 valid closed candles with OHLC and timestamp'};
+ if(closed.length<30){
+  const keys=payload&&typeof payload==='object'?Object.keys(payload).slice(0,10).join(', '):typeof payload;
+  return {ok:false,count:closed.length,rawCount:rawBars.length,error:'Only '+closed.length+' valid closed candles; need at least 30. Raw bars: '+rawBars.length+'. Response keys: '+keys+'. Check provider response, timestamps and timeframe.'};
+ }
  const closes=closed.map(b=>b.close),last=closed[closed.length-1],prev=closed[closed.length-2];
  const e20=ema(closes,20),e50=ema(closes,50),e200=ema(closes,200),rv=rsi(closes),av=atr(closed);
  let trend='NEUTRAL';if(e20!==null&&e50!==null){if(last.close>e20&&e20>e50)trend='BULLISH';else if(last.close<e20&&e20<e50)trend='BEARISH';}
@@ -1579,14 +1588,18 @@ async function refreshLiveMarket(){
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD')
    .then(q=>({ok:!!q&&typeof q==='object',data:q,error:!!q&&typeof q==='object'?'':'Market quote response is invalid'}))
    .catch(error=>({ok:false,data:null,error:String(error&&error.name==='AbortError'?'Quote request timed out':(error&&error.message?error.message:error))}));
-  const [quoteResult]=await Promise.all([quotePromise]);
+  const [quoteResultRaw]=await Promise.all([quotePromise]);
+  const quoteData=quoteResultRaw.data;
+  const quoteBid=Number(quoteData&&quoteData.bid),quoteAsk=Number(quoteData&&quoteData.ask),quoteMid=Number(quoteData&&quoteData.mid);
+  const quoteValid=quoteResultRaw.ok&&Number.isFinite(quoteBid)&&Number.isFinite(quoteAsk)&&Number.isFinite(quoteMid)&&quoteBid>0&&quoteAsk>=quoteBid&&quoteMid>0;
+  const quoteResult=quoteValid?quoteResultRaw:{ok:false,data:null,error:quoteResultRaw.error||'Quote response missing valid bid/ask/mid fields'};
   const frames=[];
   // Limit provider burst traffic by fetching three timeframes at a time.
   for(let i=0;i<TF_CONFIG.length;i+=3){
-   const batch=TF_CONFIG.slice(i,i+3).map(async([name,interval])=>{
+   const batch=TF_CONFIG.slice(i,i+3).map(async([name,interval,intervalSeconds])=>{
     try{
      const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250',35000);
-     return [name,inspectFrame(data)];
+     return [name,inspectFrame(data,intervalSeconds)];
     }catch(error){
      return [name,{ok:false,count:0,error:String(error&&error.name==='AbortError'?'Candle request timed out':(error&&error.message?error.message:error))}];
     }
