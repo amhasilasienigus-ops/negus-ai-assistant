@@ -285,6 +285,56 @@ function buildStructureEvidence(workspace) {
 }
 
 
+function compactCandle(c) {
+  if (!c) return null;
+  return { time: c.time, open: c.open, high: c.high, low: c.low, close: c.close };
+}
+
+function compactStructureEvidence(evidence) {
+  if (!evidence || !evidence.timeframes) return evidence;
+  const result = { methodNote: evidence.methodNote, timeframes: {} };
+  for (const [name, f] of Object.entries(evidence.timeframes)) {
+    if (!f || f.status !== 'calculated_from_supplied_closed_candles') {
+      result.timeframes[name] = f;
+      continue;
+    }
+    result.timeframes[name] = {
+      status: f.status, candleCount: f.candleCount, structureBias: f.structureBias,
+      latestClosedCandle: compactCandle(f.latestClosedCandle),
+      previousClosedCandle: compactCandle(f.previousClosedCandle),
+      latestSwingHighs: (f.latestSwingHighs || []).slice(-2).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
+      latestSwingLows: (f.latestSwingLows || []).slice(-2).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
+      equalHighLiquidityCandidates: (f.equalHighLiquidityCandidates || []).slice(-2).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
+      equalLowLiquidityCandidates: (f.equalLowLiquidityCandidates || []).slice(-2).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
+      breakCandidates: (f.breakCandidates || []).slice(-3).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), previousCandle: compactCandle(x.previousCandle), confirmationCandle: compactCandle(x.confirmationCandle) })),
+      liquiditySweepCandidates: (f.liquiditySweepCandidates || []).slice(-3).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), sweepCandle: compactCandle(x.sweepCandle) })),
+      fvgCandidates: (f.fvgCandidates || []).slice(-3).map(x => ({ ...x, firstCandle: compactCandle(x.firstCandle), middleCandle: compactCandle(x.middleCandle), thirdCandle: compactCandle(x.thirdCandle), mitigationCandle: compactCandle(x.mitigationCandle) })),
+      displacementCandidates: (f.displacementCandidates || []).slice(-3).map(x => ({ ...x, candle: compactCandle(x.candle) })),
+      orderBlockCandidates: (f.orderBlockCandidates || []).slice(-2).map(x => ({ ...x, originCandle: compactCandle(x.originCandle), confirmationCandle: compactCandle(x.confirmationCandle), displacementEvidence: x.displacementEvidence ? { ...x.displacementEvidence, candle: compactCandle(x.displacementEvidence.candle) } : null })),
+      unconfirmedObBreaks: (f.unconfirmedObBreaks || []).slice(-2).map(x => ({ ...x, confirmationCandle: compactCandle(x.confirmationCandle) }))
+    };
+  }
+  return result;
+}
+
+function compactWorkspaceForAI(workspace) {
+  if (!workspace || typeof workspace !== 'object') return {};
+  const copy = { ...workspace };
+  const md = workspace.marketData;
+  if (md && typeof md === 'object') {
+    const frames = {};
+    for (const [name, frame] of Object.entries(md.timeframes || {})) {
+      frames[name] = frame && Array.isArray(frame.candles)
+        ? { ...frame, candles: frame.candles.slice(-40) }
+        : frame;
+    }
+    copy.marketData = { ...md, timeframes: frames };
+  }
+  const cal = workspace.economicCalendar;
+  if (cal && Array.isArray(cal.events)) copy.economicCalendar = { ...cal, events: cal.events.slice(0, 10) };
+  return copy;
+}
+
 function formatStructureEvidenceReport(evidence) {
   if (!evidence || !evidence.timeframes) {
     return '\n\n## SMC EVIDENCE AUDIT\\nNOT CONFIRMED — Server-side OHLC evidence unavailable.';
@@ -551,16 +601,29 @@ export default async function handler(req, res) {
 
     let workspaceText = '';
 
+    let serverEvidence = { status: 'unavailable', reason: 'Workspace evidence not calculated.' };
     try {
       const suppliedWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : {};
-      const enrichedWorkspace = { ...suppliedWorkspace, structureEvidence: buildStructureEvidence(suppliedWorkspace) };
+      serverEvidence = buildStructureEvidence(suppliedWorkspace);
+      const enrichedWorkspace = { ...suppliedWorkspace, structureEvidence: compactStructureEvidence(serverEvidence) };
       workspaceText = JSON.stringify(enrichedWorkspace);
     } catch {
-      workspaceText = JSON.stringify({ structureEvidence: { status: 'calculation_error', reason: 'Server-side candle evidence calculation failed; do not infer structure.' } });
+      serverEvidence = { status: 'calculation_error', reason: 'Server-side candle evidence calculation failed; do not infer structure.' };
+      workspaceText = JSON.stringify({ structureEvidence: serverEvidence });
     }
 
+    // Preserve the validated candle window while preventing duplicated OHLC
+    // objects in the evidence summary from exceeding the model-context budget.
     if (workspaceText.length > 80_000) {
-      return res.status(413).json({ error: 'Market workspace is too large. Reduce chart/context size and try again.' });
+      const compactWorkspace = compactWorkspaceForAI(body.workspace);
+      workspaceText = JSON.stringify({
+        ...compactWorkspace,
+        structureEvidence: compactStructureEvidence(serverEvidence),
+        contextNote: 'Workspace compacted server-side to fit the context budget; original validated candle evidence is retained in the deterministic audit below.'
+      });
+    }
+    if (workspaceText.length > 80_000) {
+      return res.status(413).json({ error: 'Market context remains too large after safe compaction. Please retry without an image or start a new conversation.' });
     }
 
     const userText =
