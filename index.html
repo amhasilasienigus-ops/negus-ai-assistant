@@ -132,7 +132,7 @@ footer{text-align:center;padding:25px;color:var(--muted);font-size:11px}
 .negus-chat-message.pending{opacity:.7}
 @media(max-width:600px){.negus-chat-actions>*{flex:1 1 auto}.negus-chat-actions button{min-width:120px}}
 
-</style>
+.negus-smc-details{margin-top:14px;border:1px solid var(--border,#ccc);border-radius:10px;padding:10px}.negus-smc-details summary{cursor:pointer;font-weight:600}.negus-smc-details pre{white-space:pre-wrap;overflow-wrap:anywhere;font:inherit;font-size:.9em;line-height:1.5;margin:12px 0 0;max-height:65vh;overflow:auto}</style>
  
  
  
@@ -2743,7 +2743,17 @@ async function negusSendChatMessage(){
     if(!data.reply)throw new Error('AI መልስ አልተገኘም።');
     pending.classList.remove('pending');pending.innerHTML='';
     const tag=document.createElement('div');tag.className='chat-role';tag.textContent='NEGUS AI';pending.appendChild(tag);
-    const body=document.createElement('div');body.textContent=data.reply;pending.appendChild(body);
+    const body=document.createElement('div');
+    const markerStart='<!-- NEGUS_SMC_DETAILS_START -->',markerEnd='<!-- NEGUS_SMC_DETAILS_END -->';
+    const start=data.reply.indexOf(markerStart),end=start>=0?data.reply.indexOf(markerEnd,start+markerStart.length):-1;
+    if(start>=0&&end>start){
+      body.textContent=data.reply.slice(0,start).trim();
+      const details=document.createElement('details');details.className='negus-smc-details';
+      const summary=document.createElement('summary');summary.textContent='Detailed SMC Evidence · Full OHLC audit';details.appendChild(summary);
+      const detailBody=document.createElement('pre');detailBody.textContent=data.reply.slice(start+markerStart.length,end).trim();details.appendChild(detailBody);
+      body.appendChild(details);
+    }else{body.textContent=data.reply;}
+    pending.appendChild(body);
     if(data.responseId){negusChatResponseId=data.responseId;sessionStorage.setItem('negus_ai_response_id',data.responseId);}
     status.textContent='Analysis complete. ተጨማሪ ጥያቄ መጠየቅ ትችላለህ።';
   }catch(error){
