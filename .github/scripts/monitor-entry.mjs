@@ -289,8 +289,11 @@ if (!direction) {
 } else {
   const m5ClosedTime = m5.last.time;
   const signalKey = [direction, m5ClosedTime, structure.tags.join(","), entry.tags.join(",")].join("|");
-  if (state.lastSignalKey === signalKey) {
-    console.log("Qualified setup already notified for this closed M5 candle; duplicate suppressed.");
+  const lastAlertMs = Date.parse(state.lastSignalAt || "");
+  const sameDirectionCooldown = state.lastSignalDirection === direction &&
+    Number.isFinite(lastAlertMs) && Date.now() - lastAlertMs < 30 * 60 * 1000;
+  if (state.lastSignalKey === signalKey || sameDirectionCooldown) {
+    console.log("Qualified setup alert suppressed: duplicate candle or same-direction 30-minute cooldown.");
   } else {
     const directionLabel = direction === "BUY" ? "BUY candidate" : "SELL candidate";
     const message = `${directionLabel} · EUR/USD near ${price.toFixed(5)} · Spread ${spread.toFixed(2)} pips · D1/H4/H1 + M15/M5 rules aligned. M15: ${structure.tags.join(", ")}. M5: ${entry.tags.join(", ")}. Check NEGUS AI for the latest chart, daily loss limit and Exness price before deciding. NOT an order or guarantee.`;
