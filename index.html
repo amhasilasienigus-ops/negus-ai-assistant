@@ -320,7 +320,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <h3>Capital Protection</h3>
  
-  <p class="warning">Risk is capped at 1% per trade in this assistant. A full stop can still lose the planned amount. If the broker minimum lot exceeds the risk budget, skip the trade.</p>
+  <p class="warning">Below $50: the 1% per-trade rule is not applied. Use the strategy's structural Stop Loss and the existing Daily Maximum Loss Guard. When the daily limit is reached, stop trading for the rest of the day. At $50 and above, the 1% per-trade rule becomes active. This journal-based guard does not block Exness orders automatically.</p>
  
   <p>Journal data is stored only in this browser. Export CSV backups regularly.</p>
  
@@ -932,11 +932,13 @@ nalysis · All Timeframes</h3>
  
   <label>Account balance (USD)</label><input id="balance" type="number" value="15" min="0.01" step="0.01" oninput="updateDashboard()">
  
-  <label>Risk mode</label>
+  <label>Risk phase</label>
  
-  <select id="riskMode" onchange="updateRiskMode()"><option value="standard">Standard mode — maximum 1%</option></select>
+  <select id="riskMode" disabled><option value="small">Below $50 — Daily Loss Guard</option><option value="standard">At $50+ — 1% per trade</option></select>
  
-  <label>Risk percentage (%)</label><input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1" oninput="this.value=Math.min(1,Math.max(0.1,Number(this.value)||1))">
+  <label id="riskPercentLabel">Per-trade risk (%) — activates at $50</label><input id="riskPercent" type="number" value="1" min="0.1" max="1" step="0.1" oninput="this.value=Math.min(1,Math.max(0.1,Number(this.value)||1))">
+ 
+  <label>Spread estimate (pips; live quote preferred)</label><input id="spreadPips" type="number" value="0.8" min="0" step="0.1">
  
   <label>Lot size</label><input id="lot" type="number" value="0.01" min="0.01" step="0.01">
  
@@ -948,7 +950,7 @@ nalysis · All Timeframes</h3>
  
   <div id="riskResult" class="result">Enter trade details and calculate.</div>
  
-  <p class="small">Approximation for EUR/USD USD account: 1.00 lot ≈ $10 per pip; 0.01 lot ≈ $0.10 per pip. Actual costs, conversion and slippage can change results.</p>
+  <p class="small">Approximation for EUR/USD USD account: 1.00 lot ≈ $10 per pip; 0.01 lot ≈ $0.10 per pip. The current live quote spread is used when available; otherwise the editable spread estimate above is used. Commission, slippage and conversion may add costs.</p>
  
  </div>
  
@@ -1252,17 +1254,26 @@ function updateDashboard(){
  
  const guard=document.getElementById('dailyGuard');
  
- if(pnl<=-limit)guard.innerHTML='<span class="warning">DAILY LOSS LIMIT REACHED — STOP TRADING TODAY.</span><br>Recorded loss: '+money(pnl)+'<br>Daily limit: '+money(limit);
+ if(pnl<=-limit)guard.innerHTML='<span class="warning">DAILY LOSS LIMIT REACHED — NO TRADE FOR THE REST OF TODAY.</span><br>Recorded loss: '+money(pnl)+'<br>Daily limit: '+money(limit);
  
- else guard.innerHTML='<span class="ok">No daily loss limit reached in the journal.</span><br>Recorded P/L today: '+money(pnl)+'<br>Remaining loss allowance: '+money(Math.max(0,limit+pnl));
+ else guard.innerHTML='<span class="ok">Daily loss limit not reached in the journal.</span><br>Recorded P/L today: '+money(pnl)+'<br>Remaining daily loss allowance: '+money(Math.max(0,limit+pnl));
  
+ updateRiskMode();
 }
  
+function getDailyPnl(){return getTodayTrades().reduce((sum,t)=>sum+(Number(t.pnl)||0),0);}
+function getDailyLossRemaining(balance){return Math.max(0,dailyLimit(balance)+getDailyPnl());}
+function isDailyLossLimitReached(balance){return getDailyPnl()<=-dailyLimit(balance);}
+ 
 function updateRiskMode(){
+ const balance=Number(document.getElementById('balance')?.value)||15;
  const input=document.getElementById('riskPercent');
- input.min='0.1';input.max='1';
- input.value=String(Math.min(1,Math.max(0.1,Number(input.value)||1)));
- input.disabled=false;
+ const mode=document.getElementById('riskMode');
+ const label=document.getElementById('riskPercentLabel');
+ const onePercentActive=balance>=50;
+ if(mode)mode.value=onePercentActive?'standard':'small';
+ if(input){input.min='0.1';input.max='1';input.value=String(Math.min(1,Math.max(0.1,Number(input.value)||1)));input.disabled=!onePercentActive;}
+ if(label)label.textContent=onePercentActive?'Per-trade risk (%) — maximum 1%':'Per-trade 1% rule inactive below $50';
 }
  
 function getRiskCap(){return 1;}
@@ -1275,13 +1286,17 @@ function analyze(){
  
  const out=document.getElementById('analysisResult'),bal=Number(document.getElementById('balance').value),rp=Number(document.getElementById('riskPercent').value);
  
- const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value),cap=getRiskCap();
- 
+ const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value);
+ const spreadInput=Number(document.getElementById('spreadPips')?.value)||0;
+ const quoteSpread=liveQuote&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:null;
+ const spread=quoteSpread!==null?quoteSpread:spreadInput;
+ const onePercentActive=bal>=50, dailyRemaining=getDailyLossRemaining(bal);
  const aligned=(d==='Bullish'&&b==='Bullish')||(d==='Bearish'&&b==='Bearish');
- 
- const valid=[bal,rp,lot,sl,tp].every(Number.isFinite)&&bal>0&&rp>0&&rp<=cap&&lot>=0.01&&sl>0&&tp>0;
- 
- const loss=valid?sl*10*lot:Infinity,budget=valid?bal*rp/100:0,riskOK=valid&&loss<=budget,rrOK=valid&&tp/sl>=1;
+ const valid=[bal,rp,lot,sl,tp,spread].every(Number.isFinite)&&bal>0&&(!onePercentActive||(rp>0&&rp<=1))&&lot>=0.01&&sl>0&&tp>0&&spread>=0;
+ const loss=valid?(sl+spread)*10*lot:Infinity;
+ const perTradeBudget=onePercentActive?bal*rp/100:Infinity;
+ const riskOK=valid&&loss<=dailyRemaining&&loss<=perTradeBudget;
+ const rrOK=valid&&(tp-spread)/(sl+spread)>=1;
  
  const checks=[aligned,l==='Yes',!!c&&c!=='None',!!t&&t!=='None',riskOK,rrOK],score=checks.filter(Boolean).length;
  
@@ -1308,23 +1323,23 @@ function analyze(){
 }
  
 function calculateRisk(){
- 
  const bal=Number(document.getElementById('balance').value),rp=Number(document.getElementById('riskPercent').value);
- 
  const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value);
- 
- const mode=document.getElementById('riskMode').value,cap=getRiskCap(),out=document.getElementById('riskResult');
- 
- if(![bal,rp,lot,sl,tp].every(Number.isFinite)||bal<=0||rp<=0||rp>cap||lot<0.01||sl<=0||tp<=0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and risk percentage. Maximum for selected mode: '+cap+'%.</span>';return;}
- 
- const pipValuePerLot=10,loss=sl*pipValuePerLot*lot,profit=tp*pipValuePerLot*lot,budget=bal*rp/100,percent=loss/bal*100,rr=tp/sl,maxLot=budget/(sl*pipValuePerLot),minimumLotRisk=sl*pipValuePerLot*0.01;
- 
- const status=loss>budget?'<span class="warning">RISK TOO HIGH — SKIP THIS TRADE.</span>':'<span class="ok">Within selected risk budget, before costs.</span>';
- 
- out.innerHTML='Estimated stop loss (before costs): <b>'+money(loss)+'</b><br>Risk budget: <b>'+money(budget)+'</b><br>Account risk (before costs): <b>'+percent.toFixed(2)+'%</b><br>Estimated target profit (before costs): <b>'+money(profit)+'</b><br>Reward / Risk: <b>'+rr.toFixed(2)+':1</b><br>Maximum theoretical lot (before costs): <b>'+maxLot.toFixed(4)+'</b><br>Risk at broker minimum 0.01 lot: <b>'+money(minimumLotRisk)+'</b><br><br>'+status+'<br><span class="small">For EUR/USD USD account, pip value is an estimate (~$10 per 1.00 lot). Spread, commission, conversion and slippage are not included. If the structural SL makes 0.01 lot exceed the risk budget, SKIP; never tighten the SL to fit.</span>';
- 
+ const spreadInput=Number(document.getElementById('spreadPips')?.value)||0;
+ const quoteSpread=liveQuote&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:null;
+ const spread=quoteSpread!==null?quoteSpread:spreadInput;
+ const out=document.getElementById('riskResult'),onePercentActive=bal>=50;
+ if(![bal,rp,lot,sl,tp,spread].every(Number.isFinite)||bal<=0||(onePercentActive&&(rp<=0||rp>1))||lot<0.01||sl<=0||tp<=0||spread<0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and spread.</span>';return;}
+ const pipValuePerLot=10,stopCost=(sl+spread)*pipValuePerLot*lot,targetNet=Math.max(0,tp-spread)*pipValuePerLot*lot;
+ const dailyLimitUsd=dailyLimit(bal),dailyPnl=getDailyPnl(),dailyRemaining=Math.max(0,dailyLimitUsd+dailyPnl);
+ const perTradeBudget=onePercentActive?bal*rp/100:Infinity;
+ const allowedBudget=Math.min(dailyRemaining,perTradeBudget);
+ const accountRisk=stopCost/bal*100,rr=(tp-spread)/(sl+spread),maxLot=dailyRemaining/((sl+spread)*pipValuePerLot),minimumLotRisk=(sl+spread)*pipValuePerLot*0.01;
+ const dailyStopped=isDailyLossLimitReached(bal),withinDaily=stopCost<=dailyRemaining,withinPerTrade=stopCost<=perTradeBudget;
+ const status=dailyStopped?'<span class="warning">DAILY LOSS LIMIT REACHED — NO TRADE FOR THE REST OF TODAY.</span>':(!withinDaily?'<span class="warning">STOP RISK EXCEEDS REMAINING DAILY LOSS ALLOWANCE — SKIP.</span>':(!withinPerTrade?'<span class="warning">STOP RISK EXCEEDS THE 1% PER-TRADE LIMIT — SKIP.</span>':'<span class="ok">Within the active guard, using estimated spread.</span>'));
+ const perTradeText=onePercentActive?'1% per-trade budget: <b>'+money(perTradeBudget)+'</b><br>':'1% per-trade rule: <b>inactive below $50</b><br>';
+ out.innerHTML='Estimated structural stop distance: <b>'+sl.toFixed(1)+' pips</b><br>Spread used: <b>'+spread.toFixed(2)+' pips</b>'+(quoteSpread!==null?' (live quote)':' (manual estimate)')+'<br>Estimated loss including spread: <b>'+money(stopCost)+'</b><br>Daily maximum loss: <b>'+money(dailyLimitUsd)+'</b><br>Recorded today P/L: <b>'+money(dailyPnl)+'</b><br>Remaining daily allowance: <b>'+money(dailyRemaining)+'</b><br>'+perTradeText+'Estimated target after spread: <b>'+money(targetNet)+'</b><br>Estimated reward/risk after spread: <b>'+rr.toFixed(2)+':1</b><br>Estimated account risk: <b>'+accountRisk.toFixed(2)+'%</b><br>Maximum theoretical lot against daily allowance: <b>'+maxLot.toFixed(4)+'</b><br>Estimated stop risk at 0.01 lot: <b>'+money(minimumLotRisk)+'</b><br><br>'+status+'<br><span class="small">EUR/USD pip value is an estimate (~$10 per 1.00 lot). Live spread is used when available; otherwise the entered spread estimate is used. Commission, slippage and conversion may add costs. Daily P/L is based on manually recorded journal trades in this browser and does not automatically block Exness orders.</span>';
  updateDashboard();
- 
 }
  
 function updateChecks(){
