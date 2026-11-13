@@ -1328,7 +1328,7 @@ function calculateRisk(){
  const bal=Number(document.getElementById('balance').value),rp=Number(document.getElementById('riskPercent').value);
  const lot=Number(document.getElementById('lot').value),sl=Number(document.getElementById('stopPips').value),tp=Number(document.getElementById('targetPips').value);
  const spreadInput=Number(document.getElementById('spreadPips')?.value)||0;
- const quoteSpread=liveQuote&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:null;
+ const quoteSpread=liveQuote&&liveQuote.stale!==true&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:null;
  const spread=quoteSpread!==null?quoteSpread:spreadInput;
  const out=document.getElementById('riskResult'),onePercentActive=bal>=50;
  if(![bal,rp,lot,sl,tp,spread].every(Number.isFinite)||bal<=0||(onePercentActive&&(rp<=0||rp>1))||lot<0.01||sl<=0||tp<=0||spread<0){out.innerHTML='<span class="warning">Invalid values. Check balance, lot, stop, target and spread.</span>';return;}
