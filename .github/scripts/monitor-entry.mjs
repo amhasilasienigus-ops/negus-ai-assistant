@@ -6,7 +6,7 @@ const REST_API_KEY = process.env.ONESIGNAL_REST_API_KEY;
 const APP_URL = "https://amhasilasienigus-ops.github.io/negus-ai-assistant/";
 const STATE_PATH = ".github/state/entry-monitor-state.json";
 const API = "https://biquote.io/api";
-const TIMEFRAMES = [["D1","1d"],["H4","4h"],["H1","1h"],["M15","15m"],["M5","5m"]];
+const TIMEFRAMES = [["D1","1d",86400],["H4","4h",14400],["H1","1h",3600],["M15","15m",900],["M5","5m",300]];
 const MAX_QUOTE_AGE_SECONDS = 60;
 const MAX_SPREAD_PIPS = 1.5;
 const NEWS_BLOCK_MS = 30 * 60 * 1000;
@@ -123,14 +123,19 @@ function atr(bars, period = 14) {
   return value;
 }
 
-function inspectFrame(payload) {
+function inspectFrame(payload, timeframeSeconds) {
   const unique = new Map();
+  const nowSeconds = Math.floor(Date.now() / 1000);
   for (const raw of extractCandles(payload)) {
     const candle = normalizeCandle(raw);
-    if (candle && !candle.isOpen) unique.set(candle.time, candle);
+    // Treat timestamps as candle open-times and never analyze a candle until its full interval has elapsed.
+    if (candle && !candle.isOpen && candle.time + timeframeSeconds <= nowSeconds) unique.set(candle.time, candle);
   }
   const bars = [...unique.values()].sort((a, b) => a.time - b.time);
-  if (bars.length < 30) throw new Error(`Only ${bars.length} valid closed candles`);
+  if (bars.length < 60) throw new Error(`Only ${bars.length} valid closed candles; 60 required for reliable EMA50/RSI/ATR`);
+  const lastClosedAge = nowSeconds - (bars.at(-1).time + timeframeSeconds);
+  const maxClosedAge = timeframeSeconds * 3;
+  if (lastClosedAge > maxClosedAge) throw new Error(`Last closed candle is stale by ${Math.round(lastClosedAge)} seconds (limit ${maxClosedAge})`);
   const closes = bars.map(b => b.close), last = bars.at(-1), prev = bars.at(-2);
   const e20 = ema(closes, 20), e50 = ema(closes, 50);
   let trend = "NEUTRAL";
@@ -256,9 +261,9 @@ if (!Number.isFinite(spread) || spread < 0 || spread > MAX_SPREAD_PIPS) throw ne
 
 const frames = {};
 for (let i = 0; i < TIMEFRAMES.length; i += 3) {
-  const batch = TIMEFRAMES.slice(i, i + 3).map(async ([name, interval]) => {
+  const batch = TIMEFRAMES.slice(i, i + 3).map(async ([name, interval, timeframeSeconds]) => {
     const data = await fetchJson(API + "/EURUSD/ohlc?interval=" + interval + "&limit=250", 35000);
-    frames[name] = inspectFrame(data);
+    frames[name] = inspectFrame(data, timeframeSeconds);
   });
   await Promise.all(batch);
 }
