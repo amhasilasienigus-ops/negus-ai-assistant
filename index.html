@@ -1530,7 +1530,7 @@ async function refreshLiveMarket(){
   const quotePromise=fetchJSON(LIVE_API+'/EURUSD');
   const framePromises=TF_CONFIG.map(async([name,interval])=>{
    try{
-    const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250');
+    const data=await fetchJSON(LIVE_API+'/EURUSD/ohlc?interval='+interval+'&limit=250',25000);
     return [name,inspectFrame(data)];
    }catch(error){
     return [name,{ok:false,count:0,error:String(error&&error.message?error.message:error)}];
@@ -2558,8 +2558,10 @@ function negusBuildLiveWorkspace(){
     .filter(e=>e.time>=now-8*60*60*1000&&e.time<=now+48*60*60*1000)
     .sort((a,b)=>a.time-b.time).slice(0,20)
     .map(e=>({
-      time:new Date(e.time).toISOString(),currency:e.currency,title:e.title,
-      impact:e.impact,actual:e.actual||null,forecast:e.forecast||null,previous:e.previous||null
+      time:new Date(e.time).toISOString(),
+      timeEthiopia:new Intl.DateTimeFormat('en-GB',{timeZone:'Africa/Addis_Ababa',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(e.time)),
+      timeUTC:new Intl.DateTimeFormat('en-GB',{timeZone:'UTC',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(e.time)),
+      currency:e.currency,title:e.title,impact:e.impact,actual:e.actual||null,forecast:e.forecast||null,previous:e.previous||null
     }));
   return {
     dataContractVersion:'1.0',
