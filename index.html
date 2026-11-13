@@ -2077,18 +2077,21 @@ function evaluateLiveSignal(){
  
    const atr5=m5.atr,slPips=atr5?Math.max(5,(atr5*1.5)*10000):0,tpPips=slPips*2;
  
-   const bal=Number(document.getElementById('balance').value)||15,riskPct=Math.min(1,Math.max(0.1,Number(document.getElementById('riskPercent').value)||1));
+   const bal=Number(document.getElementById('balance').value)||15,onePercentActive=bal>=50;
+   const dailyRemaining=getDailyLossRemaining(bal);
+   const quoteSpread=liveQuote&&liveQuote.stale!==true&&Number.isFinite(Number(liveQuote.bid))&&Number.isFinite(Number(liveQuote.ask))&&Number(liveQuote.ask)>=Number(liveQuote.bid)?(Number(liveQuote.ask)-Number(liveQuote.bid))/0.0001:(Number(document.getElementById('spreadPips')?.value)||0);
+   const riskBudget=onePercentActive?Math.min(dailyRemaining,bal*0.01):dailyRemaining;
+   const maxLot=slPips>0?(riskBudget/((slPips+quoteSpread)*10)):0,allowed=maxLot>=0.01&&!isDailyLossLimitReached(bal);
  
-   const riskBudget=bal*riskPct/100,maxLot=slPips>0?riskBudget/(slPips*10):0,allowed=maxLot>=0.01;
- 
-   if(!allowed)reasons.push('Minimum 0.01 lot exceeds the selected risk budget');
+   if(!allowed)reasons.push(isDailyLossLimitReached(bal)?'Daily Maximum Loss reached — NO TRADE for the rest of today':'Minimum 0.01 lot exceeds remaining daily loss allowance / active 1% rule');
  
    else{
  
     const entry=price,sl=direction==='BUY'?entry-slPips/10000:entry+slPips/10000,tp=direction==='BUY'?entry+tpPips/10000:entry-tpPips/10000;
  
     liveSignalDirection=direction;
-    out.innerHTML='<span class="ok">RULES ALIGN: '+direction+'</span><br>Reference entry: <b>'+fmtPrice(entry)+'</b><br>Illustrative stop: <b>'+fmtPrice(sl)+'</b> ('+slPips.toFixed(1)+' pips)<br>Illustrative target: <b>'+fmtPrice(tp)+'</b> ('+tpPips.toFixed(1)+' pips)<br>Maximum theoretical lot at '+riskPct.toFixed(1)+'% risk: <b>'+maxLot.toFixed(4)+'</b><br><br><span class="warning">Not an instruction to trade.</span> Verify the setup and exact prices on Exness MT5. Never round lot size upward. The app does not place orders.';if(smartChartReady)renderSmartChart(false);return;
+    const riskRuleLabel=onePercentActive?'1% per-trade cap + daily guard':'daily guard only (below $50)';
+    out.innerHTML='<span class="ok">RULES ALIGN: '+direction+'</span><br>Reference entry: <b>'+fmtPrice(entry)+'</b><br>Illustrative stop: <b>'+fmtPrice(sl)+'</b> ('+slPips.toFixed(1)+' pips)<br>Illustrative target: <b>'+fmtPrice(tp)+'</b> ('+tpPips.toFixed(1)+' pips)<br>Spread used: <b>'+quoteSpread.toFixed(2)+' pips</b><br>Risk rule: <b>'+riskRuleLabel+'</b><br>Maximum theoretical lot: <b>'+maxLot.toFixed(4)+'</b><br><br><span class="warning">Not an instruction to trade.</span> Verify the setup and exact prices on Exness. Never round lot size upward. The app does not place orders.';if(smartChartReady)renderSmartChart(false);return;
  
    }
  
