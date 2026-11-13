@@ -2762,7 +2762,7 @@ function negusBuildLiveWorkspace(){
       const dailyPnl=typeof getDailyPnl==='function'?getDailyPnl():0;
       const limit=dailyLimit(balance);
       const spreadPips=quote&&Number.isFinite(quote.spreadPips)?quote.spreadPips:null;
-      return {balanceUSD:balance,perTradeOnePercentActive:balance>=50,perTradeRiskCapPercent:balance>=50?1:null,dailyLossLimitUSD:limit,dailyClosedPnlUSD:dailyPnl,remainingDailyLossUSD:Math.max(0,limit+dailyPnl),dailyLimitReached:dailyPnl<=-limit,dailyLimitSource:'NEGUS browser journal guard; manually recorded closed trades only; not broker-enforced',spreadPips};
+      return {balanceUSD:balance,perTradeOnePercentActive:balance>=50,perTradeRiskCapPercent:balance>=50?1:null,dailyLossLimitUSD:limit,dailyProfitQualificationUSD:limit*2,dailyClosedPnlUSD:dailyPnl,remainingDailyLossUSD:Math.max(0,limit+dailyPnl),dailyLimitReached:dailyPnl<=-limit,dailyLimitSource:'NEGUS browser journal guard; manually recorded closed trades only; not broker-enforced',spreadPips};
     })()
   };
 }
