@@ -302,16 +302,16 @@ function compactStructureEvidence(evidence) {
       status: f.status, candleCount: f.candleCount, structureBias: f.structureBias,
       latestClosedCandle: compactCandle(f.latestClosedCandle),
       previousClosedCandle: compactCandle(f.previousClosedCandle),
-      latestSwingHighs: (f.latestSwingHighs || []).slice(-2).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
-      latestSwingLows: (f.latestSwingLows || []).slice(-2).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
-      equalHighLiquidityCandidates: (f.equalHighLiquidityCandidates || []).slice(-2).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
-      equalLowLiquidityCandidates: (f.equalLowLiquidityCandidates || []).slice(-2).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
-      breakCandidates: (f.breakCandidates || []).slice(-3).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), previousCandle: compactCandle(x.previousCandle), confirmationCandle: compactCandle(x.confirmationCandle) })),
-      liquiditySweepCandidates: (f.liquiditySweepCandidates || []).slice(-3).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), sweepCandle: compactCandle(x.sweepCandle) })),
-      fvgCandidates: (f.fvgCandidates || []).slice(-3).map(x => ({ ...x, firstCandle: compactCandle(x.firstCandle), middleCandle: compactCandle(x.middleCandle), thirdCandle: compactCandle(x.thirdCandle), mitigationCandle: compactCandle(x.mitigationCandle) })),
-      displacementCandidates: (f.displacementCandidates || []).slice(-3).map(x => ({ ...x, candle: compactCandle(x.candle) })),
-      orderBlockCandidates: (f.orderBlockCandidates || []).slice(-2).map(x => ({ ...x, originCandle: compactCandle(x.originCandle), confirmationCandle: compactCandle(x.confirmationCandle), displacementEvidence: x.displacementEvidence ? { ...x.displacementEvidence, candle: compactCandle(x.displacementEvidence.candle) } : null })),
-      unconfirmedObBreaks: (f.unconfirmedObBreaks || []).slice(-2).map(x => ({ ...x, confirmationCandle: compactCandle(x.confirmationCandle) }))
+      latestSwingHighs: (f.latestSwingHighs || []).slice(-1).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
+      latestSwingLows: (f.latestSwingLows || []).slice(-1).map(x => ({ time: x.time, price: x.price, candle: compactCandle(x.candle) })),
+      equalHighLiquidityCandidates: (f.equalHighLiquidityCandidates || []).slice(-1).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
+      equalLowLiquidityCandidates: (f.equalLowLiquidityCandidates || []).slice(-1).map(x => ({ averageLevel: x.averageLevel, tolerance: x.tolerance, pivots: (x.pivots || []).map(p => ({ time: p.time, price: p.price, candle: compactCandle(p.candle) })) })),
+      breakCandidates: (f.breakCandidates || []).slice(-2).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), previousCandle: compactCandle(x.previousCandle), confirmationCandle: compactCandle(x.confirmationCandle) })),
+      liquiditySweepCandidates: (f.liquiditySweepCandidates || []).slice(-2).map(x => ({ ...x, pivotCandle: compactCandle(x.pivotCandle), sweepCandle: compactCandle(x.sweepCandle) })),
+      fvgCandidates: (f.fvgCandidates || []).slice(-2).map(x => ({ ...x, firstCandle: compactCandle(x.firstCandle), middleCandle: compactCandle(x.middleCandle), thirdCandle: compactCandle(x.thirdCandle), mitigationCandle: compactCandle(x.mitigationCandle) })),
+      displacementCandidates: (f.displacementCandidates || []).slice(-2).map(x => ({ ...x, candle: compactCandle(x.candle) })),
+      orderBlockCandidates: (f.orderBlockCandidates || []).slice(-1).map(x => ({ ...x, originCandle: compactCandle(x.originCandle), confirmationCandle: compactCandle(x.confirmationCandle), displacementEvidence: x.displacementEvidence ? { ...x.displacementEvidence, candle: compactCandle(x.displacementEvidence.candle) } : null })),
+      unconfirmedObBreaks: (f.unconfirmedObBreaks || []).slice(-1).map(x => ({ ...x, confirmationCandle: compactCandle(x.confirmationCandle) }))
     };
   }
   return result;
@@ -319,20 +319,67 @@ function compactStructureEvidence(evidence) {
 
 function compactWorkspaceForAI(workspace) {
   if (!workspace || typeof workspace !== 'object') return {};
-  const copy = { ...workspace };
-  const md = workspace.marketData;
-  if (md && typeof md === 'object') {
-    const frames = {};
-    for (const [name, frame] of Object.entries(md.timeframes || {})) {
-      frames[name] = frame && Array.isArray(frame.candles)
-        ? { ...frame, candles: frame.candles.slice(-40) }
-        : frame;
+  const md = workspace.marketData || {};
+  const frames = {};
+  for (const name of ['D1', 'H4', 'H1', 'M30', 'M15', 'M5']) {
+    const frame = md.timeframes?.[name];
+    if (!frame || typeof frame !== 'object') {
+      frames[name] = { available: false, reason: 'No validated candle data supplied.' };
+      continue;
     }
-    copy.marketData = { ...md, timeframes: frames };
+    // Full closed candles are audited above on the server. Send the AI only
+    // the measured indicators and status; this avoids repeating raw OHLC
+    // arrays in every turn of the conversation history.
+    frames[name] = {
+      available: Boolean(frame.available),
+      reason: typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined,
+      closedCandleCount: Number.isFinite(Number(frame.closedCandleCount)) ? Number(frame.closedCandleCount) : undefined,
+      trend: typeof frame.trend === 'string' ? frame.trend.slice(0, 40) : undefined,
+      ema20: Number.isFinite(Number(frame.ema20)) ? Number(frame.ema20) : null,
+      ema50: Number.isFinite(Number(frame.ema50)) ? Number(frame.ema50) : null,
+      ema200: Number.isFinite(Number(frame.ema200)) ? Number(frame.ema200) : null,
+      rsi14: Number.isFinite(Number(frame.rsi14)) ? Number(frame.rsi14) : null,
+      atr14: Number.isFinite(Number(frame.atr14)) ? Number(frame.atr14) : null
+    };
   }
-  const cal = workspace.economicCalendar;
-  if (cal && Array.isArray(cal.events)) copy.economicCalendar = { ...cal, events: cal.events.slice(0, 10) };
-  return copy;
+  const quote = md.quote && typeof md.quote === 'object' ? {
+    source: md.quote.source, pair: md.quote.pair,
+    bid: md.quote.bid, ask: md.quote.ask, mid: md.quote.mid,
+    spread: md.quote.spread, spreadPips: md.quote.spreadPips,
+    spreadPoints: md.quote.spreadPoints, marketState: md.quote.marketState,
+    stale: md.quote.stale, quoteAgeSeconds: md.quote.quoteAgeSeconds
+  } : null;
+  const cal = workspace.economicCalendar || {};
+  const events = Array.isArray(cal.events) ? cal.events.slice(0, 10).map(e => ({
+    time: e.time, dateEthiopia: e.dateEthiopia, timeTraditional: e.timeTraditional,
+    timeEAT: e.timeEAT, timeUTC: e.timeUTC, countdown: e.countdown,
+    currency: e.currency, title: typeof e.title === 'string' ? e.title.slice(0, 120) : '',
+    impact: e.impact, actual: e.actual, forecast: e.forecast, previous: e.previous,
+    releaseStatus: e.releaseStatus, actualAvailable: e.actualAvailable
+  })) : [];
+  return {
+    dataContractVersion: workspace.dataContractVersion,
+    generatedAt: workspace.generatedAt,
+    generatedAtEthiopia: workspace.generatedAtEthiopia,
+    generatedAtTraditional: workspace.generatedAtTraditional,
+    pair: workspace.pair || 'EUR/USD',
+    marketData: {
+      source: md.source, status: md.status,
+      quoteError: typeof md.quoteError === 'string' ? md.quoteError.slice(0, 240) : null,
+      candleStatus: md.candleStatus,
+      candleErrors: Object.fromEntries(Object.entries(md.candleErrors || {}).slice(0, 6).map(([k,v]) => [k, String(v).slice(0, 180)])),
+      quote, timeframes: frames
+    },
+    economicCalendar: {
+      source: cal.source, status: cal.status,
+      statusMessage: typeof cal.statusMessage === 'string' ? cal.statusMessage.slice(0, 240) : null,
+      fetchedAt: cal.fetchedAt, eventsWindow: cal.eventsWindow, events,
+      limitation: typeof cal.limitation === 'string' ? cal.limitation.slice(0, 300) : undefined
+    },
+    analysisRules: workspace.analysisRules || {},
+    riskControl: workspace.riskControl || {},
+    strategy: typeof workspace.strategy === 'string' ? workspace.strategy.slice(0, 160) : 'NEGUS Strategy · Intraday · Price Action + SMC'
+  };
 }
 
 function formatStructureEvidenceReport(evidence) {
@@ -615,26 +662,41 @@ export default async function handler(req, res) {
     let serverEvidence = { status: 'unavailable', reason: 'Workspace evidence not calculated.' };
     try {
       const suppliedWorkspace = body.workspace && typeof body.workspace === 'object' ? body.workspace : {};
+      // Calculate SMC evidence from the full validated candle arrays first.
+      // The model receives compact indicator/context fields plus the evidence
+      // summary, not a second copy of every raw OHLC candle.
       serverEvidence = buildStructureEvidence(suppliedWorkspace);
-      const enrichedWorkspace = { ...suppliedWorkspace, structureEvidence: compactStructureEvidence(serverEvidence) };
-      workspaceText = JSON.stringify(enrichedWorkspace);
+      workspaceText = JSON.stringify({
+        ...compactWorkspaceForAI(suppliedWorkspace),
+        structureEvidence: compactStructureEvidence(serverEvidence),
+        contextNote: 'Raw OHLC candles were audited server-side. This model context contains compact indicators and the deterministic SMC evidence summary.'
+      });
     } catch {
       serverEvidence = { status: 'calculation_error', reason: 'Server-side candle evidence calculation failed; do not infer structure.' };
-      workspaceText = JSON.stringify({ structureEvidence: serverEvidence });
-    }
-
-    // Preserve the validated candle window while preventing duplicated OHLC
-    // objects in the evidence summary from exceeding the model-context budget.
-    if (workspaceText.length > 80_000) {
-      const compactWorkspace = compactWorkspaceForAI(body.workspace);
       workspaceText = JSON.stringify({
-        ...compactWorkspace,
-        structureEvidence: compactStructureEvidence(serverEvidence),
-        contextNote: 'Workspace compacted server-side to fit the context budget; original validated candle evidence is retained in the deterministic audit below.'
+        ...compactWorkspaceForAI(body.workspace),
+        structureEvidence: serverEvidence
       });
     }
-    if (workspaceText.length > 80_000) {
-      return res.status(413).json({ error: 'Market context remains too large after safe compaction. Please retry without an image or start a new conversation.' });
+
+    // Last-resort bounded context: retain quote, risk controls and latest
+    // structure status while excluding calendar event detail if input is odd.
+    if (workspaceText.length > 60_000) {
+      const minimal = compactWorkspaceForAI(body.workspace);
+      minimal.economicCalendar = {
+        source: minimal.economicCalendar?.source,
+        status: minimal.economicCalendar?.status,
+        statusMessage: minimal.economicCalendar?.statusMessage,
+        events: (minimal.economicCalendar?.events || []).slice(0, 4)
+      };
+      workspaceText = JSON.stringify({
+        ...minimal,
+        structureEvidence: compactStructureEvidence(serverEvidence),
+        contextNote: 'Context reduced to essential market, risk, calendar and server-calculated structure fields.'
+      });
+    }
+    if (workspaceText.length > 60_000) {
+      return res.status(413).json({ error: 'Essential market context exceeded the safety limit. Please retry; no trade analysis was generated.' });
     }
 
     const userText =
