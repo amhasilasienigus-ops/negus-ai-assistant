@@ -54,7 +54,10 @@ async function sendPush(message) {
     );
   }
 
-  console.log("Push sent:", result.id);
+  if (Number.isFinite(Number(result.recipients)) && Number(result.recipients) <= 0) {
+    throw new Error("OneSignal accepted no recipients. Confirm at least one device is subscribed in the OneSignal dashboard.");
+  }
+  console.log("Push accepted:", result.id, "recipients:", result.recipients ?? "not reported");
 }
 
 const now = Date.now();
