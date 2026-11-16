@@ -149,7 +149,17 @@
     "date": "2026-11-16T08:30:00-05:00",
     "impact": "Low",
     "forecast": "17.6",
-    "previous": "25.5"
+    "previous": "25.5",
+    "actual": "7.8",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-16T17:30:37Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.8,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "FOMC Member Williams Speaks",
@@ -269,7 +279,12 @@
     "date": "2026-11-17T05:00:00-05:00",
     "impact": "Low",
     "forecast": "18.3",
-    "previous": "18.5"
+    "previous": "18.5",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "German ZEW Economic Sentiment",
@@ -277,7 +292,12 @@
     "date": "2026-11-17T05:00:00-05:00",
     "impact": "Low",
     "forecast": "28.3",
-    "previous": "28.1"
+    "previous": "28.1",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "FOMC Member Musalem Speaks",
@@ -317,7 +337,12 @@
     "date": "2026-11-17T08:30:00-05:00",
     "impact": "High",
     "forecast": "0.4%",
-    "previous": "0.9%"
+    "previous": "0.9%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Retail Sales m/m",
@@ -325,7 +350,12 @@
     "date": "2026-11-17T08:30:00-05:00",
     "impact": "High",
     "forecast": "0.2%",
-    "previous": "0.8%"
+    "previous": "0.8%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Import Prices m/m",
@@ -349,7 +379,12 @@
     "date": "2026-11-17T09:15:00-05:00",
     "impact": "Low",
     "forecast": "76.8%",
-    "previous": "76.9%"
+    "previous": "76.9%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.67,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Industrial Production m/m",
@@ -357,7 +392,12 @@
     "date": "2026-11-17T09:15:00-05:00",
     "impact": "Low",
     "forecast": "0.1%",
-    "previous": "0.7%"
+    "previous": "0.7%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "FOMC Member Hammack Speaks",
@@ -373,7 +413,12 @@
     "date": "2026-11-17T10:00:00-05:00",
     "impact": "Low",
     "forecast": "0.5%",
-    "previous": "0.4%"
+    "previous": "0.4%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.67,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "NAHB Housing Market Index",
@@ -381,7 +426,12 @@
     "date": "2026-11-17T10:00:00-05:00",
     "impact": "Low",
     "forecast": "29",
-    "previous": "29"
+    "previous": "29",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "GDT Price Index",
@@ -517,7 +567,12 @@
     "date": "2026-11-18T04:00:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "HPI y/y",
@@ -557,7 +612,12 @@
     "date": "2026-11-18T08:30:00-05:00",
     "impact": "Low",
     "forecast": "1.38M",
-    "previous": "1.40M"
+    "previous": "1.40M",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.67,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Housing Starts",
@@ -565,7 +625,12 @@
     "date": "2026-11-18T08:30:00-05:00",
     "impact": "Low",
     "forecast": "1.25M",
-    "previous": "1.22M"
+    "previous": "1.22M",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.67,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "ECB President Lagarde Speaks",
@@ -573,7 +638,12 @@
     "date": "2026-11-18T09:25:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "single_source"
   },
   {
     "title": "BOE Gov Bailey Speaks",
@@ -589,7 +659,12 @@
     "date": "2026-11-18T10:00:00-05:00",
     "impact": "Low",
     "forecast": "-2.3%",
-    "previous": "-7.3%"
+    "previous": "-7.3%",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Crude Oil Inventories",
@@ -629,7 +704,12 @@
     "date": "2026-11-18T14:00:00-05:00",
     "impact": "High",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.67,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "FOMC Member Williams Speaks",
@@ -693,7 +773,12 @@
     "date": "2026-11-19T04:00:00-05:00",
     "impact": "Low",
     "forecast": "16.6B",
-    "previous": "8.7B"
+    "previous": "8.7B",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "German Buba Monthly Report",
@@ -741,7 +826,12 @@
     "date": "2026-11-19T08:30:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "single_source"
   },
   {
     "title": "Philly Fed Manufacturing Index",
@@ -893,7 +983,12 @@
     "date": "2026-11-20T03:15:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.75,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "single_source"
   },
   {
     "title": "German Buba President Nagel Speaks",
@@ -933,7 +1028,12 @@
     "date": "2026-11-20T10:00:00-05:00",
     "impact": "Low",
     "forecast": "-18",
-    "previous": "-18"
+    "previous": "-18",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 1,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-16T17:30:37Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Revised UoM Consumer Sentiment",
