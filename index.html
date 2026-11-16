@@ -1502,10 +1502,12 @@ function weeklyTargetRate(balance){
 function renderWeeklyGrowth(){
  const input=document.getElementById('weeklyOpeningBalance');
  if(!input)return;
- const savedWeek=localStorage.getItem('negusWeeklyOpeningBalance');
- if(!input.dataset.initialized){
+ const weekNow=new Date(),weekMonday=new Date(weekNow);weekMonday.setHours(0,0,0,0);weekMonday.setDate(weekNow.getDate()-(weekNow.getDay()===0?6:weekNow.getDay()-1));
+ const weekKey=localDateString(weekMonday),storageKey='negusWeeklyOpeningBalance_'+weekKey;
+ const savedWeek=localStorage.getItem(storageKey);
+ if(!input.dataset.initialized||input.dataset.weekKey!==weekKey){
   input.value=savedWeek||String(Number(document.getElementById('balance')?.value)||15);
-  input.dataset.initialized='true';
+  input.dataset.initialized='true';input.dataset.weekKey=weekKey;
  }
  const opening=Number(input.value),rate=weeklyTargetRate(opening);
  const rateEl=document.getElementById('weeklyTargetRate'),targetEl=document.getElementById('weeklyTargetAmount');
@@ -1516,7 +1518,7 @@ function renderWeeklyGrowth(){
   status.textContent='Enter a valid weekly opening balance between $15 and $500 to select the NEGUS target bracket.';
   breakdown.textContent='';return;
  }
- try{localStorage.setItem('negusWeeklyOpeningBalance',String(opening));}catch(_){}
+ try{localStorage.setItem(storageKey,String(opening));}catch(_){}
  const now=new Date(),monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
  const startKey=localDateString(monday);
  const daily=new Map();
