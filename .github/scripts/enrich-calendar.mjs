@@ -10,9 +10,19 @@ const to = new Date(now.getTime() + 8 * DAY).toISOString().slice(0, 10);
 const countryNames = { USD: ["united states"], EUR: ["euro area", "germany", "france"] };
 
 function normalize(value) {
-  return String(value || "").toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, " ").trim();
+  return String(value || "").toLowerCase().normalize("NFKD")
+    .replace(/month\s*[-/]?\s*on\s*[-/]?\s*month|month\s*[-/]?\s*over\s*[-/]?\s*month|m\s*[-/]?\s*m\b/g, " mom ")
+    .replace(/year\s*[-/]?\s*on\s*[-/]?\s*year|year\s*[-/]?\s*over\s*[-/]?\s*year|y\s*[-/]?\s*y\b/g, " yoy ")
+    .replace(/[^a-z0-9]+/g, " ").trim();
 }
-function tokens(value) { return new Set(normalize(value).split(/\s+/).filter(word => word.length > 2)); }
+function tokens(value) {
+  return new Set(normalize(value).split(/\s+/).filter(word => word.length > 1));
+}
+function hasPublishedValue(value) {
+  if (value === null || value === undefined) return false;
+  const text = String(value).trim();
+  return text !== "" && !["-", "—", "–", "n/a", "na", "null", "none", "pending"].includes(text.toLowerCase());
+}
 function similarity(a, b) {
   const aa = tokens(a), bb = tokens(b);
   if (!aa.size || !bb.size) return 0;
@@ -57,15 +67,15 @@ for (const event of events) {
   if (!best || bestScore < 0.70) continue;
   matched++;
   const actual = best.Actual ?? best.actual, forecast = best.Forecast ?? best.forecast, previous = best.Previous ?? best.previous;
-  if (actual !== null && actual !== undefined && String(actual).trim() !== "") {
-    event.actual = String(actual);
+  if (hasPublishedValue(actual)) {
+    event.actual = String(actual).trim();
     event.actualAvailable = true;
     event.actualSource = "Trading Economics";
-    event.actualUpdatedAt = best.LastUpdate || best.lastUpdate || null;
+    event.actualUpdatedAt = best.LastUpdate || best.lastUpdate || new Date().toISOString();
     actualUpdated++;
   }
-  if ((!event.forecast || !String(event.forecast).trim()) && forecast !== null && forecast !== undefined && String(forecast).trim()) event.forecast = String(forecast);
-  if ((!event.previous || !String(event.previous).trim()) && previous !== null && previous !== undefined && String(previous).trim()) event.previous = String(previous);
+  if ((!hasPublishedValue(event.forecast)) && hasPublishedValue(forecast)) event.forecast = String(forecast).trim();
+  if ((!hasPublishedValue(event.previous)) && hasPublishedValue(previous)) event.previous = String(previous).trim();
   event.resultsProvider = "Trading Economics";
   event.resultsMatchConfidence = Number(bestScore.toFixed(2));
   event.resultsSourceUrl = best.SourceURL || best.sourceURL || "https://tradingeconomics.com/calendar";
