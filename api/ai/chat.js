@@ -355,7 +355,7 @@ function compactWorkspaceForAI(workspace) {
     timeEAT: e.timeEAT, timeUTC: e.timeUTC, countdown: e.countdown,
     currency: e.currency, title: typeof e.title === 'string' ? e.title.slice(0, 120) : '',
     impact: e.impact, actual: e.actual, forecast: e.forecast, previous: e.previous,
-    releaseStatus: e.releaseStatus, actualAvailable: e.actualAvailable
+    releaseStatus: e.releaseStatus, actualAvailable: e.actualAvailable, actualSource: e.actualSource, actualUpdatedAt: e.actualUpdatedAt, resultsProvider: e.resultsProvider, resultsLastUpdatedAt: e.resultsLastUpdatedAt, resultsSourceUrl: e.resultsSourceUrl, resultsMatchConfidence: e.resultsMatchConfidence
   })) : [];
   return {
     dataContractVersion: workspace.dataContractVersion,
@@ -616,6 +616,13 @@ LIVE DATA AND DATA QUALITY:
 - Do not invent breaking news, central-bank comments, interest-rate expectations, bond yields, DXY values or macroeconomic conclusions that are not included in the context. Explain that scheduled-event data alone cannot establish the full fundamental bias.
 - If live quote/candles/calendar are missing or inconsistent, explicitly say which data are missing and choose WAIT rather than fabricate a technical or fundamental view.
 - When data are adequate, provide a balanced technical and fundamental assessment, note conflicts between them, and do not let a single calendar event dictate a trade.
+
+LIVE RELEASED ECONOMIC RESULTS:
+- Inspect actual, forecast, previous and source/update fields for every released USD/EUR event.
+- Prefer a non-empty Actual value enriched from Trading Economics and identify its source and LastUpdate timestamp; the update timestamp is not necessarily the publication time.
+- If Actual is empty or unavailable from all supplied sources, print RESULT NOT AVAILABLE. Never substitute Forecast, Previous or an estimate for Actual.
+- Compare Actual vs Forecast only when both are present. Explain likely currency implications conditionally; do not claim an observed EUR/USD reaction unless supplied price data proves it.
+- A secondary-provider match is based on country, event title and release time. If resultsMatchConfidence is below 0.70, label the match unverified and do not attribute the value to the event.
 
 RISK MANAGEMENT:
 - Every proposed EUR/USD setup must have a minimum net reward-to-risk ratio of 1:2 AFTER spread. Calculate net reward and stop exposure using the supplied spread. If the ratio is below 2.00:1, recommend WAIT / SKIP; never lower this rule to force an entry.
