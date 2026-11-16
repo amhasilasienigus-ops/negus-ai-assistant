@@ -2395,7 +2395,7 @@ function renderEconomicNews(){
   const upcoming=newsEvents.filter(e=>e.time>now).sort((a,b)=>a.time-b.time),shown=upcoming.slice(0,18);
   renderNewsProfessionalSummary(upcoming);
   const releasedHtml=released.length?'<div class="news-summary"><b>የወጡ ዜናዎች · ያለፉት 24 ሰዓታት</b>'+released.map(e=>{
-   const hasActual=String(e.actual??'').trim()!=='',a=explainNewsEvent(e);
+   const actualText=String(e.actual??'').trim(),hasActual=actualText!==''&&actualText!=='-',a=explainNewsEvent(e);
    return '<div class="news-event"><b>'+newsTimeEAT(new Date(e.time))+'</b> · '+escapeNewsText(e.currency)+' · '+escapeNewsText(e.impact)+'<br><b>'+escapeNewsText(e.title)+'</b><br><b>Actual:</b> '+(hasActual?escapeNewsText(e.actual):'RESULT NOT AVAILABLE')+' · Forecast: '+(e.forecast?escapeNewsText(e.forecast):'—')+' · Previous: '+(e.previous?escapeNewsText(e.previous):'—')+(hasActual?'<br><span class="small">Actual source: '+escapeNewsText(e.actualSource||e.resultsProvider||'Calendar feed')+(e.actualUpdatedAt?' · Updated: '+escapeNewsText(e.actualUpdatedAt):'')+'</span>':'<br><span class="small">Actual result unavailable from supplied feeds; no value is inferred.</span>')+'<div class="news-impact"><b>ተፅዕኖ፦</b> '+(hasActual?escapeNewsText(newsConclusionAm(e,a)):'Actual ስለሌለ የተፈጸመው ተፅዕኖ አልተረጋገጠም።')+'</div></div>';
   }).join('')+'</div>':'<div class="news-summary"><b>የወጡ ዜናዎች:</b> ባለፉት 24 ሰዓታት ውስጥ በዚህ Feed የተመዘገበ የUSD/EUR ዜና የለም።</div>';
   const upcomingHtml=shown.length?shown.map(e=>{
