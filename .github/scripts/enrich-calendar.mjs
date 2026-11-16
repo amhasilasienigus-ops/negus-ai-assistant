@@ -54,7 +54,7 @@ for (const event of events) {
     const score = similarity(event.title, candidate.Event || candidate.Category || candidate.event || candidate.category);
     if (score > bestScore) { best = candidate; bestScore = score; }
   }
-  if (!best || bestScore < 0.55) continue;
+  if (!best || bestScore < 0.70) continue;
   matched++;
   const actual = best.Actual ?? best.actual, forecast = best.Forecast ?? best.forecast, previous = best.Previous ?? best.previous;
   if (actual !== null && actual !== undefined && String(actual).trim() !== "") {
