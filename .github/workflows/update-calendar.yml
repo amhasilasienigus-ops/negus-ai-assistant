@@ -37,10 +37,16 @@ jobs:
           jq -e 'type == "array" and length > 0 and any(.[]; .country == "USD" or .country == "EUR")' calendar.json
 
       - name: Enrich released results from Trading Economics (optional API key)
+        if: ${{ secrets.TRADING_ECONOMICS_API_KEY != '' }}
         continue-on-error: true
         env:
           TRADING_ECONOMICS_API_KEY: ${{ secrets.TRADING_ECONOMICS_API_KEY }}
         run: node .github/scripts/enrich-calendar.mjs
+
+      - name: Preserve Forex Factory Actual values when no Trading Economics key is configured
+        if: ${{ secrets.TRADING_ECONOMICS_API_KEY == '' }}
+        run: |
+          node --input-type=module -e "import fs from 'node:fs'; const events=JSON.parse(fs.readFileSync('calendar.json','utf8')); let count=0; for (const e of events) { const v=e.actual ?? e.Actual; if (v !== undefined && v !== null && String(v).trim() !== '' && !['-','—','–','n/a','na','null','none','pending'].includes(String(v).trim().toLowerCase())) { e.actual=String(v).trim(); e.actualAvailable=true; e.actualSource=e.actualSource || 'Forex Factory calendar feed'; count++; } } fs.writeFileSync('calendar.json',JSON.stringify(events,null,2)+'\\n'); console.log('Forex Factory published Actual values preserved:',count);"
 
       - name: Send OneSignal push alerts
         env:
