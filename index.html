@@ -1075,6 +1075,21 @@ nalysis · All Timeframes</h3>
 <section id="performance" class="page">
  
  <h2>Trading Performance</h2>
+<div class="card" id="weeklyGrowthCard">
+ <h3>NEGUS Weekly Growth Tracker</h3>
+ <p class="small">Enter the balance at the start of this trading week. Only days whose net closed-trade P/L reaches that day's 2R qualification threshold count toward the weekly target. Historical days without a saved daily-loss snapshot use the current rule as an estimate.</p>
+ <label for="weeklyOpeningBalance">Weekly opening balance (USD)</label>
+ <input id="weeklyOpeningBalance" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="Enter this week's opening balance">
+ <div class="grid">
+  <div class="card"><div class="small">WEEKLY TARGET RATE</div><div class="metric" id="weeklyTargetRate">—</div></div>
+  <div class="card"><div class="small">TARGET PROFIT</div><div class="metric" id="weeklyTargetAmount">—</div></div>
+  <div class="card"><div class="small">QUALIFYING P/L</div><div class="metric" id="weeklyQualifyingPL">—</div></div>
+  <div class="card"><div class="small">QUALIFIED DAYS</div><div class="metric" id="weeklyQualifiedDays">0</div></div>
+ </div>
+ <div class="result" id="weeklyGrowthStatus">Enter the week's opening balance to calculate progress.</div>
+ <div id="weeklyDailyBreakdown" class="small"></div>
+ <p class="small">Targets are aspirational, not guaranteed. This tracker reads only manually recorded browser journal trades; it is not a broker statement and does not change lot size or risk limits.</p>
+</div>
  
  <div class="grid">
  
@@ -1400,7 +1415,7 @@ function saveTrade(){
  
  if(!date||!Number.isFinite(lot)||lot<=0||!Number.isFinite(entry)||entry<=0||!Number.isFinite(stop)||stop<=0||!Number.isFinite(target)||target<=0||!Number.isFinite(pnl)){alert('Please enter valid trade details.');return;}
  
- trades.unshift({date,side,lot,entry,stop,target,pnl,notes});
+ trades.unshift({date,side,lot,entry,stop,target,pnl,notes,dailyLossLimitUSD:dailyLimit(Number(document.getElementById('balance')?.value)||15),savedAt:new Date().toISOString()});
  
  try{localStorage.setItem('negusTrades',JSON.stringify(trades));}catch(e){alert('Could not save. Browser storage may be unavailable or full.');return;}
  
@@ -1476,6 +1491,54 @@ function exportCSV(){
  
 }
  
+function weeklyTargetRate(balance){
+ if(balance>=15&&balance<50)return 0.50;
+ if(balance>=50&&balance<100)return 0.55;
+ if(balance>=100&&balance<200)return 0.60;
+ if(balance>=200&&balance<250)return 0.65;
+ if(balance>=250&&balance<=500)return 0.70;
+ return null;
+}
+function renderWeeklyGrowth(){
+ const input=document.getElementById('weeklyOpeningBalance');
+ if(!input)return;
+ const savedWeek=localStorage.getItem('negusWeeklyOpeningBalance');
+ if(!input.dataset.initialized){
+  input.value=savedWeek||String(Number(document.getElementById('balance')?.value)||15);
+  input.dataset.initialized='true';
+ }
+ const opening=Number(input.value),rate=weeklyTargetRate(opening);
+ const rateEl=document.getElementById('weeklyTargetRate'),targetEl=document.getElementById('weeklyTargetAmount');
+ const plEl=document.getElementById('weeklyQualifyingPL'),daysEl=document.getElementById('weeklyQualifiedDays');
+ const status=document.getElementById('weeklyGrowthStatus'),breakdown=document.getElementById('weeklyDailyBreakdown');
+ if(!Number.isFinite(opening)||opening<=0||rate===null){
+  rateEl.textContent='—';targetEl.textContent='—';plEl.textContent='—';daysEl.textContent='0';
+  status.textContent='Enter a valid weekly opening balance between $15 and $500 to select the NEGUS target bracket.';
+  breakdown.textContent='';return;
+ }
+ try{localStorage.setItem('negusWeeklyOpeningBalance',String(opening));}catch(_){}
+ const now=new Date(),monday=new Date(now);monday.setHours(0,0,0,0);monday.setDate(now.getDate()-(now.getDay()===0?6:now.getDay()-1));
+ const startKey=localDateString(monday);
+ const daily=new Map();
+ trades.filter(t=>t&&typeof t.date==='string'&&t.date>=startKey&&t.date<=localDateString()).forEach(t=>{
+  const item=daily.get(t.date)||{pnl:0,lossLimit:null,count:0};
+  item.pnl+=Number(t.pnl)||0;item.count++;
+  const saved=Number(t.dailyLossLimitUSD);
+  if(item.lossLimit===null&&Number.isFinite(saved)&&saved>0)item.lossLimit=saved;
+  daily.set(t.date,item);
+ });
+ const fallbackLimit=dailyLimit(opening);
+ let qualifying=0,qualifiedDays=0;
+ const rows=[...daily.entries()].sort((a,b)=>a[0].localeCompare(b[0])).map(([date,item])=>{
+  const lossLimit=item.lossLimit??fallbackLimit,threshold=2*lossLimit,qualified=item.pnl>=threshold;
+  if(qualified){qualifying+=item.pnl;qualifiedDays++;}
+  return '<div>'+escapeNewsText(date)+' · Net P/L '+money(item.pnl)+' · 2R hurdle '+money(threshold)+' · '+(qualified?'<b class="ok">QUALIFIED</b>':'<span class="small">NOT QUALIFIED</span>')+(item.lossLimit===null?' (estimated rule; no saved daily snapshot)':'')+'</div>';
+ });
+ const target=opening*rate,remaining=Math.max(0,target-qualifying);
+ rateEl.textContent=(rate*100).toFixed(0)+'%';targetEl.textContent=money(target);plEl.textContent=money(qualifying);daysEl.textContent=String(qualifiedDays);
+ status.innerHTML=qualifying>=target?'<b class="ok">WEEKLY TARGET REACHED — based on recorded qualifying days.</b>':'Qualifying amount remaining: <b>'+money(remaining)+'</b>. No trade is required to meet this target.';
+ breakdown.innerHTML=rows.length?'<b>Daily qualification</b>'+rows.join(''):'No journal trades recorded for this week yet.';
+}
 function renderPerformance(){
  
  const total=trades.length,wins=trades.filter(t=>Number(t.pnl)>0),losses=trades.filter(t=>Number(t.pnl)<0);
@@ -1499,6 +1562,7 @@ function renderPerformance(){
  document.getElementById('totalPL').textContent=money(net);document.getElementById('profitFactor').textContent=pf;
  
  document.getElementById('weeklyPL').textContent=money(weekly);document.getElementById('maxDrawdown').textContent=money(maxDD);
+ renderWeeklyGrowth();
  
 }
  
