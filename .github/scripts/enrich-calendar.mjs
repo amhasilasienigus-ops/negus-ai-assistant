@@ -7,12 +7,12 @@ const SOURCE_URL = "https://showmytrades.com/tools/economic-calendar";
 
 function normalize(value) {
   return String(value || "").toLowerCase().normalize("NFKD")
-    .replace(/month\\s*[-/]?\\s*on\\s*[-/]?\\s*month|month\\s*[-/]?\\s*over\\s*[-/]?\\s*month|m\\s*[-/]?\\s*m\\b/g, " mom ")
-    .replace(/year\\s*[-/]?\\s*on\\s*[-/]?\\s*year|year\\s*[-/]?\\s*over\\s*[-/]?\\s*year|y\\s*[-/]?\\s*y\\b/g, " yoy ")
+    .replace(/month\s*[-/]?\s*on\s*[-/]?\s*month|month\s*[-/]?\s*over\s*[-/]?\s*month|m\s*[-/]?\s*m\b/g, " mom ")
+    .replace(/year\s*[-/]?\s*on\s*[-/]?\s*year|year\s*[-/]?\s*over\s*[-/]?\s*year|y\s*[-/]?\s*y\b/g, " yoy ")
     .replace(/[^a-z0-9]+/g, " ").trim();
 }
 function tokens(value) {
-  return new Set(normalize(value).split(/\\s+/).filter(word => word.length > 1));
+  return new Set(normalize(value).split(/\s+/).filter(word => word.length > 1));
 }
 function similarity(a, b) {
   const aa = tokens(a), bb = tokens(b);
@@ -89,7 +89,7 @@ for (const event of events) {
   event.resultsProviderConfidence = best.confidence || null;
 }
 
-fs.writeFileSync(FILE, JSON.stringify(events, null, 2) + "\\n");
+fs.writeFileSync(FILE, JSON.stringify(events, null, 2) + "\n");
 console.log("Calendar results enrichment:", {
   source: SOURCE,
   sourceUpdatedAt: payload.generated_at || payload.server_time_iso || null,
