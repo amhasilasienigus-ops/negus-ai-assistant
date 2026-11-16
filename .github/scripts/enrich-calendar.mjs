@@ -2,7 +2,7 @@ import fs from "node:fs";
 
 const FILE = "calendar.json";
 const API = "https://api.tradingeconomics.com/calendar/country";
-const KEY = "guest:guest";
+const KEY = process.env.TRADING_ECONOMICS_API_KEY || "";
 const DAY = 86400000;
 const now = new Date();
 const from = new Date(now.getTime() - DAY).toISOString().slice(0, 10);
@@ -31,6 +31,7 @@ function similarity(a, b) {
   return overlap / Math.max(aa.size, bb.size);
 }
 async function fetchCountry(country) {
+  if (!KEY) return [];
   const url = API + "/" + encodeURIComponent(country) + "/" + from + "/" + to + "?c=" + encodeURIComponent(KEY) + "&f=json";
   const response = await fetch(url, { headers: { accept: "application/json" } });
   if (!response.ok) throw new Error("Trading Economics " + country + " HTTP " + response.status);
@@ -42,7 +43,8 @@ async function fetchCountry(country) {
 const events = JSON.parse(fs.readFileSync(FILE, "utf8"));
 if (!Array.isArray(events)) throw new Error("calendar.json must contain an array");
 const countries = [...new Set(Object.values(countryNames).flat())];
-const settled = await Promise.allSettled(countries.map(fetchCountry));
+const settled = KEY ? await Promise.allSettled(countries.map(fetchCountry)) : [];
+if (!KEY) console.log("Trading Economics enrichment skipped: TRADING_ECONOMICS_API_KEY is not configured. No guest credentials or placeholder results will be used.");
 const teEvents = [];
 settled.forEach((result, index) => {
   if (result.status === "fulfilled") teEvents.push(...result.value);
@@ -51,6 +53,12 @@ settled.forEach((result, index) => {
 
 let matched = 0, actualUpdated = 0;
 for (const event of events) {
+  const feedActual = event.actual ?? event.Actual;
+  if (hasPublishedValue(feedActual)) {
+    event.actual = String(feedActual).trim();
+    event.actualAvailable = true;
+    event.actualSource = event.actualSource || "Forex Factory calendar feed";
+  }
   const currency = String(event.country || "").toUpperCase();
   if (!countryNames[currency]) continue;
   const eventTime = Date.parse(event.date);
@@ -82,4 +90,4 @@ for (const event of events) {
   event.resultsLastUpdatedAt = best.LastUpdate || best.lastUpdate || null;
 }
 fs.writeFileSync(FILE, JSON.stringify(events, null, 2) + "\n");
-console.log("Trading Economics enrichment complete:", { scheduledEvents: events.length, matchedEvents: matched, actualResultsAdded: actualUpdated, providerEvents: teEvents.length, note: "Only non-empty Actual values were copied; unmatched events remain unchanged." });
+console.log("Trading Economics enrichment complete:", { scheduledEvents: events.length, matchedEvents: matched, actualResultsAdded: actualUpdated, providerEvents: teEvents.length, note: "Only published non-empty Actual values were accepted; missing values remain unavailable." });
