@@ -1,27 +1,18 @@
 import fs from "node:fs";
 
 const FILE = "calendar.json";
-const API = "https://api.tradingeconomics.com/calendar/country";
-const KEY = process.env.TRADING_ECONOMICS_API_KEY || "";
-const DAY = 86400000;
-const now = new Date();
-const from = new Date(now.getTime() - DAY).toISOString().slice(0, 10);
-const to = new Date(now.getTime() + 8 * DAY).toISOString().slice(0, 10);
-const countryNames = { USD: ["united states"], EUR: ["euro area", "germany", "france"] };
+const API = "https://showmytrades.com/api/public/calendar/v1";
+const SOURCE = "ShowMyTrades economic calendar";
+const SOURCE_URL = "https://showmytrades.com/tools/economic-calendar";
 
 function normalize(value) {
   return String(value || "").toLowerCase().normalize("NFKD")
-    .replace(/month\s*[-/]?\s*on\s*[-/]?\s*month|month\s*[-/]?\s*over\s*[-/]?\s*month|m\s*[-/]?\s*m\b/g, " mom ")
-    .replace(/year\s*[-/]?\s*on\s*[-/]?\s*year|year\s*[-/]?\s*over\s*[-/]?\s*year|y\s*[-/]?\s*y\b/g, " yoy ")
+    .replace(/month\\s*[-/]?\\s*on\\s*[-/]?\\s*month|month\\s*[-/]?\\s*over\\s*[-/]?\\s*month|m\\s*[-/]?\\s*m\\b/g, " mom ")
+    .replace(/year\\s*[-/]?\\s*on\\s*[-/]?\\s*year|year\\s*[-/]?\\s*over\\s*[-/]?\\s*year|y\\s*[-/]?\\s*y\\b/g, " yoy ")
     .replace(/[^a-z0-9]+/g, " ").trim();
 }
 function tokens(value) {
-  return new Set(normalize(value).split(/\s+/).filter(word => word.length > 1));
-}
-function hasPublishedValue(value) {
-  if (value === null || value === undefined) return false;
-  const text = String(value).trim();
-  return text !== "" && !["-", "—", "–", "n/a", "na", "null", "none", "pending"].includes(text.toLowerCase());
+  return new Set(normalize(value).split(/\\s+/).filter(word => word.length > 1));
 }
 function similarity(a, b) {
   const aa = tokens(a), bb = tokens(b);
@@ -30,28 +21,17 @@ function similarity(a, b) {
   for (const word of aa) if (bb.has(word)) overlap++;
   return overlap / Math.max(aa.size, bb.size);
 }
-async function fetchCountry(country) {
-  if (!KEY) return [];
-  const url = API + "/" + encodeURIComponent(country) + "/" + from + "/" + to + "?c=" + encodeURIComponent(KEY) + "&f=json";
-  const response = await fetch(url, { headers: { accept: "application/json" } });
-  if (!response.ok) throw new Error("Trading Economics " + country + " HTTP " + response.status);
-  const data = await response.json();
-  if (!Array.isArray(data)) throw new Error("Trading Economics " + country + " returned a non-array payload");
-  return data;
+function hasPublishedValue(value) {
+  if (value === null || value === undefined) return false;
+  const valueText = String(value).trim();
+  return valueText !== "" && !["-", "—", "–", "n/a", "na", "null", "none", "pending"].includes(valueText.toLowerCase());
 }
 
 const events = JSON.parse(fs.readFileSync(FILE, "utf8"));
 if (!Array.isArray(events)) throw new Error("calendar.json must contain an array");
-const countries = [...new Set(Object.values(countryNames).flat())];
-const settled = KEY ? await Promise.allSettled(countries.map(fetchCountry)) : [];
-if (!KEY) console.log("Trading Economics enrichment skipped: TRADING_ECONOMICS_API_KEY is not configured. No guest credentials or placeholder results will be used.");
-const teEvents = [];
-settled.forEach((result, index) => {
-  if (result.status === "fulfilled") teEvents.push(...result.value);
-  else console.warn("Actual-results enrichment unavailable for", countries[index] + ":", result.reason.message);
-});
 
-let matched = 0, actualUpdated = 0;
+// Keep the Forex Factory schedule and its published figures. Use a second,
+// no-key provider to enrich released USD/EUR results rather than inventing data.
 for (const event of events) {
   const feedActual = event.actual ?? event.Actual;
   if (hasPublishedValue(feedActual)) {
@@ -59,35 +39,65 @@ for (const event of events) {
     event.actualAvailable = true;
     event.actualSource = event.actualSource || "Forex Factory calendar feed";
   }
+}
+
+const url = API + "?currency=EUR,USD&impact=all&days=30";
+const response = await fetch(url, { headers: { accept: "application/json" } });
+if (!response.ok) throw new Error("ShowMyTrades calendar HTTP " + response.status);
+const payload = await response.json();
+if (!Array.isArray(payload.events)) throw new Error("ShowMyTrades returned no events array");
+
+const providerEvents = payload.events;
+let matched = 0, actualAdded = 0, forecastAdded = 0, previousAdded = 0;
+for (const event of events) {
   const currency = String(event.country || "").toUpperCase();
-  if (!countryNames[currency]) continue;
+  if (currency !== "USD" && currency !== "EUR") continue;
   const eventTime = Date.parse(event.date);
   if (!Number.isFinite(eventTime)) continue;
+
   let best = null, bestScore = 0;
-  for (const candidate of teEvents) {
-    const candidateTime = Date.parse(candidate.Date || candidate.date || "");
+  for (const candidate of providerEvents) {
+    if (String(candidate.currency || "").toUpperCase() !== currency) continue;
+    const candidateTime = Date.parse(candidate.time);
     if (!Number.isFinite(candidateTime) || Math.abs(candidateTime - eventTime) > 2 * 60 * 60 * 1000) continue;
-    const candidateCountry = normalize(candidate.Country || candidate.country);
-    if (!countryNames[currency].some(name => candidateCountry === name || candidateCountry.includes(name))) continue;
-    const score = similarity(event.title, candidate.Event || candidate.Category || candidate.event || candidate.category);
+    const score = similarity(event.title, candidate.title);
     if (score > bestScore) { best = candidate; bestScore = score; }
   }
-  if (!best || bestScore < 0.70) continue;
+  if (!best || bestScore < 0.65) continue;
   matched++;
-  const actual = best.Actual ?? best.actual, forecast = best.Forecast ?? best.forecast, previous = best.Previous ?? best.previous;
-  if (hasPublishedValue(actual)) {
-    event.actual = String(actual).trim();
+
+  if (!hasPublishedValue(event.actual) && hasPublishedValue(best.actual)) {
+    event.actual = String(best.actual).trim();
     event.actualAvailable = true;
-    event.actualSource = "Trading Economics";
-    event.actualUpdatedAt = best.LastUpdate || best.lastUpdate || new Date().toISOString();
-    actualUpdated++;
+    event.actualSource = SOURCE;
+    event.actualUpdatedAt = payload.generated_at || payload.server_time_iso || new Date().toISOString();
+    event.actualSourceUrl = SOURCE_URL;
+    actualAdded++;
   }
-  if ((!hasPublishedValue(event.forecast)) && hasPublishedValue(forecast)) event.forecast = String(forecast).trim();
-  if ((!hasPublishedValue(event.previous)) && hasPublishedValue(previous)) event.previous = String(previous).trim();
-  event.resultsProvider = "Trading Economics";
+  if (!hasPublishedValue(event.forecast) && hasPublishedValue(best.forecast)) {
+    event.forecast = String(best.forecast).trim();
+    forecastAdded++;
+  }
+  if (!hasPublishedValue(event.previous) && hasPublishedValue(best.previous)) {
+    event.previous = String(best.previous).trim();
+    previousAdded++;
+  }
+  event.resultsProvider = SOURCE;
   event.resultsMatchConfidence = Number(bestScore.toFixed(2));
-  event.resultsSourceUrl = best.SourceURL || best.sourceURL || "https://tradingeconomics.com/calendar";
-  event.resultsLastUpdatedAt = best.LastUpdate || best.lastUpdate || null;
+  event.resultsSourceUrl = SOURCE_URL;
+  event.resultsLastUpdatedAt = payload.generated_at || payload.server_time_iso || null;
+  event.resultsProviderConfidence = best.confidence || null;
 }
-fs.writeFileSync(FILE, JSON.stringify(events, null, 2) + "\n");
-console.log("Trading Economics enrichment complete:", { scheduledEvents: events.length, matchedEvents: matched, actualResultsAdded: actualUpdated, providerEvents: teEvents.length, note: "Only published non-empty Actual values were accepted; missing values remain unavailable." });
+
+fs.writeFileSync(FILE, JSON.stringify(events, null, 2) + "\\n");
+console.log("Calendar results enrichment:", {
+  source: SOURCE,
+  sourceUpdatedAt: payload.generated_at || payload.server_time_iso || null,
+  scheduledEvents: events.length,
+  providerEvents: providerEvents.length,
+  matchedEvents: matched,
+  actualResultsAdded: actualAdded,
+  forecastValuesAdded: forecastAdded,
+  previousValuesAdded: previousAdded,
+  note: "Only published non-empty values were accepted. Missing results remain unavailable."
+});
