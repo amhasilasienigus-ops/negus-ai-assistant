@@ -5,7 +5,9 @@
     "USD|2026-11-10T08:30:00-05:00|CPI m/m": {},
     "USD|2026-11-13T08:30:00-05:00|Core PPI m/m": {},
     "USD|2026-11-13T08:30:00-05:00|PPI m/m": {},
-    "USD|2026-11-16T12:00:00-05:00|Fed Chairman Warsh Speaks": {},
+    "USD|2026-11-16T12:00:00-05:00|Fed Chairman Warsh Speaks": {
+      "preAlertSent": true
+    },
     "USD|2026-11-17T08:30:00-05:00|Core Retail Sales m/m": {},
     "USD|2026-11-17T08:30:00-05:00|Retail Sales m/m": {},
     "USD|2026-11-18T14:00:00-05:00|FOMC Meeting Minutes": {}
