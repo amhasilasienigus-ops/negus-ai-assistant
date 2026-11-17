@@ -184,7 +184,8 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
  <button onclick="showPage('analysis',this)">Strategy Analysis</button>
  
- <button onclick="showPage('market',this)">Market & Chart</button>\n <button onclick="showPage('fundamentals',this)">Fundamentals</button>
+ <button onclick="showPage('market',this)">Market & Chart</button>
+ <button onclick="showPage('fundamentals',this)">Fundamentals</button>
  
  <button onclick="showPage('risk',this)">Risk Calculator</button>
  
@@ -1194,7 +1195,8 @@ function showPage(id,btn){
  
  btn.classList.add('active');
  
- if(id==='performance')renderPerformance();\n if(id==='fundamentals')negusRefreshFundamentals();
+ if(id==='performance')renderPerformance();
+ if(id==='fundamentals')negusRefreshFundamentals();
 
  if(id==='market'){renderMultiTimeframePanel();updateChartQuote();setTimeout(()=>{const host=document.getElementById('chartHost');if(smartChart&&host)smartChart.applyOptions({width:host.clientWidth||600,height:host.clientHeight||430});resizeOverlayCanvas();renderSmartChart(true);},120);}
  
@@ -2730,7 +2732,8 @@ async function refreshEconomicNews(){
 }
 
 
-refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLiveUpdates();\nnegusRefreshFundamentals();setInterval(negusRefreshFundamentals,5*60*1000);
+refreshEconomicNews();setInterval(refreshEconomicNews,NEWS_REFRESH_MS);startLiveUpdates();
+negusRefreshFundamentals();setInterval(negusRefreshFundamentals,5*60*1000);
  
 
 
