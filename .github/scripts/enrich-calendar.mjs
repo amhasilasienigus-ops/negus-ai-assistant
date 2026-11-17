@@ -30,8 +30,10 @@ function hasPublishedValue(value) {
 const events = JSON.parse(fs.readFileSync(FILE, "utf8"));
 if (!Array.isArray(events)) throw new Error("calendar.json must contain an array");
 
-// Keep the Forex Factory schedule and its published figures. Use a second,
-// no-key provider to enrich released USD/EUR results rather than inventing data.
+// Keep the Forex Factory schedule and its published figures. ShowMyTrades is a
+// documented no-key provider for Actual/Forecast/Previous. Its rolling window
+// starts only 6 hours in the past (even when days=30), so older releases cannot
+// be enriched from this endpoint and must remain explicitly unavailable.
 for (const event of events) {
   const feedActual = event.actual ?? event.Actual;
   if (hasPublishedValue(feedActual)) {
@@ -41,6 +43,7 @@ for (const event of events) {
   }
 }
 
+// The API supports up to 30 days ahead but only a rolling 6-hour lookback.
 const url = API + "?currency=EUR,USD&impact=all&days=30";
 const response = await fetch(url, { headers: { accept: "application/json" } });
 if (!response.ok) throw new Error("ShowMyTrades calendar HTTP " + response.status);
@@ -99,5 +102,6 @@ console.log("Calendar results enrichment:", {
   actualResultsAdded: actualAdded,
   forecastValuesAdded: forecastAdded,
   previousValuesAdded: previousAdded,
-  note: "Only published non-empty values were accepted. Missing results remain unavailable."
+  lookback: "Provider exposes only the latest 6 hours of past events; older missing Actual values cannot be recovered from this feed.",
+  note: "Only published non-empty values were accepted. Missing results remain unavailable; Forecast/Previous are never substituted for Actual."
 });
