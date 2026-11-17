@@ -117,9 +117,15 @@ async function buildSnapshot() {
   const complete = eurFresh.status === "available" && usdFresh.status === "available" && dxyFresh && yieldsFresh;
   const differential = Number.isFinite(eurFresh.scorePct) && Number.isFinite(usdFresh.scorePct)
     ? Number((eurFresh.scorePct - usdFresh.scorePct).toFixed(3)) : null;
-  const bias = !complete ? "WAIT" :
+  const strengthBias = !Number.isFinite(differential) ? "WAIT" :
     differential > 0.10 ? "BULLISH_EURUSD" :
     differential < -0.10 ? "BEARISH_EURUSD" : "NEUTRAL";
+  const dxyBias = !dxyFresh || !Number.isFinite(dxy.pctChange) ? null :
+    dxy.pctChange > 0.10 ? "BEARISH_EURUSD" :
+    dxy.pctChange < -0.10 ? "BULLISH_EURUSD" : "NEUTRAL";
+  const dxyConflicts = strengthBias !== "WAIT" && strengthBias !== "NEUTRAL" &&
+    dxyBias !== null && dxyBias !== "NEUTRAL" && dxyBias !== strengthBias;
+  const bias = !complete ? "WAIT" : dxyConflicts ? "MIXED" : strengthBias;
 
   return {
     status: complete ? "verified_inputs" : "incomplete",
@@ -137,6 +143,7 @@ async function buildSnapshot() {
       tenYear: tenYear ? { ...tenYear, fresh: Boolean(yieldsFresh) } : { status: "unavailable" }
     },
     fundamentalBias: bias,
+    biasEvidence: { strengthBias, dxyBias, dxyConflicts, yieldContext: Number.isFinite(tenYear?.changeBasisPoints) ? (tenYear.changeBasisPoints > 0 ? "US nominal 10Y yield rising" : tenYear.changeBasisPoints < 0 ? "US nominal 10Y yield falling" : "US nominal 10Y yield unchanged") : "US 10Y yield change unavailable" },
     dataQuality: {
       requiredInputsComplete: complete,
       fxFreshnessLimitSeconds: FX_MAX_AGE_MS / 1000,
