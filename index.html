@@ -2763,8 +2763,9 @@ function negusRenderFundamentals(data){
  negusSetText('fundamentalUpdated',data?.generatedAt?'Updated '+data.generatedAt+' · '+(data.provider||'source unavailable'):'Snapshot timestamp unavailable');
  const upcoming=(newsEvents||[]).filter(e=>['USD','EUR'].includes(String(e.currency||'').toUpperCase())&&String(e.impact||'').toLowerCase()==='high').sort((a,b)=>a.time-b.time);
  const next=upcoming.find(e=>e.time>=Date.now()),released=upcoming.filter(e=>e.time<Date.now()).slice(-3).reverse(),newsLines=[];
- if(next)newsLines.push('NEXT: '+next.currency+' · '+next.title+' · '+new Date(next.time).toLocaleString('en-GB',{timeZone:'Africa/Addis_Ababa'})+' EAT');
- else newsLines.push('No upcoming high-impact USD/EUR event is listed in the currently loaded calendar window.');
+ if(newsCalendarState.status==='loading'||newsCalendarState.status==='error')newsLines.push('CALENDAR UNVERIFIED: '+(newsCalendarState.message||'News risk unknown.'));
+ else if(next)newsLines.push('NEXT: '+next.currency+' · '+next.title+' · '+new Date(next.time).toLocaleString('en-GB',{timeZone:'Africa/Addis_Ababa'})+' EAT');
+ else newsLines.push('No upcoming high-impact USD/EUR event is listed in the loaded calendar window.');
  if(released.length)newsLines.push('RECENT RELEASES: '+released.map(e=>e.currency+' · '+e.title+' · Actual '+(e.actual||'NOT AVAILABLE')+' / Forecast '+(e.forecast||'—')+' / Previous '+(e.previous||'—')).join(' | '));
  negusSetText('fundamentalNews',newsLines.join(' | '));
  let confluence='WAIT — Fundamental inputs incomplete or stale. No directional bias may be used.';
