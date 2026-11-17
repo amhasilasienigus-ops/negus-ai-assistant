@@ -353,7 +353,7 @@ function compactWorkspaceForAI(workspace) {
   const cs = fd.currencyStrength || {};
   const eur = cs.EUR || {}, usd = cs.USD || {};
   const dxy = fd.dxy || {}, yields = fd.treasuryYields || {};
-  const finiteOrNull = value => Number.isFinite(Number(value)) ? Number(value) : null;
+  const finiteOrNull = value => value !== null && value !== undefined && value !== '' && Number.isFinite(Number(value)) ? Number(value) : null;
   const fundamentalData = {
     status: typeof fd.status === 'string' ? fd.status : 'unavailable',
     provider: typeof fd.provider === 'string' ? fd.provider : null,
