@@ -349,6 +349,33 @@ function compactWorkspaceForAI(workspace) {
     spreadPoints: md.quote.spreadPoints, marketState: md.quote.marketState,
     stale: md.quote.stale, quoteAgeSeconds: md.quote.quoteAgeSeconds
   } : null;
+  const fd = workspace.fundamentalData || {};
+  const cs = fd.currencyStrength || {};
+  const eur = cs.EUR || {}, usd = cs.USD || {};
+  const dxy = fd.dxy || {}, yields = fd.treasuryYields || {};
+  const finiteOrNull = value => Number.isFinite(Number(value)) ? Number(value) : null;
+  const fundamentalData = {
+    status: typeof fd.status === 'string' ? fd.status : 'unavailable',
+    provider: typeof fd.provider === 'string' ? fd.provider : null,
+    generatedAt: fd.generatedAt || null,
+    fundamentalBias: typeof fd.fundamentalBias === 'string' ? fd.fundamentalBias : 'WAIT',
+    currencyStrength: {
+      EUR: { scorePct: finiteOrNull(eur.scorePct), pairsUsed: finiteOrNull(eur.pairsUsed), status: eur.status || 'unavailable', label: eur.label || 'UNAVAILABLE' },
+      USD: { scorePct: finiteOrNull(usd.scorePct), pairsUsed: finiteOrNull(usd.pairsUsed), status: usd.status || 'unavailable', label: usd.label || 'UNAVAILABLE' },
+      eurUsdDifferentialPct: finiteOrNull(cs.eurUsdDifferentialPct),
+      methodology: typeof cs.methodology === 'string' ? cs.methodology.slice(0, 300) : null
+    },
+    dxy: { price: finiteOrNull(dxy.price), pctChange: finiteOrNull(dxy.pctChange), timestamp: dxy.timestamp || null, ageSeconds: finiteOrNull(dxy.ageSeconds), fresh: dxy.fresh === true },
+    treasuryYields: {
+      fiveYear: { percent: finiteOrNull(yields.fiveYear?.percent), changeBasisPoints: finiteOrNull(yields.fiveYear?.changeBasisPoints), timestamp: yields.fiveYear?.timestamp || null, ageSeconds: finiteOrNull(yields.fiveYear?.ageSeconds), fresh: yields.fiveYear?.fresh === true },
+      tenYear: { percent: finiteOrNull(yields.tenYear?.percent), changeBasisPoints: finiteOrNull(yields.tenYear?.changeBasisPoints), timestamp: yields.tenYear?.timestamp || null, ageSeconds: finiteOrNull(yields.tenYear?.ageSeconds), fresh: yields.tenYear?.fresh === true }
+    },
+    dataQuality: {
+      requiredInputsComplete: fd.dataQuality?.requiredInputsComplete === true,
+      successfulFxPairs: finiteOrNull(fd.dataQuality?.successfulFxPairs),
+      limitation: typeof fd.dataQuality?.limitation === 'string' ? fd.dataQuality.limitation.slice(0, 500) : null
+    }
+  };
   const cal = workspace.economicCalendar || {};
   const events = Array.isArray(cal.events) ? cal.events.slice(0, 10).map(e => ({
     time: e.time, dateEthiopia: e.dateEthiopia, timeTraditional: e.timeTraditional,
@@ -370,6 +397,7 @@ function compactWorkspaceForAI(workspace) {
       candleErrors: Object.fromEntries(Object.entries(md.candleErrors || {}).slice(0, 6).map(([k,v]) => [k, String(v).slice(0, 180)])),
       quote, timeframes: frames
     },
+    fundamentalData,
     economicCalendar: {
       source: cal.source, status: cal.status,
       statusMessage: typeof cal.statusMessage === 'string' ? cal.statusMessage.slice(0, 240) : null,
@@ -549,6 +577,15 @@ PROFESSIONAL ANALYSIS WORKFLOW:
 For a request for today's EUR/USD outlook, use this order:
 1. DATA AUDIT: timestamp, quote source/age/status, timeframe candle availability, calendar status/coverage. Clearly label unavailable or stale data.
 2. FUNDAMENTAL: split relevant events into RELEASED (previous 24 hours) and UPCOMING (next 48 hours). For released events, briefly explain what the indicator measures, compare Actual vs Forecast and Previous only when those fields are supplied, classify the surprise (above/below/in-line), and explain the likely currency/EURUSD implication. If Actual is missing, explicitly say the feed does not provide the result and the realised market impact cannot be confirmed; do not pretend the forecast is the result. If actual is present, distinguish the data surprise from the observed EUR/USD price reaction: only call a price move observed if supplied candles/quotes support it. For upcoming events, explain the conditional scenarios, not a realised impact. Display event date and the three supplied Ethiopia traditional, EAT and UTC times verbatim. Distinguish scheduled events from broader macro drivers. Do not manufacture a fundamental bias from a calendar alone.
+2A. FUNDAMENTAL INTELLIGENCE MODULE:
+- WORKSPACE CONTEXT.fundamentalData is a separately fetched public market-data snapshot. Inspect status, provider, generatedAt, currency-strength pair counts, timestamps and freshness before using any value.
+- USD and EUR strength are calculated separately from equal-weight daily percentage changes across available major FX crosses. Quote-currency returns are inverted. This is a relative-strength estimate, not an official central-bank index.
+- Use a directional fundamental bias only when status='verified_inputs', dataQuality.requiredInputsComplete=true, EUR and USD each have at least four fresh pairs, DXY is fresh, and US 10Y yield is fresh. Otherwise the fundamental conclusion is WAIT / INCOMPLETE.
+- DXY rising can be a USD tailwind and falling can be a USD headwind; US 5Y/10Y nominal yield changes are contextual only. Do not treat yields as real yields, infer Federal Reserve policy, or assume rising yields always strengthen USD. Never let DXY or yields alone create a trade signal.
+- Cross-check the separately measured EUR and USD strength differential with DXY and yields. If they conflict, state the conflict and reduce confidence. If the data are stale, missing or inconsistent, do not infer the direction.
+- Use the existing economicCalendar for high-impact scheduled EUR/USD news. Separate released Actual from Forecast and Previous; if Actual is missing, say RESULT NOT AVAILABLE. Calendar is a schedule feed, not a live newswire.
+- Combine the preliminary fundamental view with D1/H4/H1 context and the existing server-calculated SMC evidence, then require M15/M5 Price Action confirmation. If fundamental and technical evidence conflict, or any required live data is missing, final decision must be WAIT.
+- This module is read-only. It must never change the existing Risk Guard, daily loss threshold, trade-count limits, or place/modify orders.
 3. HIGHER-TIMEFRAME TECHNICAL: D1/H4 structure, trend, major swing levels and whether the data agree.
 4. INTRADAY STRUCTURE: H1 bias and M30/M15 setup; BOS/CHoCH, liquidity sweep, displacement, support/resistance, candidate OB/FVG with exact prices only if derivable from candles.
 5. ENTRY PLAN: M5 confirmation trigger, invalidation level, entry zone only if evidence supports it. Otherwise WAIT and state what confirmation is required.
