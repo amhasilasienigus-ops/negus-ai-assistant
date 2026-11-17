@@ -2749,7 +2749,7 @@ function negusRenderFundamentals(data){
  negusSetText('eurStrength',eur.label||'UNAVAILABLE');negusSetText('eurStrengthMeta',eur.scorePct!==null&&eur.scorePct!==undefined&&Number.isFinite(Number(eur.scorePct))?negusPct(eur.scorePct)+' · '+(eur.pairsUsed||0)+' pairs':'Insufficient fresh EUR crosses');
  negusSetText('usdStrength',usd.label||'UNAVAILABLE');negusSetText('usdStrengthMeta',usd.scorePct!==null&&usd.scorePct!==undefined&&Number.isFinite(Number(usd.scorePct))?negusPct(usd.scorePct)+' · '+(usd.pairsUsed||0)+' pairs':'Insufficient fresh USD crosses');
  const bias=data?.fundamentalBias||'WAIT';
- negusSetText('fundamentalBias',bias==='BULLISH_EURUSD'?'BULLISH EUR/USD':bias==='BEARISH_EURUSD'?'BEARISH EUR/USD':bias==='NEUTRAL'?'NEUTRAL':'WAIT');
+ negusSetText('fundamentalBias',bias==='BULLISH_EURUSD'?'BULLISH EUR/USD':bias==='BEARISH_EURUSD'?'BEARISH EUR/USD':bias==='NEUTRAL'?'NEUTRAL':bias==='MIXED'?'MIXED · WAIT':'WAIT');
  negusSetText('fundamentalDiff','EUR minus USD strength: '+negusPct(cs.eurUsdDifferentialPct));
  const d=data?.dxy;
  negusSetText('dxyValue',d&&Number.isFinite(Number(d.price))?Number(d.price).toFixed(3):'Unavailable');
@@ -2773,7 +2773,7 @@ function negusRenderFundamentals(data){
   const diff=Number(cs.eurUsdDifferentialPct),dxyChange=Number(d?.pctChange),yieldMove=Number(y10?.changeBasisPoints),notes=[];
   if(Number.isFinite(dxyChange))notes.push('DXY '+(dxyChange>0?'rising':dxyChange<0?'falling':'flat'));
   if(Number.isFinite(yieldMove))notes.push('US 10Y '+(yieldMove>0?'rising':yieldMove<0?'falling':'flat'));
-  confluence='Fundamental read: '+bias+'. EUR/USD strength differential '+negusPct(diff)+'. '+notes.join('; ')+'. Require matching D1/H4/H1 structure and M15/M5 PA/SMC confirmation. If they conflict or are unavailable: WAIT.';
+  confluence=bias==='MIXED'?'MIXED — EUR/USD relative strength and DXY disagree. Fundamental bias is not directional; WAIT for new alignment.': 'Fundamental read: '+bias+'. EUR/USD strength differential '+negusPct(diff)+'. '+notes.join('; ')+'. Require matching D1/H4/H1 structure and M15/M5 PA/SMC confirmation. If they conflict or are unavailable: WAIT.';
  }
  negusSetText('fundamentalConfluence',confluence);
 }
