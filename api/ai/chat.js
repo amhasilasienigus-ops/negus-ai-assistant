@@ -359,6 +359,12 @@ function compactWorkspaceForAI(workspace) {
     provider: typeof fd.provider === 'string' ? fd.provider : null,
     generatedAt: fd.generatedAt || null,
     fundamentalBias: typeof fd.fundamentalBias === 'string' ? fd.fundamentalBias : 'WAIT',
+    biasEvidence: {
+      strengthBias: typeof fd.biasEvidence?.strengthBias === 'string' ? fd.biasEvidence.strengthBias : 'WAIT',
+      dxyBias: typeof fd.biasEvidence?.dxyBias === 'string' ? fd.biasEvidence.dxyBias : null,
+      dxyConflicts: fd.biasEvidence?.dxyConflicts === true,
+      yieldContext: typeof fd.biasEvidence?.yieldContext === 'string' ? fd.biasEvidence.yieldContext.slice(0, 160) : null
+    },
     currencyStrength: {
       EUR: { scorePct: finiteOrNull(eur.scorePct), pairsUsed: finiteOrNull(eur.pairsUsed), status: eur.status || 'unavailable', label: eur.label || 'UNAVAILABLE' },
       USD: { scorePct: finiteOrNull(usd.scorePct), pairsUsed: finiteOrNull(usd.pairsUsed), status: usd.status || 'unavailable', label: usd.label || 'UNAVAILABLE' },
@@ -582,7 +588,7 @@ For a request for today's EUR/USD outlook, use this order:
 - USD and EUR strength are calculated separately from equal-weight daily percentage changes across available major FX crosses. Quote-currency returns are inverted. This is a relative-strength estimate, not an official central-bank index.
 - Use a directional fundamental bias only when status='verified_inputs', dataQuality.requiredInputsComplete=true, EUR and USD each have at least four fresh pairs, DXY is fresh, and US 10Y yield is fresh. Otherwise the fundamental conclusion is WAIT / INCOMPLETE.
 - DXY rising can be a USD tailwind and falling can be a USD headwind; US 5Y/10Y nominal yield changes are contextual only. Do not treat yields as real yields, infer Federal Reserve policy, or assume rising yields always strengthen USD. Never let DXY or yields alone create a trade signal.
-- Cross-check the separately measured EUR and USD strength differential with DXY and yields. If they conflict, state the conflict and reduce confidence. If the data are stale, missing or inconsistent, do not infer the direction.
+- Cross-check the separately measured EUR and USD strength differential with DXY and yields. If fundamentalBias='MIXED' or biasEvidence.dxyConflicts=true, explicitly state the conflict and choose WAIT; do not present a directional fundamental bias. Treasury yields are secondary context only. If the data are stale, missing or inconsistent, do not infer the direction.
 - Use the existing economicCalendar for high-impact scheduled EUR/USD news. Separate released Actual from Forecast and Previous; if Actual is missing, say RESULT NOT AVAILABLE. Calendar is a schedule feed, not a live newswire.
 - Combine the preliminary fundamental view with D1/H4/H1 context and the existing server-calculated SMC evidence, then require M15/M5 Price Action confirmation. If fundamental and technical evidence conflict, or any required live data is missing, final decision must be WAIT.
 - This module is read-only. It must never change the existing Risk Guard, daily loss threshold, trade-count limits, or place/modify orders.
