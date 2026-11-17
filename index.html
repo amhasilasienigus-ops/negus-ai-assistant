@@ -2790,7 +2790,8 @@ async function negusRefreshFundamentals(){
   negusSetText('fundamentalUpdated','Refresh failed. No substitute or estimated data used.');
  }finally{negusFundamentalBusy=false;if(button)button.disabled=false;}
 }
-\nnegusRefreshFundamentals();setInterval(negusRefreshFundamentals,5*60*1000);
+
+negusRefreshFundamentals();setInterval(negusRefreshFundamentals,5*60*1000);
 
 /* =====================================================
    NEGUS AI V13 — SECURE TEXT + SCREENSHOT CONVERSATION
