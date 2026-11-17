@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { execFileSync } from "node:child_process";
 
 const FILE = "calendar.json";
 const API = "https://showmytrades.com/api/public/calendar/v1";
@@ -30,10 +31,46 @@ function hasPublishedValue(value) {
 const events = JSON.parse(fs.readFileSync(FILE, "utf8"));
 if (!Array.isArray(events)) throw new Error("calendar.json must contain an array");
 
+// The workflow downloads a fresh Forex Factory file before this script runs.
+// Preserve previously verified Actual values from the last committed calendar,
+// because the provider only exposes releases from the last 6 hours. Match by
+// currency, release time and title; never carry a result to a different event.
+let priorEvents = [];
+try {
+  priorEvents = JSON.parse(execFileSync("git", ["show", "HEAD:calendar.json"], { encoding: "utf8" }));
+  if (!Array.isArray(priorEvents)) priorEvents = [];
+} catch {
+  priorEvents = [];
+}
+let archivedActualsRestored = 0;
+for (const event of events) {
+  if (hasPublishedValue(event.actual ?? event.Actual)) continue;
+  const currency = String(event.country || "").toUpperCase();
+  const eventTime = Date.parse(event.date);
+  if (!["USD", "EUR"].includes(currency) || !Number.isFinite(eventTime)) continue;
+  let best = null, bestScore = 0;
+  for (const old of priorEvents) {
+    if (String(old.country || "").toUpperCase() !== currency || !hasPublishedValue(old.actual)) continue;
+    const oldTime = Date.parse(old.date);
+    if (!Number.isFinite(oldTime) || Math.abs(oldTime - eventTime) > 2 * 60 * 60 * 1000) continue;
+    const score = similarity(event.title, old.title);
+    if (score > bestScore) { best = old; bestScore = score; }
+  }
+  if (best && bestScore >= 0.8) {
+    event.actual = String(best.actual).trim();
+    event.actualAvailable = true;
+    event.actualSource = best.actualSource || "Previously verified calendar result";
+    event.actualUpdatedAt = best.actualUpdatedAt || null;
+    event.actualSourceUrl = best.actualSourceUrl || null;
+    event.actualArchived = true;
+    archivedActualsRestored++;
+  }
+}
+
 // Keep the Forex Factory schedule and its published figures. ShowMyTrades is a
 // documented no-key provider for Actual/Forecast/Previous. Its rolling window
-// starts only 6 hours in the past (even when days=30), so older releases cannot
-// be enriched from this endpoint and must remain explicitly unavailable.
+// starts only 6 hours in the past (even when days=30); previously captured
+// Actual values are now archived above instead of being lost on each refresh.
 for (const event of events) {
   const feedActual = event.actual ?? event.Actual;
   if (hasPublishedValue(feedActual)) {
@@ -100,8 +137,9 @@ console.log("Calendar results enrichment:", {
   providerEvents: providerEvents.length,
   matchedEvents: matched,
   actualResultsAdded: actualAdded,
+  archivedActualsRestored,
   forecastValuesAdded: forecastAdded,
   previousValuesAdded: previousAdded,
-  lookback: "Provider exposes only the latest 6 hours of past events; older missing Actual values cannot be recovered from this feed.",
+  lookback: "Provider exposes the latest 6 hours of past events; captured Actual values are preserved in the committed calendar across refreshes.",
   note: "Only published non-empty values were accepted. Missing results remain unavailable; Forecast/Previous are never substituted for Actual."
 });
