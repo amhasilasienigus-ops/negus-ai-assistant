@@ -293,12 +293,7 @@
     "date": "2026-11-17T05:00:00-05:00",
     "impact": "Low",
     "forecast": "19.1",
-    "previous": "18.5",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "18.5"
   },
   {
     "title": "German ZEW Economic Sentiment",
@@ -306,12 +301,7 @@
     "date": "2026-11-17T05:00:00-05:00",
     "impact": "Low",
     "forecast": "28.8",
-    "previous": "28.1",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "28.1"
   },
   {
     "title": "FOMC Member Musalem Speaks",
@@ -352,10 +342,15 @@
     "impact": "High",
     "forecast": "0.4%",
     "previous": "0.9%",
+    "actual": "0.2%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -365,10 +360,15 @@
     "impact": "High",
     "forecast": "0.1%",
     "previous": "0.8%",
+    "actual": "0.2%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -394,10 +394,15 @@
     "impact": "Low",
     "forecast": "76.8%",
     "previous": "76.9%",
+    "actual": "76.4%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -407,11 +412,24 @@
     "impact": "Low",
     "forecast": "0.0%",
     "previous": "0.7%",
+    "actual": "-0.4%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
+  },
+  {
+    "title": "GDT Price Index",
+    "country": "NZD",
+    "date": "2026-11-17T09:29:00-05:00",
+    "impact": "Low",
+    "forecast": "",
+    "previous": "3.0%"
   },
   {
     "title": "FOMC Member Hammack Speaks",
@@ -428,10 +446,15 @@
     "impact": "Low",
     "forecast": "0.5%",
     "previous": "0.4%",
+    "actual": "0.5%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -441,19 +464,16 @@
     "impact": "Low",
     "forecast": "29",
     "previous": "29",
+    "actual": "25",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-17T17:55:46Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
-  },
-  {
-    "title": "GDT Price Index",
-    "country": "NZD",
-    "date": "2026-11-17T10:50:00-05:00",
-    "impact": "Low",
-    "forecast": "",
-    "previous": "3.0%"
   },
   {
     "title": "FOMC Member Williams Speaks",
@@ -585,7 +605,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -630,7 +650,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -643,7 +663,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -656,7 +676,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -672,12 +692,12 @@
     "country": "USD",
     "date": "2026-11-18T10:00:00-05:00",
     "impact": "Low",
-    "forecast": "-2.1%",
+    "forecast": "-1.8%",
     "previous": "-7.3%",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -685,7 +705,7 @@
     "country": "USD",
     "date": "2026-11-18T10:30:00-05:00",
     "impact": "Low",
-    "forecast": "",
+    "forecast": "-0.3M",
     "previous": "4.7M"
   },
   {
@@ -730,7 +750,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -799,7 +819,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -852,7 +872,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1017,7 +1037,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1062,7 +1082,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-17T08:48:40Z",
+    "resultsLastUpdatedAt": "2026-11-17T17:55:46Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
