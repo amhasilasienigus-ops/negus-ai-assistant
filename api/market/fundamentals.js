@@ -55,6 +55,7 @@ function strengthScore(rows, currency) {
   const contributions = [];
   for (const row of rows) {
     if (!row.data || !Number.isFinite(row.data.pctChange)) continue;
+    if (row.base !== currency && row.quote !== currency) continue;
     contributions.push(row.base === currency ? row.data.pctChange : -row.data.pctChange);
   }
   const score = contributions.length
