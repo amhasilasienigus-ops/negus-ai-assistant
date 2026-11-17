@@ -98,15 +98,19 @@ async function buildSnapshot() {
   const dxy = dxyResult.status === "fulfilled" ? dxyResult.value : null;
   const fiveYearRaw = fiveYearResult.status === "fulfilled" ? fiveYearResult.value : null;
   const tenYearRaw = tenYearResult.status === "fulfilled" ? tenYearResult.value : null;
-  const toYield = raw => raw ? ({
-    symbol: raw.symbol,
-    percent: Number((raw.price / 10).toFixed(3)),
-    changeBasisPoints: Number.isFinite(raw.pctChange) && raw.previousClose
-      ? Number(((raw.price - raw.previousClose) / 10 * 100).toFixed(1)) : null,
-    timestamp: raw.timestamp,
-    ageSeconds: raw.ageSeconds,
-    source: raw.source
-  }) : null;
+  const toYield = raw => {
+    // Yahoo Finance ^TNX/^FVX quote Treasury yields in percentage points.
+    if (!raw || !Number.isFinite(raw.price) || raw.price <= 0 || raw.price > 20) return null;
+    return {
+      symbol: raw.symbol,
+      percent: Number(raw.price.toFixed(3)),
+      changeBasisPoints: Number.isFinite(raw.pctChange) && Number.isFinite(raw.previousClose)
+        ? Number(((raw.price - raw.previousClose) * 100).toFixed(1)) : null,
+      timestamp: raw.timestamp,
+      ageSeconds: raw.ageSeconds,
+      source: raw.source
+    };
+  };
   const fiveYear = toYield(fiveYearRaw), tenYear = toYield(tenYearRaw);
 
   const dxyFresh = dxy && dxy.ageSeconds <= FX_MAX_AGE_MS / 1000;
