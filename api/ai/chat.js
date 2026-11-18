@@ -388,7 +388,7 @@ function compactWorkspaceForAI(workspace) {
     generatedAt: macro.generatedAt || null,
     limitation: typeof macro.limitation === 'string' ? macro.limitation.slice(0, 500) : null,
     sources: Array.isArray(macro.sources) ? macro.sources.slice(0, 8).map(x => ({ name: String(x.name || '').slice(0, 80), currency: String(x.currency || '').slice(0, 3), status: String(x.status || '').slice(0, 20), error: typeof x.error === 'string' ? x.error.slice(0, 120) : null })) : [],
-    items: Array.isArray(macro.items) ? macro.items.slice(0, 20).map(x => ({ currency: ['USD','EUR'].includes(x.currency) ? x.currency : 'UNKNOWN', source: String(x.source || '').slice(0, 80), title: String(x.title || '').slice(0, 240), summary: String(x.summary || '').slice(0, 900), url: typeof x.url === 'string' && /^https?:\\/\\//i.test(x.url) ? x.url.slice(0, 500) : null, publishedAt: x.publishedAt || null })) : []
+    items: Array.isArray(macro.items) ? macro.items.slice(0, 20).map(x => ({ currency: ['USD','EUR'].includes(x.currency) ? x.currency : 'UNKNOWN', source: String(x.source || '').slice(0, 80), title: String(x.title || '').slice(0, 240), summary: String(x.summary || '').slice(0, 900), url: typeof x.url === 'string' && /^https?:\/\//i.test(x.url) ? x.url.slice(0, 500) : null, publishedAt: x.publishedAt || null })) : []
   };
   const cal = workspace.economicCalendar || {};
   const events = Array.isArray(cal.events) ? cal.events.slice(0, 10).map(e => ({
