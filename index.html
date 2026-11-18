@@ -1736,8 +1736,11 @@ async function refreshLiveMarket(){
   const [quoteResultRaw]=await Promise.all([quotePromise]);
   const quoteData=quoteResultRaw.data;
   const quoteBid=Number(quoteData&&quoteData.bid),quoteAsk=Number(quoteData&&quoteData.ask),quoteMid=Number(quoteData&&quoteData.mid);
-  const quoteValid=quoteResultRaw.ok&&Number.isFinite(quoteBid)&&Number.isFinite(quoteAsk)&&Number.isFinite(quoteMid)&&quoteBid>0&&quoteAsk>=quoteBid&&quoteMid>0;
-  const quoteResult=quoteValid?quoteResultRaw:{ok:false,data:null,error:quoteResultRaw.error||'Quote response missing valid bid/ask/mid fields'};
+  // Bid/Ask are the required executable quote fields. Mid is optional because
+  // it can be derived safely from a valid two-sided quote.
+  const quoteValid=quoteResultRaw.ok&&Number.isFinite(quoteBid)&&Number.isFinite(quoteAsk)&&quoteBid>0&&quoteAsk>=quoteBid&&(!Number.isFinite(quoteMid)||quoteMid<=0||quoteMid>=quoteBid&&quoteMid<=quoteAsk);
+  const normalizedQuote=quoteValid?{...quoteData,mid:Number.isFinite(quoteMid)&&quoteMid>0?quoteMid:(quoteBid+quoteAsk)/2}:null;
+  const quoteResult=quoteValid?{ok:true,data:normalizedQuote,error:''}:{ok:false,data:null,error:quoteResultRaw.error||'Quote response missing valid bid/ask fields or contains an inconsistent mid price'};
   const frames=[];
   // Limit provider burst traffic by fetching three timeframes at a time.
   for(let i=0;i<TF_CONFIG.length;i+=3){
