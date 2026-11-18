@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": null,
+  "status": "unavailable",
+  "sourceCount": 5,
+  "successfulSourceCount": 0,
+  "lookbackDays": 14,
+  "items": [],
+  "sources": [
+    {
+      "name": "Federal Reserve",
+      "currency": "USD",
+      "status": "not_checked"
+    },
+    {
+      "name": "Federal Reserve Monetary Policy",
+      "currency": "USD",
+      "status": "not_checked"
+    },
+    {
+      "name": "Bureau of Labor Statistics",
+      "currency": "USD",
+      "status": "not_checked"
+    },
+    {
+      "name": "European Central Bank",
+      "currency": "EUR",
+      "status": "not_checked"
+    },
+    {
+      "name": "Eurostat",
+      "currency": "EUR",
+      "status": "not_checked"
+    }
+  ],
+  "limitation": "Initial state: the scheduled public RSS collector has not completed its first successful run. No news conclusion may be inferred from this empty file."
+}
