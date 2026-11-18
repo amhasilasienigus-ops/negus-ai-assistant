@@ -342,12 +342,13 @@
     "impact": "High",
     "forecast": "0.4%",
     "previous": "0.9%",
-    "actual": "0.2%",
+    "actual": "0.6%",
     "actualAvailable": true,
-    "actualSource": "ShowMyTrades economic calendar",
-    "actualUpdatedAt": "2026-11-17T17:55:46Z",
-    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "actualArchived": true
+    "actualSource": "U.S. Census Bureau release; cross-checked with Forex Factory and Investing.com",
+    "actualUpdatedAt": "2026-11-17",
+    "actualSourceUrl": "https://www.census.gov/retail/marts/www/marts_current.pdf?release=20261117",
+    "actualArchived": false,
+    "actualVerificationStatus": "independently_verified"
   },
   {
     "title": "Retail Sales m/m",
