@@ -371,11 +371,19 @@ function compactWorkspaceForAI(workspace) {
       ? (lastClose > ema20 && ema20 > ema50 ? 'BULLISH'
         : lastClose < ema20 && ema20 < ema50 ? 'BEARISH' : 'NEUTRAL')
       : 'UNAVAILABLE';
+    const frameHasMinimumCandles = Boolean(frame.available) && indicatorCandles.length >= 30;
+    const ema50Available = ema50 !== null;
     frames[name] = {
-      available: Boolean(frame.available) && indicatorCandles.length >= 50,
-      reason: indicatorCandles.length < 50
-        ? 'At least 50 valid closed candles are required for the backend EMA audit.'
-        : (typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined),
+      // Preserve valid 30–49 candle frames for structure, EMA20 and RSI14.
+      // EMA50 remains null until 50 valid closed candles are supplied.
+      available: frameHasMinimumCandles,
+      indicatorStatus: !frameHasMinimumCandles ? 'unavailable'
+        : (ema50Available ? 'complete' : 'partial_ema50_unavailable'),
+      reason: !frameHasMinimumCandles
+        ? 'At least 30 valid closed candles are required for the backend technical audit.'
+        : (!ema50Available
+          ? 'EMA20 and RSI14 are calculated; EMA50 requires at least 50 valid closed candles and is unavailable for this frame.'
+          : (typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined)),
       closedCandleCount: Number.isFinite(Number(frame.closedCandleCount)) ? Number(frame.closedCandleCount) : indicatorCandles.length,
       indicatorSource: 'server_recalculated_from_supplied_closed_candles',
       indicatorCandleCount: indicatorCandles.length,
@@ -661,7 +669,8 @@ STRUCTURE EVIDENCE CONSISTENCY:
 - BOS/CHoCH wording is deliberately conservative: the server output calls every detected event a candidate. Never upgrade a candidate to a confirmed BOS/CHoCH in the narrative. Say POSSIBLE / CANDIDATE unless an explicit independent confirmation rule and directional swing sequence are both present in the supplied evidence. If structureBias is mixed/undetermined, do not label the timeframe's structure bearish/bullish even if EMA trend is directional.
 - Do not contradict its structureBias. If a timeframe audit says mixed or undetermined, do not call that timeframe's market structure confirmed bullish or bearish.
 - Keep EMA/trend bias separate from swing-structure bias (for example: "EMA trend bearish; swing structure mixed"). Never merge these into one unqualified direction.
-- The timeframe indicators in WORKSPACE CONTEXT.marketData.timeframes are recalculated server-side from the supplied closed candles. Use only those values. If indicatorSource is missing, EMA20/EMA50/RSI14 are null, or status is unavailable, label indicators unavailable and choose WAIT. EMA200 is intentionally unavailable because only 60 candles are sent to this audit; never invent an EMA200 value.
+- The timeframe indicators in WORKSPACE CONTEXT.marketData.timeframes are recalculated server-side from the supplied closed candles. Use only those values. If indicatorSource is missing, EMA20/EMA50/RSI14 are null, or status is unavailable, label the affected indicator unavailable and choose WAIT when a required indicator is missing. A frame with indicatorStatus='partial_ema50_unavailable' still has valid candles for swing/structure evidence, EMA20 and RSI14; report EMA50 as unavailable and do not infer a complete EMA trend. EMA200 is intentionally unavailable because only 60 candles are sent to this audit; never invent an EMA200 value.
+- Swing validation: swing highs and swing lows are independently confirmed pivots on different candles. Do not declare a data error solely because the numeric price of a reported swing high is below a separately timed swing low. Validate each pivot against its own source candle (swing high equals that candle's high; swing low equals that candle's low), confirm timestamps and chronological pivot sequence, and report the actual structure as mixed/undetermined when appropriate.
 - Do not copy or invent a latest candle close as a BOS confirmation close. For any BOS/CHoCH candidate, use the exact confirmationCandle.close and break level from structureEvidence.breakCandidates. If the close is not beyond the level in the required direction, it is not a break.
 - If any timeframe's displayed EMA values are implausible, missing, or inconsistent with the server-recalculated values, do not replace them with estimates; state DATA QUALITY ERROR and WAIT.
 - If a timeframe is unavailable or timed out, label it unavailable and do not infer its direction from another timeframe.
