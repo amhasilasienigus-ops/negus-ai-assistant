@@ -1,11 +1,20 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T07:16:55.831Z",
+  "generatedAt": "2026-11-18T16:29:08.682Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
+    {
+      "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvb3V0ZG9vci1yZWNyZWF0aW9uLWVjb25vbWljLXN0",
+      "currency": "USD",
+      "source": "Bureau of Economic Analysis",
+      "title": "Outdoor Recreation Economic Statistics, U.S. and States, 2025",
+      "summary": "The value added of the outdoor recreation economy accounted for 2.3 percent ($704.2 billion) of current-dollar gross domestic product (GDP) for the nation in 2025. Across states and the District of Columbia, value added for outdoor recreation as a share of state GDP ranged from 6.1 percent in Hawaii to 1.0 percent in the District of Columbia.",
+      "url": "https://www.bea.gov/news/2026/outdoor-recreation-economic-statistics-us-and-states-2025",
+      "publishedAt": "2026-11-18T15:00:00.000Z"
+    },
     {
       "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3Mva2V5L2RhdGUvMjAyNi9odG1sL2VjYi5zcDI2",
       "currency": "EUR",
@@ -110,12 +119,12 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 49,
-      "relevantItems": 0,
+      "relevantItems": 1,
       "sampleTitles": [
+        "Outdoor Recreation Economic Statistics, U.S. and States, 2025",
         "U.S. International Trade in Goods and Services, September 2026",
         "GDP (Advance Estimate), 3rd Quarter 2026",
-        "Personal Income and Outlays, September 2026",
-        "U.S. International Transactions and Investment Position, 2nd Quarter 2026"
+        "Personal Income and Outlays, September 2026"
       ]
     },
     {
@@ -125,10 +134,10 @@
       "itemsFound": 15,
       "relevantItems": 4,
       "sampleTitles": [
+        "Boris Vujčić: Financial Stability Review - November 2026",
+        "Risks from AI valuations, fiscal imbalances and geoeconomic tensions weigh on financial stability outlook",
         "Philip R. Lane: The practice and science of monetary policy communication: the ECB experience",
-        "Frank Elderson: Smart supervision for small banks",
-        "Boris Vujčić: Risks and resilience in the euro area financial system",
-        "Isabel Schnabel: Made in Europe"
+        "Frank Elderson: Smart supervision for small banks"
       ]
     },
     {
@@ -138,10 +147,10 @@
       "itemsFound": 11,
       "relevantItems": 2,
       "sampleTitles": [
+        "European Statistical Monitor: November edition",
         "EU consumption expenditure grows, alcohol & tobacco dip",
         "Foreign direct investment: where is it coming from?",
-        "Are EU house prices outpacing income?",
-        "Annual full-time adjusted salary in EU grew 4.3% in 2025"
+        "Are EU house prices outpacing income?"
       ]
     }
   ],
