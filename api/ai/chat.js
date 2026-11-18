@@ -382,6 +382,14 @@ function compactWorkspaceForAI(workspace) {
       limitation: typeof fd.dataQuality?.limitation === 'string' ? fd.dataQuality.limitation.slice(0, 500) : null
     }
   };
+  const macro = workspace.macroNews || {};
+  const macroNews = {
+    status: ['loaded','partial','unavailable'].includes(macro.status) ? macro.status : 'unavailable',
+    generatedAt: macro.generatedAt || null,
+    limitation: typeof macro.limitation === 'string' ? macro.limitation.slice(0, 500) : null,
+    sources: Array.isArray(macro.sources) ? macro.sources.slice(0, 8).map(x => ({ name: String(x.name || '').slice(0, 80), currency: String(x.currency || '').slice(0, 3), status: String(x.status || '').slice(0, 20), error: typeof x.error === 'string' ? x.error.slice(0, 120) : null })) : [],
+    items: Array.isArray(macro.items) ? macro.items.slice(0, 20).map(x => ({ currency: ['USD','EUR'].includes(x.currency) ? x.currency : 'UNKNOWN', source: String(x.source || '').slice(0, 80), title: String(x.title || '').slice(0, 240), summary: String(x.summary || '').slice(0, 900), url: typeof x.url === 'string' && /^https?:\\/\\//i.test(x.url) ? x.url.slice(0, 500) : null, publishedAt: x.publishedAt || null })) : []
+  };
   const cal = workspace.economicCalendar || {};
   const events = Array.isArray(cal.events) ? cal.events.slice(0, 10).map(e => ({
     time: e.time, dateEthiopia: e.dateEthiopia, timeTraditional: e.timeTraditional,
@@ -404,6 +412,7 @@ function compactWorkspaceForAI(workspace) {
       quote, timeframes: frames
     },
     fundamentalData,
+    macroNews,
     economicCalendar: {
       source: cal.source, status: cal.status,
       statusMessage: typeof cal.statusMessage === 'string' ? cal.statusMessage.slice(0, 240) : null,
@@ -590,6 +599,8 @@ For a request for today's EUR/USD outlook, use this order:
 - DXY rising can be a USD tailwind and falling can be a USD headwind; US 5Y/10Y nominal yield changes are contextual only. Do not treat yields as real yields, infer Federal Reserve policy, or assume rising yields always strengthen USD. Never let DXY or yields alone create a trade signal.
 - Cross-check the separately measured EUR and USD strength differential with DXY and yields. If fundamentalBias='MIXED' or biasEvidence.dxyConflicts=true, explicitly state the conflict and choose WAIT; do not present a directional fundamental bias. Treasury yields are secondary context only. If the data are stale, missing or inconsistent, do not infer the direction.
 - Use the existing economicCalendar for high-impact scheduled EUR/USD news. Separate released Actual from Forecast and Previous; if Actual is missing, say RESULT NOT AVAILABLE. Calendar is a schedule feed, not a live newswire.
+
+- OFFICIAL MACRO NEWS INTELLIGENCE: Inspect WORKSPACE CONTEXT.macroNews separately from economicCalendar. It contains public RSS/Atom announcements from the Federal Reserve, BLS, ECB and Eurostat, with source, publication timestamp, title, summary and original URL. Check status, generatedAt, each source status and publication age. Use only relevant USD/EUR macro items; distinguish official releases/announcements from commentary and general publications. Summarize what the source actually says and link the source URL when useful. Treat RSS headline/summary as evidence of a publication, NOT as verified economic Actual data, a scheduled event result, or proof of an EUR/USD price reaction. Never invent Actual/Forecast/Previous from an article. If a story is old, feed status unavailable/partial, or timestamp missing, state the limitation. Do not assume that an empty feed means no news. Public RSS is not a complete live newswire and publisher update timing varies.
 - Combine the preliminary fundamental view with D1/H4/H1 context and the existing server-calculated SMC evidence, then require M15/M5 Price Action confirmation. If fundamental and technical evidence conflict, or any required live data is missing, final decision must be WAIT.
 - This module is read-only. It must never change the existing Risk Guard, daily loss threshold, trade-count limits, or place/modify orders.
 3. HIGHER-TIMEFRAME TECHNICAL: D1/H4 structure, trend, major swing levels and whether the data agree.
