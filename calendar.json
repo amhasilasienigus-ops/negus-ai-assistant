@@ -341,14 +341,17 @@
     "date": "2026-11-17T08:30:00-05:00",
     "impact": "High",
     "forecast": "0.4%",
-    "previous": "0.9%",
+    "previous": "1.1%",
     "actual": "0.6%",
     "actualAvailable": true,
     "actualSource": "U.S. Census Bureau release; cross-checked with Forex Factory and Investing.com",
     "actualUpdatedAt": "2026-11-17",
     "actualSourceUrl": "https://www.census.gov/retail/marts/www/marts_current.pdf?release=20261117",
     "actualArchived": false,
-    "actualVerificationStatus": "independently_verified"
+    "actualVerificationStatus": "independently_verified",
+    "previousNote": "September 2026 previous value was revised upward from 0.9% to 1.1% in the November 17, 2026 release.",
+    "previousSourceUrl": "https://www.forexfactory.com/calendar/112-us-core-retail-sales-mm?reset=1",
+    "previousVerificationStatus": "cross_checked_multiple_sources"
   },
   {
     "title": "Retail Sales m/m",
