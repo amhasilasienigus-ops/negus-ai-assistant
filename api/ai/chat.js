@@ -317,6 +317,32 @@ function compactStructureEvidence(evidence) {
   return result;
 }
 
+function calculateEma(values, period) {
+  if (!Array.isArray(values) || values.length < period) return null;
+  const k = 2 / (period + 1);
+  let value = values.slice(0, period).reduce((sum, item) => sum + item, 0) / period;
+  for (let i = period; i < values.length; i++) value = values[i] * k + value * (1 - k);
+  return Number.isFinite(value) ? Number(value.toFixed(5)) : null;
+}
+
+function calculateRsi(values, period = 14) {
+  if (!Array.isArray(values) || values.length <= period) return null;
+  let gains = 0, losses = 0;
+  for (let i = 1; i <= period; i++) {
+    const change = values[i] - values[i - 1];
+    if (change > 0) gains += change;
+    else losses -= change;
+  }
+  let averageGain = gains / period, averageLoss = losses / period;
+  for (let i = period + 1; i < values.length; i++) {
+    const change = values[i] - values[i - 1];
+    averageGain = (averageGain * (period - 1) + Math.max(change, 0)) / period;
+    averageLoss = (averageLoss * (period - 1) + Math.max(-change, 0)) / period;
+  }
+  if (averageLoss === 0) return averageGain === 0 ? 50 : 100;
+  return Number((100 - 100 / (1 + averageGain / averageLoss)).toFixed(2));
+}
+
 function compactWorkspaceForAI(workspace) {
   if (!workspace || typeof workspace !== 'object') return {};
   const md = workspace.marketData || {};
@@ -327,19 +353,40 @@ function compactWorkspaceForAI(workspace) {
       frames[name] = { available: false, reason: 'No validated candle data supplied.' };
       continue;
     }
-    // Full closed candles are audited above on the server. Send the AI only
-    // the measured indicators and status; this avoids repeating raw OHLC
-    // arrays in every turn of the conversation history.
+    // Recalculate EMA20/EMA50/RSI14 from the same validated closed candles
+    // used by the server-side structure audit. Never trust frontend indicator
+    // values when the backend cannot reproduce them from supplied OHLC.
+    const indicatorCandles = Array.isArray(frame.candles) ? frame.candles
+      .filter(c => c && Number.isFinite(Date.parse(c.time)) &&
+        [c.open,c.high,c.low,c.close].every(v => Number.isFinite(Number(v))) &&
+        Number(c.high) >= Math.max(Number(c.open), Number(c.close), Number(c.low)) &&
+        Number(c.low) <= Math.min(Number(c.open), Number(c.close), Number(c.high)))
+      .sort((a,b) => Date.parse(a.time) - Date.parse(b.time)) : [];
+    const closes = indicatorCandles.map(c => Number(c.close));
+    const ema20 = calculateEma(closes, 20);
+    const ema50 = calculateEma(closes, 50);
+    const rsi14 = calculateRsi(closes, 14);
+    const lastClose = closes.length ? closes[closes.length - 1] : null;
+    const trend = lastClose !== null && ema20 !== null && ema50 !== null
+      ? (lastClose > ema20 && ema20 > ema50 ? 'BULLISH'
+        : lastClose < ema20 && ema20 < ema50 ? 'BEARISH' : 'NEUTRAL')
+      : 'UNAVAILABLE';
     frames[name] = {
-      available: Boolean(frame.available),
-      reason: typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined,
-      closedCandleCount: Number.isFinite(Number(frame.closedCandleCount)) ? Number(frame.closedCandleCount) : undefined,
-      trend: typeof frame.trend === 'string' ? frame.trend.slice(0, 40) : undefined,
-      ema20: frame.ema20 !== null && frame.ema20 !== undefined && Number.isFinite(Number(frame.ema20)) ? Number(frame.ema20) : null,
-      ema50: frame.ema50 !== null && frame.ema50 !== undefined && Number.isFinite(Number(frame.ema50)) ? Number(frame.ema50) : null,
-      ema200: frame.ema200 !== null && frame.ema200 !== undefined && Number.isFinite(Number(frame.ema200)) ? Number(frame.ema200) : null,
-      rsi14: frame.rsi14 !== null && frame.rsi14 !== undefined && Number.isFinite(Number(frame.rsi14)) ? Number(frame.rsi14) : null,
-      atr14: frame.atr14 !== null && frame.atr14 !== undefined && Number.isFinite(Number(frame.atr14)) ? Number(frame.atr14) : null
+      available: Boolean(frame.available) && indicatorCandles.length >= 50,
+      reason: indicatorCandles.length < 50
+        ? 'At least 50 valid closed candles are required for the backend EMA audit.'
+        : (typeof frame.reason === 'string' ? frame.reason.slice(0, 240) : undefined),
+      closedCandleCount: Number.isFinite(Number(frame.closedCandleCount)) ? Number(frame.closedCandleCount) : indicatorCandles.length,
+      indicatorSource: 'server_recalculated_from_supplied_closed_candles',
+      indicatorCandleCount: indicatorCandles.length,
+      lastClosedPrice: lastClose,
+      trend,
+      ema20,
+      ema50,
+      // EMA200 cannot be independently reproduced from the 60-candle payload.
+      ema200: null,
+      rsi14,
+      atr14: null
     };
   }
   const quote = md.quote && typeof md.quote === 'object' ? {
@@ -613,6 +660,9 @@ STRUCTURE EVIDENCE CONSISTENCY:
 - The structured server-calculated structureEvidence in WORKSPACE CONTEXT is the primary mechanical OHLC audit for swing structure, BOS/CHoCH candidates, sweeps, FVG and OB candidates.
 - Do not contradict its structureBias. If a timeframe audit says mixed or undetermined, do not call that timeframe's market structure confirmed bullish or bearish.
 - Keep EMA/trend bias separate from swing-structure bias (for example: "EMA trend bearish; swing structure mixed"). Never merge these into one unqualified direction.
+- The timeframe indicators in WORKSPACE CONTEXT.marketData.timeframes are recalculated server-side from the supplied closed candles. Use only those values. If indicatorSource is missing, EMA20/EMA50/RSI14 are null, or status is unavailable, label indicators unavailable and choose WAIT. EMA200 is intentionally unavailable because only 60 candles are sent to this audit; never invent an EMA200 value.
+- Do not copy or invent a latest candle close as a BOS confirmation close. For any BOS/CHoCH candidate, use the exact confirmationCandle.close and break level from structureEvidence.breakCandidates. If the close is not beyond the level in the required direction, it is not a break.
+- If any timeframe's displayed EMA values are implausible, missing, or inconsistent with the server-recalculated values, do not replace them with estimates; state DATA QUALITY ERROR and WAIT.
 - If a timeframe is unavailable or timed out, label it unavailable and do not infer its direction from another timeframe.
 - If higher-timeframe evidence is missing or conflicting, reduce confidence and prefer WAIT until the required timeframe data is available.
 
