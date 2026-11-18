@@ -1,6 +1,11 @@
 name: Update Calendar and Send Push Alerts
 
 on:
+  push:
+    paths:
+      - '.github/workflows/update-calendar.yml'
+      - '.github/scripts/fetch-macro-news.mjs'
+      - '.github/scripts/notify-calendar.mjs'
   schedule:
     - cron: '*/5 * * * *'
   workflow_dispatch:
