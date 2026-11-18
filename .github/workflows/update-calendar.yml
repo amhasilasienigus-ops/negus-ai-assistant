@@ -35,6 +35,10 @@ jobs:
         run: |
           jq -e 'type == "array" and length > 0 and any(.[]; .country == "USD" or .country == "EUR")' calendar.json
 
+      - name: Fetch official USD/EUR macro news (public RSS, no API key)
+        continue-on-error: true
+        run: node .github/scripts/fetch-macro-news.mjs
+
       - name: Enrich released results (optional API key)
         continue-on-error: true
         env:
@@ -53,7 +57,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add calendar.json .github/state/notification-state.json
+          git add calendar.json news.json .github/state/notification-state.json
 
           if git diff --cached --quiet; then
             echo "No changes to save."
