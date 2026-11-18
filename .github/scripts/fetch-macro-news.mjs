@@ -6,13 +6,14 @@ const MAX_ITEMS = 100;
 const SOURCES = [
   { name: "Federal Reserve", currency: "USD", url: "https://www.federalreserve.gov/feeds/press_all.xml" },
   { name: "Federal Reserve Monetary Policy", currency: "USD", url: "https://www.federalreserve.gov/feeds/press_monetary.xml" },
-  { name: "BLS Consumer Price Index", currency: "USD", url: "https://www.bls.gov/feed/cpi.rss" },
-  { name: "BLS Employment Situation", currency: "USD", url: "https://www.bls.gov/feed/empsit.rss" },
+  { name: "BLS Consumer Price Index", currency: "USD", url: "https://blsmon1.bls.gov/feed/cpi.rss" },
+  { name: "BLS Employment Situation", currency: "USD", url: "https://blsmon1.bls.gov/feed/empsit.rss" },
   { name: "Bureau of Economic Analysis", currency: "USD", url: "https://apps.bea.gov/rss/rss.xml" },
-  { name: "European Central Bank", currency: "EUR", url: "https://www.ecb.europa.eu/rss/press.html" }
+  { name: "European Central Bank", currency: "EUR", url: "https://www.ecb.europa.eu/rss/press.html" },
+  { name: "Eurostat Economy and Finance News", currency: "EUR", url: "https://ec.europa.eu/eurostat/en/search?_estatsearchportlet_WAR_estatsearchportlet_collection=CAT_EURNEW&_estatsearchportlet_WAR_estatsearchportlet_theme=PER_ECOFIN&p_p_id=estatsearchportlet_WAR_estatsearchportlet&p_p_lifecycle=2&p_p_mode=view&p_p_resource_id=atom&p_p_state=maximized" }
 ];
 
-const MACRO = /inflation|consumer price|producer price|employment|unemployment|payroll|nonfarm|wage|gross domestic|\bgdp\b|retail sales|industrial production|interest rate|monetary policy|federal funds|fomc|ecb|deposit facility|refinancing|pce|cpi|hicp|ppi|labor market|labour market|job openings|trade balance|current account|business confidence|economic outlook|growth|recession|prices|productivity|claims|consumer spending|personal income/i;
+const MACRO = /inflation|consumer price|producer price|employment|unemployment|payroll|nonfarm|wage|gross domestic|\bgdp\b|retail sales|industrial production|interest rate|monetary policy|federal funds|fomc|federal open market committee|ecb|deposit facility|refinancing|pce|cpi|hicp|ppi|labor market|labour market|job openings|trade balance|current account|business confidence|economic outlook|growth|recession|prices|productivity|claims|consumer spending|personal income/i;
 
 function decodeXml(value = "") {
   return String(value)
@@ -78,7 +79,7 @@ for (let i = 0; i < settled.length; i++) {
       return t >= cutoff && t <= now + 5 * 60000 && MACRO.test(item.title + " " + item.summary);
     });
     all.push(...fresh);
-    sourceStatus.push({ name: source.name, currency: source.currency, status: "ok", itemsFound: result.value.items.length, relevantItems: fresh.length });
+    sourceStatus.push({ name: source.name, currency: source.currency, status: "ok", itemsFound: result.value.items.length, relevantItems: fresh.length, sampleTitles: result.value.items.slice(0, 4).map(x => x.title) });
   } else {
     sourceStatus.push({ name: source.name, currency: source.currency, status: "error", error: String(result.reason?.message || result.reason).slice(0, 180) });
   }
