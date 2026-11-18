@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:57:17.126Z",
+  "generatedAt": "2026-11-18T02:58:01.500Z",
   "status": "partial",
-  "sourceCount": 5,
+  "sourceCount": 6,
   "successfulSourceCount": 4,
   "lookbackDays": 14,
   "items": [
@@ -41,10 +41,23 @@
       "relevantItems": 0
     },
     {
-      "name": "Bureau of Labor Statistics",
+      "name": "BLS Consumer Price Index",
       "currency": "USD",
       "status": "error",
       "error": "HTTP 403"
+    },
+    {
+      "name": "BLS Employment Situation",
+      "currency": "USD",
+      "status": "error",
+      "error": "HTTP 403"
+    },
+    {
+      "name": "Bureau of Economic Analysis",
+      "currency": "USD",
+      "status": "ok",
+      "itemsFound": 49,
+      "relevantItems": 0
     },
     {
       "name": "European Central Bank",
@@ -52,13 +65,6 @@
       "status": "ok",
       "itemsFound": 15,
       "relevantItems": 4
-    },
-    {
-      "name": "Eurostat",
-      "currency": "EUR",
-      "status": "ok",
-      "itemsFound": 0,
-      "relevantItems": 0
     }
   ],
   "limitation": "Public official RSS/Atom announcements, not a complete live newswire or structured economic-results API. Headlines and summaries do not provide verified Actual/Forecast/Previous values or prove EUR/USD price reaction. Publication timing depends on each publisher's feed."
