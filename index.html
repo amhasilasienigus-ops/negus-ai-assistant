@@ -1173,6 +1173,7 @@ nalysis · All Timeframes</h3>
   <div class="card"><h3>US Treasury Yields</h3><div class="metric" id="yield10y">10Y —</div><div class="small" id="yield10yChange">10Y change unavailable</div><div class="small" id="yield5y">5Y —</div><div class="small" id="yield5yChange">5Y change unavailable</div></div>
  </div>
  <div class="card"><h3>High-Impact USD / EUR Economic News</h3><div id="fundamentalNews">Economic Calendar እየተጫነ ነው...</div><p class="small">ዜናው ከነባሩ Forex Factory Calendar ይመጣል። Actual ከሌለ የተፈጸመ ውጤት አይገመትም፤ Forecast እንደ Actual አይቆጠርም።</p></div>
+ <div class="card"><h3>Official USD / EUR Macro News · RSS</h3><div id="macroNewsFeed">Official news feeds are loading...</div><button class="secondary" type="button" onclick="negusRefreshMacroNews()">Refresh Official News</button></div>
  <div class="card"><h3>Fundamental + SMC / Price Action Confluence</h3><div class="result" id="fundamentalConfluence">Fundamental data እና validated SMC/Price Action evidence እስኪገኙ WAIT.</div><p class="small">DXY እና nominal Treasury yields የcontext መረጃዎች ናቸው፤ ብቻቸውን BUY/SELL ምልክት አይደሉም። Fundamental module የRisk Guardን አይተካም።</p></div>
 </section>
 \n</main>
@@ -2274,6 +2275,37 @@ function startLiveUpdates(){
 /* Automatic economic calendar: Forex Factory weekly JSON */
  
 const NEWS_API='./calendar.json',NEWS_REFRESH_MS=5*60*1000,NEWS_BLOCK_MS=30*60*1000;
+
+/* Public official USD/EUR macro news intelligence */
+window.negusMacroNews={status:'loading',items:[],sources:[],generatedAt:null,limitation:'Official public RSS announcements; not a live newswire or structured Actual/Forecast/Previous feed.'};
+let negusMacroNewsBusy=false;
+async function negusRefreshMacroNews(){
+ if(negusMacroNewsBusy)return;
+ negusMacroNewsBusy=true;
+ try{
+  const response=await fetch('./news.json?ts='+Date.now(),{cache:'no-store'});
+  if(!response.ok)throw new Error('News feed HTTP '+response.status);
+  const data=await response.json();
+  if(!data||!Array.isArray(data.items)||!['loaded','partial','unavailable'].includes(data.status))throw new Error('Invalid news feed format');
+  window.negusMacroNews={status:data.status,generatedAt:data.generatedAt||null,items:data.items.slice(0,40),sources:data.sources||[],limitation:data.limitation||'Official RSS announcements; no structured Actual/Forecast/Previous values.'};
+ }catch(error){
+  window.negusMacroNews={...window.negusMacroNews,status:'unavailable',error:String(error.message||error)};
+ }
+ finally{negusMacroNewsBusy=false;negusRenderMacroNews();}
+}
+function negusRenderMacroNews(){
+ const host=document.getElementById('macroNewsFeed');if(!host)return;
+ const data=window.negusMacroNews||{};
+ const status=data.status==='loaded'?'LOADED':data.status==='partial'?'PARTIAL':'UNAVAILABLE';
+ const items=Array.isArray(data.items)?data.items:[];
+ const header='<div class="small">STATUS: '+escapeNewsText(status)+' · '+items.length+' relevant announcements · '+escapeNewsText(data.generatedAt||'Update time unavailable')+'</div>';
+ const rows=items.slice(0,15).map(item=>'<div class="news-event"><b>['+escapeNewsText(item.currency)+'] '+escapeNewsText(item.title)+'</b><div class="news-explain">'+escapeNewsText(item.source)+' · '+escapeNewsText(item.publishedAt)+'</div>'+(item.summary?'<div class="news-explain">'+escapeNewsText(item.summary)+'</div>':'')+'<div class="news-explain"><a href="'+escapeNewsText(item.url)+'" target="_blank" rel="noopener noreferrer">Open original source</a></div></div>').join('');
+ const sources=(data.sources||[]).map(x=>escapeNewsText(x.name)+': '+escapeNewsText(x.status)).join(' · ');
+ host.innerHTML=header+(rows||'<p>No verified relevant macro announcements are currently available from the RSS feeds.</p>')+'<p class="small">'+escapeNewsText(data.limitation||'')+'</p><p class="small">Sources: '+sources+'</p>';
+}
+negusRefreshMacroNews();
+setInterval(negusRefreshMacroNews,5*60*1000);
+
  
 let newsEvents=[],newsCalendarState={status:'loading',message:'Calendar has not loaded'},newsFetchBusy=false,newsCalendarFetchedAt=null;
  
@@ -2899,6 +2931,7 @@ function negusBuildLiveWorkspace(){
     pair:'EUR/USD',
     marketData:{source:'BiQuote public market-data endpoint',status:quote?(quote.stale===true?'stale':String(quote.marketState||'loaded')):'unavailable',quoteError:lastQuoteError||null,candleStatus:Object.keys(lastCandleErrors).length?'incomplete':'validated_or_not_yet_loaded',candleErrors:lastCandleErrors,quote,timeframes},
     fundamentalData:window.negusFundamentalSnapshot||{status:'unavailable',fundamentalBias:'WAIT',reason:'No verified fundamental snapshot loaded.'},
+    macroNews:window.negusMacroNews||{status:'unavailable',items:[],limitation:'Official RSS feed not loaded.'},
     economicCalendar:{
       source:'NEGUS AI calendar.json weekly schedule feed',
       status:newsCalendarState.status,
