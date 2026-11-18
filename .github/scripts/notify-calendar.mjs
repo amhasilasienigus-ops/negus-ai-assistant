@@ -24,6 +24,7 @@ if (fs.existsSync(STATE_PATH)) {
 }
 
 state.events ??= {};
+state.macroNews ??= {};
 
 async function sendPush(message) {
   const response = await fetch(
@@ -125,6 +126,36 @@ for (const event of validEvents) {
     JSON.stringify(state, null, 2) + "\n"
   );
 }
+
+// Alert only on newly published official macro RSS items. The first run
+// establishes a baseline; old feed entries are never pushed as breaking news.
+let macroNews = { items: [] };
+if (fs.existsSync("news.json")) {
+  try { macroNews = JSON.parse(fs.readFileSync("news.json", "utf8")); }
+  catch (error) { console.error("Macro news JSON could not be read:", error.message); }
+}
+const macroItems = Array.isArray(macroNews.items) ? macroNews.items : [];
+const macroNow = Date.now();
+let macroAlertsSent = 0;
+for (const item of macroItems) {
+  if (!item || typeof item.id !== "string" || !item.id) continue;
+  if (state.macroNews[item.id]) continue;
+  const published = Date.parse(item.publishedAt || "");
+  const isRecent = Number.isFinite(published) && published <= macroNow + 5 * 60000 && published >= macroNow - 20 * 60000;
+  if (!firstRun && isRecent && macroAlertsSent < 5) {
+    const currency = ["USD", "EUR"].includes(item.currency) ? item.currency : "USD/EUR";
+    const source = String(item.source || "Official source").slice(0, 70);
+    const title = String(item.title || "New macro announcement").slice(0, 150);
+    await sendPush("OFFICIAL " + currency + " MACRO UPDATE (" + source + "): " + title + ". Open NEGUS AI and verify the source before trading.");
+    macroAlertsSent++;
+  }
+  state.macroNews[item.id] = { publishedAt: item.publishedAt || null, seenAt: new Date(macroNow).toISOString() };
+}
+for (const [id, record] of Object.entries(state.macroNews)) {
+  const seenAt = Date.parse(record?.seenAt || record?.publishedAt || "");
+  if (Number.isFinite(seenAt) && seenAt < macroNow - 30 * 86400000) delete state.macroNews[id];
+}
+console.log("Checked " + macroItems.length + " official macro news items; sent " + macroAlertsSent + " new-item alerts.");
 
 state.initialized = true;
 
