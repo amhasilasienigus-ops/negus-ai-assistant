@@ -1,5 +1,5 @@
 
-import crypto from 'node:crypto';
+const crypto = require('node:crypto');
 
 const ALLOWED_ORIGIN = 'https://amhasilasienigus-ops.github.io';
 const MODEL = 'gemini-3.5-flash-lite';
@@ -709,7 +709,7 @@ You are a disciplined trading analysis partner, not a signal-selling service.
 `;
 }
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   setCors(res);
 
   if (req.method === 'OPTIONS') {
