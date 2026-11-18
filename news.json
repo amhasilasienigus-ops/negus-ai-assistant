@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T02:58:01.500Z",
-  "status": "partial",
-  "sourceCount": 6,
-  "successfulSourceCount": 4,
+  "generatedAt": "2026-11-18T02:58:35.169Z",
+  "status": "loaded",
+  "sourceCount": 7,
+  "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
     {
@@ -14,6 +14,33 @@
       "summary": "",
       "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261117~7f5d3b1a0e.en.pdf",
       "publishedAt": "2026-11-17T18:30:00.000Z"
+    },
+    {
+      "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTExMy0z",
+      "currency": "EUR",
+      "source": "Eurostat Economy and Finance News",
+      "title": "EU consumption expenditure grows, alcohol & tobacco dip",
+      "summary": "In 2025, household final consumption expenditure, corrected for inflation, grew by 1.6% in the EU compared with 2024. This increase was slightly smaller than in 2024, when growth stood at 1.8%. Among the main categories, household spending on information and communication recorded the highest ri...",
+      "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261113-3",
+      "publishedAt": "2026-11-13T10:00:00.000Z"
+    },
+    {
+      "id": "USD:aHR0cHM6Ly93d3cuZmVkZXJhbHJlc2VydmUuZ292L25ld3NldmVudHMvcHJlc3NyZWxlYXNlcy9tb25l",
+      "currency": "USD",
+      "source": "Federal Reserve",
+      "title": "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
+      "summary": "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261112a.htm",
+      "publishedAt": "2026-11-12T17:45:00.000Z"
+    },
+    {
+      "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTEwOS0x",
+      "currency": "EUR",
+      "source": "Eurostat Economy and Finance News",
+      "title": "Are EU house prices outpacing income?",
+      "summary": "In 2025, the EU house price-to-income ratio was 6.8% higher than in 2015, meaning that house prices rose relative to household income over the decade. Behind this increase at EU level, national developments varied considerably, with the ratio rising in 17 EU countries and falling in the other 10....",
+      "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261109-1",
+      "publishedAt": "2026-11-09T10:00:00.000Z"
     },
     {
       "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvcHIvZGF0ZS8yMDI2L2h0bWwvZWNiLnByMjYx",
@@ -31,40 +58,91 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 20,
-      "relevantItems": 0
+      "relevantItems": 1,
+      "sampleTitles": [
+        "Agencies extend comment period for proposed third-party risk management guidance",
+        "Federal Reserve Board announces pricing, effective January 1, 2027, for payment services the Federal Reserve Banks provide to banks and credit unions, and changes to streamline and adjust their check services",
+        "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
+        "Federal Reserve Board issues enforcement action with former employee of United Community Bank"
+      ]
     },
     {
       "name": "Federal Reserve Monetary Policy",
       "currency": "USD",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 0
+      "relevantItems": 1,
+      "sampleTitles": [
+        "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
+        "Federal Reserve issues FOMC statement",
+        "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
+        "Minutes of the Federal Open Market Committee, September 15-16, 2026"
+      ]
     },
     {
       "name": "BLS Consumer Price Index",
       "currency": "USD",
-      "status": "error",
-      "error": "HTTP 403"
+      "status": "ok",
+      "itemsFound": 12,
+      "relevantItems": 0,
+      "sampleTitles": [
+        "CPI NextGen Test 9/11/2026 - CPI for all items rises 0.9% in May; gasoline up",
+        "CPI NextGen Test 5/15/2026 - CPI for all items rises 0.9% in March; gasoline up",
+        "CPI NextGen Win2022 Test 7/2/2026 - CPI for all items rises 0.5% in May",
+        "//CPI Windows 2022 Test 6/25/2026// CPI for all items rises 0.5% in May; gasoline and shelter up"
+      ]
     },
     {
       "name": "BLS Employment Situation",
       "currency": "USD",
-      "status": "error",
-      "error": "HTTP 403"
+      "status": "ok",
+      "itemsFound": 12,
+      "relevantItems": 0,
+      "sampleTitles": [
+        "//EMPSIT Win2022 Test 06302026// Payroll employment increases by 172,000 in May; unemployment rate unchanged at 4.3%",
+        "//EMPSIT ZUNI3 Test2 04/23/2026// Payroll employment increases by 139,000 in May.",
+        "//EMPSIT Autosuppl Test 12/23/2025// Payroll employment increases by 139,000 in May.",
+        "//EMPSIT Charts Test 12/22/2025// Payroll employment increases by 139,000 in May."
+      ]
     },
     {
       "name": "Bureau of Economic Analysis",
       "currency": "USD",
       "status": "ok",
       "itemsFound": 49,
-      "relevantItems": 0
+      "relevantItems": 0,
+      "sampleTitles": [
+        "U.S. International Trade in Goods and Services, September 2026",
+        "GDP (Advance Estimate), 3rd Quarter 2026",
+        "Personal Income and Outlays, September 2026",
+        "U.S. International Transactions and Investment Position, 2nd Quarter 2026"
+      ]
     },
     {
       "name": "European Central Bank",
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 4
+      "relevantItems": 4,
+      "sampleTitles": [
+        "Philip R. Lane: The practice and science of monetary policy communication: the ECB experience",
+        "Frank Elderson: Smart supervision for small banks",
+        "Boris Vujčić: Risks and resilience in the euro area financial system",
+        "Isabel Schnabel: Made in Europe"
+      ]
+    },
+    {
+      "name": "Eurostat Economy and Finance News",
+      "currency": "EUR",
+      "status": "ok",
+      "itemsFound": 11,
+      "relevantItems": 2,
+      "sampleTitles": [
+        "EU consumption expenditure grows, alcohol & tobacco dip",
+        "Foreign direct investment: where is it coming from?",
+        "Are EU house prices outpacing income?",
+        "Annual full-time adjusted salary in EU grew 4.3% in 2025"
+      ]
     }
   ],
   "limitation": "Public official RSS/Atom announcements, not a complete live newswire or structured economic-results API. Headlines and summaries do not provide verified Actual/Forecast/Previous values or prove EUR/USD price reaction. Publication timing depends on each publisher's feed."
