@@ -723,11 +723,13 @@ module.exports = async function handler(req, res) {
   }
 
   const expectedPin = process.env.NEGUS_CHAT_PIN;
-  const apiKey = process.env.OPENAI_API_KEY;
+  // Gemini is the configured model provider. Keep OPENAI_API_KEY as a
+  // backwards-compatible fallback for existing Vercel environments.
+  const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY || process.env.OPENAI_API_KEY;
 
   if (!expectedPin || !apiKey) {
     return res.status(503).json({
-      error: 'Backend setup incomplete. Check OPENAI_API_KEY and NEGUS_CHAT_PIN in Vercel.'
+      error: 'Backend setup incomplete. Check GEMINI_API_KEY (or GOOGLE_API_KEY / OPENAI_API_KEY fallback) and NEGUS_CHAT_PIN in Vercel.'
     });
   }
 
