@@ -1,11 +1,20 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-18T16:29:08.682Z",
+  "generatedAt": "2026-11-18T23:00:15.438Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
+    {
+      "id": "USD:aHR0cHM6Ly93d3cuZmVkZXJhbHJlc2VydmUuZ292L25ld3NldmVudHMvcHJlc3NyZWxlYXNlcy9tb25l",
+      "currency": "USD",
+      "source": "Federal Reserve",
+      "title": "Minutes of the Federal Open Market Committee, October 27-28, 2026",
+      "summary": "Minutes of the Federal Open Market Committee, October 27-28, 2026",
+      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261118a.htm",
+      "publishedAt": "2026-11-18T19:00:00.000Z"
+    },
     {
       "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvb3V0ZG9vci1yZWNyZWF0aW9uLWVjb25vbWljLXN0",
       "currency": "USD",
@@ -34,15 +43,6 @@
       "publishedAt": "2026-11-13T10:00:00.000Z"
     },
     {
-      "id": "USD:aHR0cHM6Ly93d3cuZmVkZXJhbHJlc2VydmUuZ292L25ld3NldmVudHMvcHJlc3NyZWxlYXNlcy9tb25l",
-      "currency": "USD",
-      "source": "Federal Reserve",
-      "title": "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
-      "summary": "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
-      "url": "https://www.federalreserve.gov/newsevents/pressreleases/monetary20261112a.htm",
-      "publishedAt": "2026-11-12T17:45:00.000Z"
-    },
-    {
       "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTEwOS0x",
       "currency": "EUR",
       "source": "Eurostat Economy and Finance News",
@@ -67,12 +67,12 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 20,
-      "relevantItems": 1,
+      "relevantItems": 2,
       "sampleTitles": [
+        "Minutes of the Federal Open Market Committee, October 27-28, 2026",
         "Agencies extend comment period for proposed third-party risk management guidance",
         "Federal Reserve Board announces pricing, effective January 1, 2027, for payment services the Federal Reserve Banks provide to banks and credit unions, and changes to streamline and adjust their check services",
-        "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
-        "Federal Reserve Board issues enforcement action with former employee of United Community Bank"
+        "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027"
       ]
     },
     {
@@ -80,12 +80,12 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 1,
+      "relevantItems": 2,
       "sampleTitles": [
+        "Minutes of the Federal Open Market Committee, October 27-28, 2026",
         "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
         "Federal Reserve issues FOMC statement",
-        "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026",
-        "Minutes of the Federal Open Market Committee, September 15-16, 2026"
+        "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026"
       ]
     },
     {

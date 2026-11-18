@@ -615,11 +615,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-18T16:29:10Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "Housing Starts",
@@ -633,11 +629,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-18T16:29:10Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "ECB President Lagarde Speaks",
@@ -645,12 +637,7 @@
     "date": "2026-11-18T09:25:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": "",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": ""
   },
   {
     "title": "BOE Gov Bailey Speaks",
@@ -672,11 +659,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-18T16:29:10Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 1,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "Crude Oil Inventories",
@@ -728,7 +711,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
+    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -788,14 +771,6 @@
     "previous": "4.7%"
   },
   {
-    "title": "Foreign Direct Investment ytd/y",
-    "country": "CNY",
-    "date": "2026-11-19T02:02:00-05:00",
-    "impact": "Low",
-    "forecast": "",
-    "previous": "-4.3%"
-  },
-  {
     "title": "Current Account",
     "country": "EUR",
     "date": "2026-11-19T04:00:00-05:00",
@@ -805,7 +780,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
+    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -858,7 +833,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
+    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1014,6 +989,14 @@
     "previous": "24.5B"
   },
   {
+    "title": "Foreign Direct Investment ytd/y",
+    "country": "CNY",
+    "date": "2026-11-20T02:02:00-05:00",
+    "impact": "Low",
+    "forecast": "",
+    "previous": "-4.3%"
+  },
+  {
     "title": "ECB President Lagarde Speaks",
     "country": "EUR",
     "date": "2026-11-20T03:15:00-05:00",
@@ -1023,7 +1006,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
+    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1068,7 +1051,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T16:29:10Z",
+    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
