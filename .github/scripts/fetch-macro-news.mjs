@@ -6,9 +6,10 @@ const MAX_ITEMS = 100;
 const SOURCES = [
   { name: "Federal Reserve", currency: "USD", url: "https://www.federalreserve.gov/feeds/press_all.xml" },
   { name: "Federal Reserve Monetary Policy", currency: "USD", url: "https://www.federalreserve.gov/feeds/press_monetary.xml" },
-  { name: "Bureau of Labor Statistics", currency: "USD", url: "https://www.bls.gov/feed/bls_latest.rss" },
-  { name: "European Central Bank", currency: "EUR", url: "https://www.ecb.europa.eu/rss/press.html" },
-  { name: "Eurostat", currency: "EUR", url: "https://ec.europa.eu/eurostat/cache/RSS/rss_estat_news.xml" }
+  { name: "BLS Consumer Price Index", currency: "USD", url: "https://www.bls.gov/feed/cpi.rss" },
+  { name: "BLS Employment Situation", currency: "USD", url: "https://www.bls.gov/feed/empsit.rss" },
+  { name: "Bureau of Economic Analysis", currency: "USD", url: "https://apps.bea.gov/rss/rss.xml" },
+  { name: "European Central Bank", currency: "EUR", url: "https://www.ecb.europa.eu/rss/press.html" }
 ];
 
 const MACRO = /inflation|consumer price|producer price|employment|unemployment|payroll|nonfarm|wage|gross domestic|\bgdp\b|retail sales|industrial production|interest rate|monetary policy|federal funds|fomc|ecb|deposit facility|refinancing|pce|cpi|hicp|ppi|labor market|labour market|job openings|trade balance|current account|business confidence|economic outlook|growth|recession|prices|productivity|claims|consumer spending|personal income/i;
@@ -57,7 +58,7 @@ const now = Date.now();
 const cutoff = now - LOOKBACK_DAYS * 86400000;
 const settled = await Promise.allSettled(SOURCES.map(async source => {
   const response = await fetch(source.url, {
-    headers: { "User-Agent": "NEGUS-AI-News-Monitor/1.0 (+https://github.com/amhasilasienigus-ops/negus-ai-assistant)", "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml" },
+    headers: { "User-Agent": "Mozilla/5.0 (compatible; NEGUS-AI-News-Monitor/1.0; +https://github.com/amhasilasienigus-ops/negus-ai-assistant)", "Accept": "application/rss+xml, application/atom+xml, application/xml, text/xml" },
     signal: AbortSignal.timeout(12000)
   });
   if (!response.ok) throw new Error("HTTP " + response.status);
