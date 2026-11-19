@@ -707,12 +707,7 @@
     "date": "2026-11-18T14:00:00-05:00",
     "impact": "High",
     "forecast": "",
-    "previous": "",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": ""
   },
   {
     "title": "FOMC Member Williams Speaks",
@@ -780,7 +775,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
+    "resultsLastUpdatedAt": "2026-11-19T03:59:47Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -789,7 +784,12 @@
     "date": "2026-11-19T06:00:00-05:00",
     "impact": "Low",
     "forecast": "",
-    "previous": ""
+    "previous": "",
+    "resultsProvider": "ShowMyTrades economic calendar",
+    "resultsMatchConfidence": 0.8,
+    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "resultsLastUpdatedAt": "2026-11-19T03:59:47Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "CBI Industrial Order Expectations",
@@ -833,8 +833,8 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
-    "resultsProviderConfidence": "single_source"
+    "resultsLastUpdatedAt": "2026-11-19T03:59:47Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "Philly Fed Manufacturing Index",
@@ -1006,7 +1006,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
+    "resultsLastUpdatedAt": "2026-11-19T03:59:47Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1051,7 +1051,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-18T23:00:17Z",
+    "resultsLastUpdatedAt": "2026-11-19T03:59:47Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
