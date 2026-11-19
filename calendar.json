@@ -777,11 +777,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-19T12:32:34Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 1,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T12:32:34Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "German Buba Monthly Report",
@@ -789,12 +785,7 @@
     "date": "2026-11-19T06:00:00-05:00",
     "impact": "Low",
     "forecast": "",
-    "previous": "",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.8,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T12:32:34Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": ""
   },
   {
     "title": "CBI Industrial Order Expectations",
@@ -834,12 +825,7 @@
     "date": "2026-11-19T08:30:00-05:00",
     "impact": "Medium",
     "forecast": "",
-    "previous": "",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T12:32:34Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": ""
   },
   {
     "title": "Philly Fed Manufacturing Index",
@@ -882,20 +868,20 @@
     "previous": "0.0%"
   },
   {
-    "title": "Mortgage Delinquencies",
-    "country": "USD",
-    "date": "2026-11-19T10:15:00-05:00",
-    "impact": "Low",
-    "forecast": "",
-    "previous": "4.37%"
-  },
-  {
     "title": "Natural Gas Storage",
     "country": "USD",
     "date": "2026-11-19T10:30:00-05:00",
     "impact": "Low",
     "forecast": "25B",
     "previous": "61B"
+  },
+  {
+    "title": "Mortgage Delinquencies",
+    "country": "USD",
+    "date": "2026-11-19T10:46:00-05:00",
+    "impact": "Low",
+    "forecast": "",
+    "previous": "4.37%"
   },
   {
     "title": "FOMC Member Goolsbee Speaks",
@@ -1011,7 +997,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T12:32:34Z",
+    "resultsLastUpdatedAt": "2026-11-19T20:55:00Z",
     "resultsProviderConfidence": "single_source"
   },
   {
@@ -1056,7 +1042,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T12:32:34Z",
+    "resultsLastUpdatedAt": "2026-11-19T20:55:00Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
