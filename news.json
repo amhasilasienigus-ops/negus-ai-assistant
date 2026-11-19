@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-19T03:59:45.775Z",
+  "generatedAt": "2026-11-19T12:32:32.773Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
@@ -132,7 +132,7 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 4,
+      "relevantItems": 3,
       "sampleTitles": [
         "Boris Vujčić: Financial Stability Review - November 2026",
         "Risks from AI valuations, fiscal imbalances and geoeconomic tensions weigh on financial stability outlook",
