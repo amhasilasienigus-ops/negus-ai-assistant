@@ -997,8 +997,8 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T20:55:00Z",
-    "resultsProviderConfidence": "single_source"
+    "resultsLastUpdatedAt": "2026-11-20T01:55:39Z",
+    "resultsProviderConfidence": "sources_agree"
   },
   {
     "title": "German Buba President Nagel Speaks",
@@ -1042,7 +1042,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-19T20:55:00Z",
+    "resultsLastUpdatedAt": "2026-11-20T01:55:39Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
