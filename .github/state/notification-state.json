@@ -6,7 +6,9 @@
     },
     "USD|2026-11-17T08:30:00-05:00|Core Retail Sales m/m": {},
     "USD|2026-11-17T08:30:00-05:00|Retail Sales m/m": {},
-    "USD|2026-11-18T14:00:00-05:00|FOMC Meeting Minutes": {}
+    "USD|2026-11-18T14:00:00-05:00|FOMC Meeting Minutes": {},
+    "USD|2026-11-25T08:30:00-05:00|Core PCE Price Index m/m": {},
+    "USD|2026-11-25T08:30:00-05:00|Prelim GDP q/q": {}
   },
   "macroNews": {
     "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3Mva2V5L2RhdGUvMjAyNi9odG1sL2VjYi5zcDI2": {
