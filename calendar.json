@@ -77,12 +77,7 @@
     "date": "2026-11-23T04:00:00-05:00",
     "impact": "Low",
     "forecast": "52.7",
-    "previous": "52.4",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "52.4"
   },
   {
     "title": "Flash Services PMI",
@@ -90,12 +85,7 @@
     "date": "2026-11-23T04:00:00-05:00",
     "impact": "Low",
     "forecast": "51.8",
-    "previous": "51.7",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "51.7"
   },
   {
     "title": "Flash Manufacturing PMI",
@@ -124,7 +114,7 @@
   {
     "title": "Corporate Profits q/q",
     "country": "CAD",
-    "date": "2026-11-23T08:30:00-05:00",
+    "date": "2026-11-23T08:32:00-05:00",
     "impact": "Low",
     "forecast": "",
     "previous": "8.7%"
@@ -136,10 +126,15 @@
     "impact": "Medium",
     "forecast": "54.5",
     "previous": "56.0",
+    "actual": "54.5",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-23T16:18:51Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -149,10 +144,15 @@
     "impact": "Medium",
     "forecast": "55.6",
     "previous": "57.9",
+    "actual": "54.7",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-23T16:18:51Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -172,14 +172,6 @@
     "previous": "53.3"
   },
   {
-    "title": "Foreign Direct Investment ytd/y",
-    "country": "CNY",
-    "date": "2026-11-24T02:02:00-05:00",
-    "impact": "Low",
-    "forecast": "",
-    "previous": "-4.3%"
-  },
-  {
     "title": "German ifo Business Climate",
     "country": "EUR",
     "date": "2026-11-24T04:00:00-05:00",
@@ -189,7 +181,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -258,7 +250,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -271,7 +263,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -347,6 +339,14 @@
     "previous": "0.2%"
   },
   {
+    "title": "Foreign Direct Investment ytd/y",
+    "country": "CNY",
+    "date": "2026-11-25T02:02:00-05:00",
+    "impact": "Low",
+    "forecast": "",
+    "previous": "-4.3%"
+  },
+  {
     "title": "UBS Economic Expectations",
     "country": "CHF",
     "date": "2026-11-25T04:00:00-05:00",
@@ -364,7 +364,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -417,7 +417,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -430,7 +430,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "official"
   },
   {
@@ -443,7 +443,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "official"
   },
   {
@@ -456,7 +456,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -485,7 +485,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -522,7 +522,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -535,7 +535,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -572,7 +572,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -601,7 +601,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -646,7 +646,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -659,7 +659,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -688,7 +688,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-23T05:27:50Z",
+    "resultsLastUpdatedAt": "2026-11-23T16:18:51Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {

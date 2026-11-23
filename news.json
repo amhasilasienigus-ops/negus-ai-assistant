@@ -1,11 +1,38 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-23T05:27:47.722Z",
+  "generatedAt": "2026-11-23T16:18:49.864Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
+    {
+      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3Mva2V5L2RhdGUvMjAyNi9odG1sL2VjYi5zcDI2",
+      "currency": "EUR",
+      "source": "European Central Bank",
+      "title": "Philip R. Lane: Climate change and monetary policy",
+      "summary": "",
+      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261123~b5816801a0.en.pdf",
+      "publishedAt": "2026-11-23T14:30:00.000Z"
+    },
+    {
+      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvcHIvZGF0ZS8yMDI2L2h0bWwvZWNiLnByMjYx",
+      "currency": "EUR",
+      "source": "European Central Bank",
+      "title": "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral",
+      "summary": "",
+      "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261123~76b6f57b74.en.html",
+      "publishedAt": "2026-11-23T10:00:00.000Z"
+    },
+    {
+      "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTEyMy0y",
+      "currency": "EUR",
+      "source": "Eurostat Economy and Finance News",
+      "title": "Evolution of fuel prices in October 2026",
+      "summary": "In October 2026, the price of fuels and lubricants for personal transport in the EU increased by 29.5% compared with October 2025. This followed the year-on-year increases of 23.8% in August and 31.4% in September 2026. October annual increases were higher than those in August and September 2026 ...",
+      "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261123-2",
+      "publishedAt": "2026-11-23T10:00:00.000Z"
+    },
     {
       "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvYWN0aXZpdGllcy11cy1tdWx0aW5hdGlvbmFsLWVu",
       "currency": "USD",
@@ -34,15 +61,6 @@
       "publishedAt": "2026-11-18T15:00:00.000Z"
     },
     {
-      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3Mva2V5L2RhdGUvMjAyNi9odG1sL2VjYi5zcDI2",
-      "currency": "EUR",
-      "source": "European Central Bank",
-      "title": "Philip R. Lane: The practice and science of monetary policy communication: the ECB experience",
-      "summary": "",
-      "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261117~7f5d3b1a0e.en.pdf",
-      "publishedAt": "2026-11-17T18:30:00.000Z"
-    },
-    {
       "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTExMy0z",
       "currency": "EUR",
       "source": "Eurostat Economy and Finance News",
@@ -50,15 +68,6 @@
       "summary": "In 2025, household final consumption expenditure, corrected for inflation, grew by 1.6% in the EU compared with 2024. This increase was slightly smaller than in 2024, when growth stood at 1.8%. Among the main categories, household spending on information and communication recorded the highest ri...",
       "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261113-3",
       "publishedAt": "2026-11-13T10:00:00.000Z"
-    },
-    {
-      "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTEwOS0x",
-      "currency": "EUR",
-      "source": "Eurostat Economy and Finance News",
-      "title": "Are EU house prices outpacing income?",
-      "summary": "In 2025, the EU house price-to-income ratio was 6.8% higher than in 2015, meaning that house prices rose relative to household income over the decade. Behind this increase at EU level, national developments varied considerably, with the ratio rising in 17 EU countries and falling in the other 10....",
-      "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261109-1",
-      "publishedAt": "2026-11-09T10:00:00.000Z"
     }
   ],
   "sources": [
@@ -132,12 +141,12 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 2,
+      "relevantItems": 4,
       "sampleTitles": [
+        "Philip R. Lane: Climate change and monetary policy",
+        "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral",
         "Christine Lagarde: Acting in time",
-        "Boris Vujčić: Financial Stability Review - November 2026",
-        "Risks from AI valuations, fiscal imbalances and geoeconomic tensions weigh on financial stability outlook",
-        "Philip R. Lane: The practice and science of monetary policy communication: the ECB experience"
+        "Boris Vujčić: Financial Stability Review - November 2026"
       ]
     },
     {
@@ -147,10 +156,10 @@
       "itemsFound": 11,
       "relevantItems": 2,
       "sampleTitles": [
+        "Evolution of fuel prices in October 2026",
         "Share of government debt held by resident financial corporations highest in Czechia and Sweden",
         "European Statistical Monitor: November edition",
-        "EU consumption expenditure grows, alcohol & tobacco dip",
-        "Foreign direct investment: where is it coming from?"
+        "EU consumption expenditure grows, alcohol & tobacco dip"
       ]
     }
   ],
