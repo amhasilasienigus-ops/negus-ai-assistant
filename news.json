@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T13:09:06.635Z",
+  "generatedAt": "2026-11-24T22:59:27.203Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
@@ -78,10 +78,10 @@
       "itemsFound": 20,
       "relevantItems": 2,
       "sampleTitles": [
+        "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
         "Federal Reserve announces College Fed Challenge winners",
         "Federal Reserve Board releases results from survey of senior financial officers at banks about their strategies and practices for managing reserve balances",
-        "Federal Reserve Board issues enforcement action with former employee of First Security Bancorp",
-        "Minutes of the Federal Open Market Committee, October 27-28, 2026"
+        "Federal Reserve Board issues enforcement action with former employee of First Security Bancorp"
       ]
     },
     {
@@ -91,10 +91,10 @@
       "itemsFound": 15,
       "relevantItems": 2,
       "sampleTitles": [
+        "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
         "Minutes of the Federal Open Market Committee, October 27-28, 2026",
         "Federal Reserve announces revised tentative schedule of Federal Open Market Committee meetings in 2027",
-        "Federal Reserve issues FOMC statement",
-        "Minutes of the Board's discount rate meetings on August 17, September 9, and September 16, 2026"
+        "Federal Reserve issues FOMC statement"
       ]
     },
     {
@@ -141,7 +141,7 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 4,
+      "relevantItems": 3,
       "sampleTitles": [
         "Boris Vujčić: Resilience in an age of shocks: lessons from central and eastern Europe",
         "Philip R. Lane: Climate change and monetary policy",
@@ -156,10 +156,10 @@
       "itemsFound": 11,
       "relevantItems": 2,
       "sampleTitles": [
+        "2027 Macroeconomic imbalance procedure scoreboard",
         "Profit share of EU businesses down 4 years in a row",
         "Household investment rate in the EU at 8.1% in 2025",
-        "Evolution of fuel prices in October 2026",
-        "Share of government debt held by resident financial corporations highest in Czechia and Sweden"
+        "Evolution of fuel prices in October 2026"
       ]
     }
   ],
