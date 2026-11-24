@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-24T02:56:56.578Z",
+  "generatedAt": "2026-11-24T13:09:06.635Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
@@ -143,10 +143,10 @@
       "itemsFound": 15,
       "relevantItems": 4,
       "sampleTitles": [
+        "Boris Vujčić: Resilience in an age of shocks: lessons from central and eastern Europe",
         "Philip R. Lane: Climate change and monetary policy",
         "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral",
-        "Christine Lagarde: Acting in time",
-        "Boris Vujčić: Financial Stability Review - November 2026"
+        "Christine Lagarde: Acting in time"
       ]
     },
     {
@@ -156,10 +156,10 @@
       "itemsFound": 11,
       "relevantItems": 2,
       "sampleTitles": [
+        "Profit share of EU businesses down 4 years in a row",
+        "Household investment rate in the EU at 8.1% in 2025",
         "Evolution of fuel prices in October 2026",
-        "Share of government debt held by resident financial corporations highest in Czechia and Sweden",
-        "European Statistical Monitor: November edition",
-        "EU consumption expenditure grows, alcohol & tobacco dip"
+        "Share of government debt held by resident financial corporations highest in Czechia and Sweden"
       ]
     }
   ],
