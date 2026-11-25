@@ -1,11 +1,29 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T05:14:11.773Z",
+  "generatedAt": "2026-11-25T15:36:05.594Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
+    {
+      "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvZ2RwLXNlY29uZC1lc3RpbWF0ZS1hbmQtY29ycG9y",
+      "currency": "USD",
+      "source": "Bureau of Economic Analysis",
+      "title": "GDP, (Second Estimate) and Corporate Profits, 3rd Quarter 2026",
+      "summary": "Real gross domestic product (GDP) increased at an annual rate of 4.3 percent in the third quarter of 2026 (July, August, and September), according to the second estimate released today by the U.S. Bureau of Economic Analysis (BEA). In the second quarter, real GDP increased 2.2 percent. The contributors to the increase in real GDP in the third quarter were increases in investment, consumer spending, and government spending that were partly offset by a decrease in exports. Imports, which are a subtraction in the calculation of GDP, increased.",
+      "url": "https://www.bea.gov/news/2026/gdp-second-estimate-and-corporate-profits-3rd-quarter-2026",
+      "publishedAt": "2026-11-25T13:30:00.000Z"
+    },
+    {
+      "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvcGVyc29uYWwtaW5jb21lLWFuZC1vdXRsYXlzLW9j",
+      "currency": "USD",
+      "source": "Bureau of Economic Analysis",
+      "title": "Personal Income and Outlays, October 2026",
+      "summary": "Personal income increased $201.8 billion (0.7 percent at a monthly rate) in October, according to estimates released today by the U.S. Bureau of Economic Analysis (BEA). Disposable personal income (DPI)&ndash;personal income less personal current taxes&ndash;increased $200.5 billion (0.8 percent), and personal consumption expenditures (PCE) increased $63.8 billion (0.3 percent). Personal outlays&ndash;the sum of PCE, personal interest payments, and personal current transfer payments&ndash;increased $69.3 billion in October. Personal saving was $1.00 trillion, and the personal saving rate&ndash;personal saving as a percentage of DPI&ndash;was 4.1 percent.",
+      "url": "https://www.bea.gov/news/2026/personal-income-and-outlays-october-2026",
+      "publishedAt": "2026-11-25T13:30:00.000Z"
+    },
     {
       "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3Mva2V5L2RhdGUvMjAyNi9odG1sL2VjYi5zcDI2",
       "currency": "EUR",
@@ -127,13 +145,13 @@
       "name": "Bureau of Economic Analysis",
       "currency": "USD",
       "status": "ok",
-      "itemsFound": 49,
-      "relevantItems": 2,
+      "itemsFound": 50,
+      "relevantItems": 4,
       "sampleTitles": [
+        "GDP, (Second Estimate) and Corporate Profits, 3rd Quarter 2026",
+        "Personal Income and Outlays, October 2026",
         "Activities of U.S. Multinational Enterprises, 2024",
-        "Outdoor Recreation Economic Statistics, U.S. and States, 2025",
-        "U.S. International Trade in Goods and Services, September 2026",
-        "GDP (Advance Estimate), 3rd Quarter 2026"
+        "Outdoor Recreation Economic Statistics, U.S. and States, 2025"
       ]
     },
     {
@@ -143,10 +161,10 @@
       "itemsFound": 15,
       "relevantItems": 3,
       "sampleTitles": [
+        "Card payments edge past cash in shops; euro area consumers want both",
         "Boris Vujčić: Resilience in an age of shocks: lessons from central and eastern Europe",
         "Philip R. Lane: Climate change and monetary policy",
-        "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral",
-        "Christine Lagarde: Acting in time"
+        "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral"
       ]
     },
     {
