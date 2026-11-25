@@ -1,11 +1,20 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-25T15:36:05.594Z",
+  "generatedAt": "2026-11-25T23:46:23.825Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
+    {
+      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvcHIvZGF0ZS8yMDI2L2h0bWwvZWNiLnByMjYx",
+      "currency": "EUR",
+      "source": "European Central Bank",
+      "title": "ECB and Sveriges Riksbank conclude agreement for Sweden to join T2",
+      "summary": "",
+      "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261125_1~6333a90f3a.en.html",
+      "publishedAt": "2026-11-25T17:30:00.000Z"
+    },
     {
       "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvZ2RwLXNlY29uZC1lc3RpbWF0ZS1hbmQtY29ycG9y",
       "currency": "USD",
@@ -32,15 +41,6 @@
       "summary": "",
       "url": "https://www.ecb.europa.eu//press/key/date/2026/html/ecb.sp261123~b5816801a0.en.pdf",
       "publishedAt": "2026-11-23T14:30:00.000Z"
-    },
-    {
-      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvcHIvZGF0ZS8yMDI2L2h0bWwvZWNiLnByMjYx",
-      "currency": "EUR",
-      "source": "European Central Bank",
-      "title": "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral",
-      "summary": "",
-      "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261123~76b6f57b74.en.html",
-      "publishedAt": "2026-11-23T10:00:00.000Z"
     },
     {
       "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTEyMy0y",
@@ -96,10 +96,10 @@
       "itemsFound": 20,
       "relevantItems": 2,
       "sampleTitles": [
+        "Agencies announce dollar thresholds for applicability of truth in lending and consumer leasing rules for consumer credit and lease transactions",
+        "Agencies announce dollar thresholds for smaller loan exemption from appraisal requirements for higher-priced mortgage loans",
         "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
-        "Federal Reserve announces College Fed Challenge winners",
-        "Federal Reserve Board releases results from survey of senior financial officers at banks about their strategies and practices for managing reserve balances",
-        "Federal Reserve Board issues enforcement action with former employee of First Security Bancorp"
+        "Federal Reserve announces College Fed Challenge winners"
       ]
     },
     {
@@ -159,12 +159,12 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 3,
+      "relevantItems": 4,
       "sampleTitles": [
+        "ECB and Sveriges Riksbank conclude agreement for Sweden to join T2",
         "Card payments edge past cash in shops; euro area consumers want both",
         "Boris Vujčić: Resilience in an age of shocks: lessons from central and eastern Europe",
-        "Philip R. Lane: Climate change and monetary policy",
-        "ECB expands acceptance of DLT-based assets as eligible Eurosystem collateral"
+        "Philip R. Lane: Climate change and monetary policy"
       ]
     },
     {

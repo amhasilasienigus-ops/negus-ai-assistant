@@ -1,7 +1,6 @@
 {
   "initialized": true,
   "events": {
-    "USD|2026-11-18T14:00:00-05:00|FOMC Meeting Minutes": {},
     "USD|2026-11-25T08:30:00-05:00|Core PCE Price Index m/m": {},
     "USD|2026-11-25T08:30:00-05:00|Prelim GDP q/q": {}
   },

@@ -341,11 +341,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-25T15:36:07Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "FOMC Member Bowman Speaks",
@@ -385,7 +381,13 @@
     "date": "2026-11-25T08:30:00-05:00",
     "impact": "Low",
     "forecast": "0.5%",
-    "previous": "0.5%"
+    "previous": "0.5%",
+    "actual": "0.2%",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-25T15:36:07Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
+    "actualArchived": true
   },
   {
     "title": "Durable Goods Orders m/m",
@@ -399,11 +401,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-25T15:36:07Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "Personal Income m/m",
@@ -417,11 +415,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-25T15:36:07Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 1,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
-    "resultsProviderConfidence": "official"
+    "actualArchived": true
   },
   {
     "title": "Personal Spending m/m",
@@ -435,11 +429,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-25T15:36:07Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
-    "resultsProviderConfidence": "official"
+    "actualArchived": true
   },
   {
     "title": "Unemployment Claims",
@@ -469,11 +459,7 @@
     "actualSource": "ShowMyTrades economic calendar",
     "actualUpdatedAt": "2026-11-25T15:36:07Z",
     "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
-    "resultsProviderConfidence": "sources_agree"
+    "actualArchived": true
   },
   {
     "title": "Crude Oil Inventories",
@@ -501,7 +487,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -538,7 +524,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -551,7 +537,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -588,7 +574,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -617,7 +603,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -662,7 +648,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -675,7 +661,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -704,7 +690,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-25T15:36:07Z",
+    "resultsLastUpdatedAt": "2026-11-25T23:46:35Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
