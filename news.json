@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-26T15:35:47.143Z",
+  "generatedAt": "2026-11-26T23:58:41.451Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
@@ -94,7 +94,7 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 20,
-      "relevantItems": 2,
+      "relevantItems": 1,
       "sampleTitles": [
         "Agencies announce dollar thresholds for applicability of truth in lending and consumer leasing rules for consumer credit and lease transactions",
         "Agencies announce dollar thresholds for smaller loan exemption from appraisal requirements for higher-priced mortgage loans",
@@ -107,7 +107,7 @@
       "currency": "USD",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 2,
+      "relevantItems": 1,
       "sampleTitles": [
         "Minutes of the Board's discount rate meetings on October 19 and October 28, 2026",
         "Minutes of the Federal Open Market Committee, October 27-28, 2026",
