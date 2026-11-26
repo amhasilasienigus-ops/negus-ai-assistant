@@ -221,7 +221,7 @@ window.negusOneSignalReady=new Promise(resolve=>{
  
   <p>Enable alerts for new high-impact USD/EUR calendar events and NO TRADE windows. This setup must be approved in your browser.</p>
  
-  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button> <button class="secondary" type="button" onclick="checkNegusNotificationSubscription()">Check Subscription</button>
+  <button id="pushSubscribeButton" class="action" onclick="subscribeToNegusNotifications()">Enable Notifications</button> <button class="secondary" type="button" onclick="checkNegusNotificationSubscription()">Check Subscription</button> <button class="secondary" type="button" onclick="sendNegusPriceAlertTest()">Test Price Alert</button>
  
   <div id="pushStatus" class="result">Notifications are not yet confirmed on this device.</div>
  
@@ -1269,6 +1269,32 @@ async function checkNegusNotificationSubscription(){
 
  
  
+async function sendNegusPriceAlertTest(){
+ const status=document.getElementById('pushStatus');
+ try{
+  if(!('serviceWorker' in navigator))throw new Error('Service Worker is not supported in this browser.');
+  if(!('Notification' in window))throw new Error('Browser notifications are not supported.');
+  if(Notification.permission!=='granted'){
+   const OneSignal=await window.negusOneSignalReady;
+   if(!OneSignal)throw new Error('OneSignal could not initialize.');
+   await OneSignal.Notifications.requestPermission();
+  }
+  if(Notification.permission!=='granted')throw new Error('Notification permission is not granted. Enable notifications for this site in Chrome settings.');
+  const registration=await navigator.serviceWorker.ready;
+  if(!registration||!registration.active)throw new Error('NEGUS AI service worker is not active yet. Reload the page and try again.');
+  await registration.showNotification('NEGUS AI PRICE ALERT',{
+   body:'NEGUS AI PRICE ALERT — TEST ONLY. EUR/USD price alert notification test.',
+   tag:'negus-ai-price-alert-test-'+Date.now(),
+   renotify:true,
+   data:{url:location.href}
+  });
+  status.textContent='TEST SENT — Chrome should show “NEGUS AI PRICE ALERT”. Check whether MacroDroid plays the selected sound five times.';
+ }catch(error){
+  console.error('NEGUS price alert test failed:',error);
+  status.textContent='TEST FAILED — '+(error&&error.message?error.message:'Notification could not be displayed');
+ }
+}
+
 function changeChart(){
  
  const tf=document.getElementById('chartTF').value;
