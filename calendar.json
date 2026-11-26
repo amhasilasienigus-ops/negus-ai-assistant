@@ -515,12 +515,7 @@
     "date": "2026-11-26T04:00:00-05:00",
     "impact": "Low",
     "forecast": "3.5%",
-    "previous": "3.5%",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "3.5%"
   },
   {
     "title": "Private Loans y/y",
@@ -528,12 +523,7 @@
     "date": "2026-11-26T04:00:00-05:00",
     "impact": "Low",
     "forecast": "3.2%",
-    "previous": "3.1%",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 1,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "3.1%"
   },
   {
     "title": "Euro Summit",
@@ -577,7 +567,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
+    "resultsLastUpdatedAt": "2026-11-26T15:35:48Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -606,7 +596,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
+    "resultsLastUpdatedAt": "2026-11-26T15:35:48Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -651,7 +641,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.67,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
+    "resultsLastUpdatedAt": "2026-11-26T15:35:48Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -664,7 +654,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 0.75,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
+    "resultsLastUpdatedAt": "2026-11-26T15:35:48Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
@@ -693,7 +683,7 @@
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-26T05:29:11Z",
+    "resultsLastUpdatedAt": "2026-11-26T15:35:48Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {
