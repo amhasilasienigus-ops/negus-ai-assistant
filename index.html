@@ -869,18 +869,18 @@ window.negusOneSignalReady=new Promise(resolve=>{
    </div>
  
    <div class="card" style="margin:14px 0;border:1px solid #d6b24d">
-    <h3>♛ NEGUS AI · Manual EUR/USD Price Alert</h3>
-    <p>Enter a price level. NEGUS checks the live BiQuote EUR/USD quote and sends one Chrome notification when the selected condition is reached. MacroDroid can then play your selected alarm.</p>
-    <label for="negusPriceTarget">Target price</label>
-    <input id="negusPriceTarget" type="number" inputmode="decimal" min="0.00001" step="0.00001" placeholder="Example: 1.09850">
-    <label for="negusPriceDirection">Alert when price reaches</label>
-    <select id="negusPriceDirection"><option value="above">Target price or ABOVE (≥)</option><option value="below">Target price or BELOW (≤)</option></select>
+    <h3>♛ NEGUS AI · Dual EUR/USD Price Alerts</h3>
+    <p>በአንድ ጊዜ የላይኛውንና የታችኛውን የዋጋ ደረጃ አስገባ። የትኛውም መጀመሪያ ሲነካ አንድ ማሳወቂያ ይላካል፤ ሌላውም ይሰረዛል።</p>
+    <label for="negusPriceAbove">ወደላይ (ABOVE ≥)</label>
+    <input id="negusPriceAbove" type="number" inputmode="decimal" min="0.00001" step="0.00001" placeholder="ለምሳሌ 1.10000">
+    <label for="negusPriceBelow">ወደታች (BELOW ≤)</label>
+    <input id="negusPriceBelow" type="number" inputmode="decimal" min="0.00001" step="0.00001" placeholder="ለምሳሌ 1.09500">
     <div class="chart-controls">
-     <button class="action" type="button" onclick="armNegusPriceAlert()">Set Price Alert</button>
-     <button class="secondary" type="button" onclick="cancelNegusPriceAlert()">Cancel Alert</button>
+     <button class="action" type="button" onclick="armNegusPriceAlert()">Set Price Alerts</button>
+     <button class="secondary" type="button" onclick="cancelNegusPriceAlert()">Cancel Alerts</button>
     </div>
-    <div id="negusPriceAlertStatus" class="result" role="status" aria-live="polite">No active price alert.</div>
-    <p class="chart-note">Important: keep this NEGUS page open in Chrome with market data updating. This browser-based alert does not monitor prices after the page is closed or suspended, and BiQuote may differ from Exness.</p>
+    <div id="negusPriceAlertStatus" class="result" role="status" aria-live="polite">No active price alerts.</div>
+    <p class="chart-note">Important: የNEGUS ገጹን በChrome ክፍት አድርግና የገበያ ዋጋው እየተዘመነ መሆኑን አረጋግጥ። ገጹ ሲዘጋ ወይም ሲታገድ ይህ ማስጠንቀቂያ አይከታተልም፤ BiQuote ዋጋ ከExness ሊለያይ ይችላል።</p>
    </div>
 
    <label>Chart timeframe</label>
@@ -1313,7 +1313,16 @@ async function sendNegusPriceAlertTest(){
 let negusActivePriceAlert=null;
 try{
  const saved=localStorage.getItem('negus_active_price_alert');
- if(saved){const parsed=JSON.parse(saved);if(parsed&&Number.isFinite(Number(parsed.target))&&['above','below'].includes(parsed.direction))negusActivePriceAlert=parsed;}
+ if(saved){
+  const parsed=JSON.parse(saved);
+  if(parsed&&typeof parsed==='object'){
+   if(Number.isFinite(Number(parsed.above))||Number.isFinite(Number(parsed.below))){
+    negusActivePriceAlert={above:Number.isFinite(Number(parsed.above))&&Number(parsed.above)>0?Number(parsed.above):null,below:Number.isFinite(Number(parsed.below))&&Number(parsed.below)>0?Number(parsed.below):null,id:parsed.id||String(Date.now())};
+   }else if(Number.isFinite(Number(parsed.target))&&['above','below'].includes(parsed.direction)){
+    negusActivePriceAlert={above:parsed.direction==='above'?Number(parsed.target):null,below:parsed.direction==='below'?Number(parsed.target):null,id:parsed.id||String(Date.now())};
+   }
+  }
+ }
 }catch(_){negusActivePriceAlert=null;}
 
 function renderNegusPriceAlertStatus(message){
@@ -1321,18 +1330,26 @@ function renderNegusPriceAlertStatus(message){
  if(el)el.textContent=message;
 }
 function armNegusPriceAlert(){
- const target=Number(document.getElementById('negusPriceTarget')?.value);
- const direction=document.getElementById('negusPriceDirection')?.value;
- if(!Number.isFinite(target)||target<=0){renderNegusPriceAlertStatus('ERROR — enter a valid EUR/USD price level.');return;}
- if(!['above','below'].includes(direction)){renderNegusPriceAlertStatus('ERROR — select ABOVE or BELOW.');return;}
- negusActivePriceAlert={target:Number(target.toFixed(5)),direction,createdAt:Date.now(),id:String(Date.now())};
+ const aboveRaw=document.getElementById('negusPriceAbove')?.value?.trim()||'';
+ const belowRaw=document.getElementById('negusPriceBelow')?.value?.trim()||'';
+ const above=aboveRaw===''?null:Number(aboveRaw);
+ const below=belowRaw===''?null:Number(belowRaw);
+ if(above===null&&below===null){renderNegusPriceAlertStatus('ERROR — ቢያንስ አንድ የዋጋ ቁጥር አስገባ።');return;}
+ if((above!==null&&(!Number.isFinite(above)||above<=0))||(below!==null&&(!Number.isFinite(below)||below<=0))){renderNegusPriceAlertStatus('ERROR — የገባኸው የዋጋ ቁጥር ትክክል አይደለም።');return;}
+ if(above!==null&&below!==null&&above<=below){renderNegusPriceAlertStatus('ERROR — የላይኛው ዋጋ ከታችኛው ዋጋ መብለጥ አለበት።');return;}
+ negusActivePriceAlert={above:above===null?null:Number(above.toFixed(5)),below:below===null?null:Number(below.toFixed(5)),createdAt:Date.now(),id:String(Date.now())};
  try{localStorage.setItem('negus_active_price_alert',JSON.stringify(negusActivePriceAlert));}catch(_){}
- renderNegusPriceAlertStatus('ACTIVE — EUR/USD '+(direction==='above'?'≥ ':'≤ ')+negusActivePriceAlert.target.toFixed(5)+'. Waiting for a fresh quote.');
+ const parts=[];
+ if(negusActivePriceAlert.above!==null)parts.push('ወደላይ ≥ '+negusActivePriceAlert.above.toFixed(5));
+ if(negusActivePriceAlert.below!==null)parts.push('ወደታች ≤ '+negusActivePriceAlert.below.toFixed(5));
+ renderNegusPriceAlertStatus('ACTIVE — '+parts.join('  |  ')+' · ከሁለቱ አንዱን እስኪነካ ይጠብቃል።');
 }
 function cancelNegusPriceAlert(){
  negusActivePriceAlert=null;
  try{localStorage.removeItem('negus_active_price_alert');}catch(_){}
- renderNegusPriceAlertStatus('CANCELLED — no active price alert.');
+ const above=document.getElementById('negusPriceAbove'),below=document.getElementById('negusPriceBelow');
+ if(above)above.value='';if(below)below.value='';
+ renderNegusPriceAlertStatus('CANCELLED — no active price alerts.');
 }
 async function checkNegusPriceAlert(q){
  const alert=negusActivePriceAlert;
@@ -1341,36 +1358,42 @@ async function checkNegusPriceAlert(q){
  if(Number.isFinite(age)&&age>45)return;
  const mid=Number(q.mid);
  if(!Number.isFinite(mid)||mid<=0)return;
- const reached=alert.direction==='above'?mid>=alert.target:mid<=alert.target;
- if(!reached)return;
- // Disarm before notifying so repeated quote refreshes cannot send duplicate alerts.
+ const hitAbove=alert.above!==null&&alert.above!==undefined&&mid>=alert.above;
+ const hitBelow=alert.below!==null&&alert.below!==undefined&&mid<=alert.below;
+ if(!hitAbove&&!hitBelow)return;
+ const hitDirection=hitAbove?'above':'below';
+ const hitTarget=hitAbove?alert.above:alert.below;
+ // Disarm both levels before notifying: only the first crossed level can alert.
  negusActivePriceAlert=null;
  try{localStorage.removeItem('negus_active_price_alert');}catch(_){}
- renderNegusPriceAlertStatus('TRIGGERED — EUR/USD '+mid.toFixed(5)+' reached '+(alert.direction==='above'?'≥ ':'≤ ')+alert.target.toFixed(5)+'. Sending notification…');
+ renderNegusPriceAlertStatus('TRIGGERED — EUR/USD '+mid.toFixed(5)+' የ'+(hitAbove?'ላይኛውን':'ታችኛውን')+' ደረጃ '+hitTarget.toFixed(5)+' ነክቷል። Notification እየተላከ ነው…');
  try{
   if(!('serviceWorker' in navigator)||!('Notification' in window))throw new Error('Browser notifications are unavailable.');
   if(Notification.permission!=='granted')throw new Error('Notifications are not enabled. Tap Enable Notifications on the Dashboard first.');
   const registration=await navigator.serviceWorker.ready;
   if(!registration||!registration.active)throw new Error('NEGUS service worker is not active.');
   await registration.showNotification('NEGUS AI PRICE ALERT',{
-   body:'NEGUS AI PRICE ALERT — EUR/USD '+mid.toFixed(5)+' reached your '+(alert.direction==='above'?'upper':'lower')+' target '+alert.target.toFixed(5)+'.',
+   body:'NEGUS AI PRICE ALERT — EUR/USD '+mid.toFixed(5)+' reached your '+(hitAbove?'upper':'lower')+' target '+hitTarget.toFixed(5)+'.',
    tag:'negus-ai-price-alert-'+alert.id,
    renotify:true,
    requireInteraction:true,
    vibrate:[500,250,500,250,900],
-   data:{url:location.href,price:mid,target:alert.target,pair:'EUR/USD'}
+   data:{url:location.href,price:mid,target:hitTarget,direction:hitDirection,pair:'EUR/USD'}
   });
-  renderNegusPriceAlertStatus('ALERT SENT — EUR/USD '+mid.toFixed(5)+' reached '+alert.target.toFixed(5)+'.');
+  renderNegusPriceAlertStatus('ALERT SENT — EUR/USD '+mid.toFixed(5)+' የ'+(hitAbove?'ላይኛው':'ታችኛው')+' ደረጃን ነክቷል። ሌላው ደረጃ ተሰርዟል።');
  }catch(error){
-  renderNegusPriceAlertStatus('PRICE REACHED, BUT NOTIFICATION FAILED — '+String(error?.message||error)+'. Set the alert again after enabling notifications.');
+  renderNegusPriceAlertStatus('PRICE REACHED, BUT NOTIFICATION FAILED — '+String(error?.message||error)+'. Set the two levels again after enabling notifications.');
  }
 }
 function restoreNegusPriceAlertUI(){
  if(!negusActivePriceAlert)return;
- const target=document.getElementById('negusPriceTarget'),direction=document.getElementById('negusPriceDirection');
- if(target)target.value=Number(negusActivePriceAlert.target).toFixed(5);
- if(direction)direction.value=negusActivePriceAlert.direction;
- renderNegusPriceAlertStatus('ACTIVE — EUR/USD '+(negusActivePriceAlert.direction==='above'?'≥ ':'≤ ')+Number(negusActivePriceAlert.target).toFixed(5)+'. Waiting for a fresh quote.');
+ const above=document.getElementById('negusPriceAbove'),below=document.getElementById('negusPriceBelow');
+ if(above&&negusActivePriceAlert.above!==null)above.value=Number(negusActivePriceAlert.above).toFixed(5);
+ if(below&&negusActivePriceAlert.below!==null)below.value=Number(negusActivePriceAlert.below).toFixed(5);
+ const parts=[];
+ if(negusActivePriceAlert.above!==null)parts.push('ወደላይ ≥ '+Number(negusActivePriceAlert.above).toFixed(5));
+ if(negusActivePriceAlert.below!==null)parts.push('ወደታች ≤ '+Number(negusActivePriceAlert.below).toFixed(5));
+ renderNegusPriceAlertStatus('ACTIVE — '+parts.join('  |  ')+' · እየጠበቀ ነው።');
 }
 
 function changeChart(){
