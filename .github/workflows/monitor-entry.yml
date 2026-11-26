@@ -34,7 +34,6 @@ jobs:
         run: node .github/scripts/monitor-entry.mjs
 
       - name: Run background EUR/USD price-threshold alerts
-        if: ${{ secrets.SUPABASE_URL != '' && secrets.SUPABASE_SERVICE_ROLE_KEY != '' }}
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
