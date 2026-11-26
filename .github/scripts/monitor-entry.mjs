@@ -36,8 +36,8 @@ async function sendPush(message) {
     body: JSON.stringify({
       app_id: APP_ID,
       included_segments: ["All"],
-      headings: { en: "NEGUS AI · EUR/USD SETUP" },
-      contents: { en: message },
+      headings: { en: "NEGUS AI PRICE ALERT" },
+      contents: { en: `NEGUS AI PRICE ALERT · ${message}` },
       url: APP_URL,
       idempotency_key: crypto.randomUUID()
     })
