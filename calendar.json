@@ -587,12 +587,7 @@
     "date": "2026-11-27T02:45:00-05:00",
     "impact": "Low",
     "forecast": "0.1%",
-    "previous": "-0.5%",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-27T06:40:11Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "-0.5%"
   },
   {
     "title": "French Final Private Payrolls q/q",
@@ -632,25 +627,15 @@
     "date": "2026-11-27T03:55:00-05:00",
     "impact": "Low",
     "forecast": "5K",
-    "previous": "4K",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.67,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-27T06:40:11Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "4K"
   },
   {
     "title": "Italian 10-y Bond Auction",
     "country": "EUR",
-    "date": "2026-11-27T05:33:00-05:00",
+    "date": "2026-11-27T05:05:00-05:00",
     "impact": "Low",
     "forecast": "",
-    "previous": "4.49|1.6",
-    "resultsProvider": "ShowMyTrades economic calendar",
-    "resultsMatchConfidence": 0.75,
-    "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-27T06:40:11Z",
-    "resultsProviderConfidence": "sources_agree"
+    "previous": "4.49|1.6"
   },
   {
     "title": "German Buba President Nagel Speaks",
@@ -675,10 +660,15 @@
     "impact": "Low",
     "forecast": "-135.9B",
     "previous": "-134.9B",
+    "actual": "$-149.5B",
+    "actualAvailable": true,
+    "actualSource": "ShowMyTrades economic calendar",
+    "actualUpdatedAt": "2026-11-27T16:57:57Z",
+    "actualSourceUrl": "https://showmytrades.com/tools/economic-calendar",
     "resultsProvider": "ShowMyTrades economic calendar",
     "resultsMatchConfidence": 1,
     "resultsSourceUrl": "https://showmytrades.com/tools/economic-calendar",
-    "resultsLastUpdatedAt": "2026-11-27T06:40:11Z",
+    "resultsLastUpdatedAt": "2026-11-27T16:57:57Z",
     "resultsProviderConfidence": "sources_agree"
   },
   {

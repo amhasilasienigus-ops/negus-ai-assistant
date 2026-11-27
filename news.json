@@ -1,19 +1,28 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-11-27T06:40:09.806Z",
+  "generatedAt": "2026-11-27T16:57:56.368Z",
   "status": "loaded",
   "sourceCount": 7,
   "successfulSourceCount": 7,
   "lookbackDays": 14,
   "items": [
     {
+      "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvZ292Y2RlYy9vdGhlcmRlYy8yMDI2L2h0bWwv",
+      "currency": "EUR",
+      "source": "European Central Bank",
+      "title": "Decisions taken by the Governing Council of the ECB (in addition to decisions setting interest rates)",
+      "summary": "",
+      "url": "https://www.ecb.europa.eu//press/govcdec/otherdec/2026/html/ecb.gc261127~13ecadc0f2.en.html",
+      "publishedAt": "2026-11-27T14:00:00.000Z"
+    },
+    {
       "id": "EUR:aHR0cHM6Ly93d3cuZWNiLmV1cm9wYS5ldS8vcHJlc3MvcHIvZGF0ZS8yMDI2L2h0bWwvZWNiLnByMjYx",
       "currency": "EUR",
       "source": "European Central Bank",
-      "title": "ECB and Sveriges Riksbank conclude agreement for Sweden to join T2",
+      "title": "ECB Consumer Expectations Survey results – October 2026",
       "summary": "",
-      "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261125_1~6333a90f3a.en.html",
-      "publishedAt": "2026-11-25T17:30:00.000Z"
+      "url": "https://www.ecb.europa.eu//press/pr/date/2026/html/ecb.pr261127~2e53af695e.en.html",
+      "publishedAt": "2026-11-27T09:00:00.000Z"
     },
     {
       "id": "USD:aHR0cHM6Ly93d3cuYmVhLmdvdi9uZXdzLzIwMjYvZ2RwLXNlY29uZC1lc3RpbWF0ZS1hbmQtY29ycG9y",
@@ -77,15 +86,6 @@
       "summary": "The value added of the outdoor recreation economy accounted for 2.3 percent ($704.2 billion) of current-dollar gross domestic product (GDP) for the nation in 2025. Across states and the District of Columbia, value added for outdoor recreation as a share of state GDP ranged from 6.1 percent in Hawaii to 1.0 percent in the District of Columbia.",
       "url": "https://www.bea.gov/news/2026/outdoor-recreation-economic-statistics-us-and-states-2025",
       "publishedAt": "2026-11-18T15:00:00.000Z"
-    },
-    {
-      "id": "EUR:aHR0cHM6Ly9lYy5ldXJvcGEuZXUvZXVyb3N0YXQvcHJvZHVjdD9jb2RlPWRkbi0yMDI2MTExMy0z",
-      "currency": "EUR",
-      "source": "Eurostat Economy and Finance News",
-      "title": "EU consumption expenditure grows, alcohol & tobacco dip",
-      "summary": "In 2025, household final consumption expenditure, corrected for inflation, grew by 1.6% in the EU compared with 2024. This increase was slightly smaller than in 2024, when growth stood at 1.8%. Among the main categories, household spending on information and communication recorded the highest ri...",
-      "url": "https://ec.europa.eu/eurostat/product?code=ddn-20261113-3",
-      "publishedAt": "2026-11-13T10:00:00.000Z"
     }
   ],
   "sources": [
@@ -159,12 +159,12 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 15,
-      "relevantItems": 4,
+      "relevantItems": 6,
       "sampleTitles": [
+        "Decisions taken by the Governing Council of the ECB (in addition to decisions setting interest rates)",
+        "ECB Consumer Expectations Survey results – October 2026",
         "Meeting of 28-29 October 2026",
-        "ECB and Sveriges Riksbank conclude agreement for Sweden to join T2",
-        "Card payments edge past cash in shops; euro area consumers want both",
-        "Boris Vujčić: Resilience in an age of shocks: lessons from central and eastern Europe"
+        "ECB and Sveriges Riksbank conclude agreement for Sweden to join T2"
       ]
     },
     {
@@ -172,7 +172,7 @@
       "currency": "EUR",
       "status": "ok",
       "itemsFound": 11,
-      "relevantItems": 2,
+      "relevantItems": 1,
       "sampleTitles": [
         "2027 Macroeconomic imbalance procedure scoreboard",
         "Profit share of EU businesses down 4 years in a row",
