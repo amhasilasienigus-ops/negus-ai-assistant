@@ -10,7 +10,10 @@ if (!SUPABASE_URL || !SERVICE_KEY || !APP_ID || !ONESIGNAL_KEY) {
   process.exit(0);
 }
 async function supabase(url, options = {}) {
-  const res = await fetch(url, { ...options, headers: { apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}`, "Content-Type": "application/json", ...(options.headers || {}) }, cache: "no-store" });
+  // New sb_secret_* keys are API keys, not JWTs: send only via apikey.
+  // Legacy service_role JWTs continue to work with both headers.
+  const authHeaders = SERVICE_KEY.startsWith("sb_secret_") ? {} : { Authorization: `Bearer ${SERVICE_KEY}` };
+  const res = await fetch(url, { ...options, headers: { apikey: SERVICE_KEY, ...authHeaders, "Content-Type": "application/json", ...(options.headers || {}) }, cache: "no-store" });
   const body = await res.text();
   if (!res.ok) throw new Error(`Supabase HTTP ${res.status}: ${body.slice(0, 400)}`);
   return body ? JSON.parse(body) : null;
