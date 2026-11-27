@@ -60,6 +60,6 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true });
   } catch (error) {
     console.error('NEGUS price-alert API error:', error);
-    return res.status(500).json({ error: 'Could not save the background price alert. Check Vercel Function Logs.' });
+    return res.status(500).json({ error: 'Could not save the background price alert.', diagnostic: String(error && error.message || 'Unknown database error').slice(0, 350) });
   }
 };
