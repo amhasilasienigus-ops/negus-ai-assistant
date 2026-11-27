@@ -1140,6 +1140,8 @@ nalysis · All Timeframes</h3>
   <label for="negusChatPin">NEGUS AI Access PIN</label>
   <input id="negusChatPin" type="password" autocomplete="off" placeholder="Backend ላይ ያዘጋጀኸውን Chat PIN አስገባ">
   <div class="small">ይህ ከExness PIN የተለየ ነው። በVercel ላይ NEGUS_CHAT_PIN በሚለው Environment Variable የምታዘጋጀውን PIN ተጠቀም።</div>
+  <div class="small">PIN ከተሳካ በኋላ በዚህ መሣሪያ ላይ ተመስጥሮ ይቀመጣል፤ በሚቀጥለው ጊዜ እንደገና አያስገባም። ይህን መሣሪያ ከሌላ ሰው ጋር ካጋራህ የተቀመጠውን PIN አጥፋ።</div>
+  <button class="action" type="button" onclick="negusForgetSavedPin()">Forget saved PIN on this device</button>
  </div>
  <div class="card">
   <div id="negusChatMessages" class="negus-chat-messages" aria-live="polite">
@@ -1310,6 +1312,46 @@ async function sendNegusPriceAlertTest(){
  }
 }
 
+// Store the user's NEGUS Access PIN encrypted on this device (Web Crypto + non-exportable IndexedDB key).
+const NEGUS_PIN_STORE='negus_pin_cipher_v1';
+function negusOpenPinDB(){
+ return new Promise((resolve,reject)=>{
+  const req=indexedDB.open('negus-secure-local',1);
+  req.onupgradeneeded=()=>req.result.createObjectStore('keys');
+  req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error);
+ });
+}
+async function negusGetPinKey(create=false){
+ const db=await negusOpenPinDB();
+ const key=await new Promise((resolve,reject)=>{
+  const tx=db.transaction('keys',create?'readwrite':'readonly'),store=tx.objectStore('keys'),req=store.get('pin-aes');
+  req.onsuccess=()=>resolve(req.result||null);req.onerror=()=>reject(req.error);
+ });
+ if(key||!create){db.close();return key;}
+ const fresh=await crypto.subtle.generateKey({name:'AES-GCM',length:256},false,['encrypt','decrypt']);
+ await new Promise((resolve,reject)=>{const tx=db.transaction('keys','readwrite');tx.objectStore('keys').put(fresh,'pin-aes');tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});
+ db.close();return fresh;
+}
+async function negusRememberPin(pin){
+ if(!pin||!window.crypto?.subtle||!window.indexedDB)return;
+ const key=await negusGetPinKey(true),iv=crypto.getRandomValues(new Uint8Array(12));
+ const encrypted=await crypto.subtle.encrypt({name:'AES-GCM',iv},key,new TextEncoder().encode(pin));
+ localStorage.setItem(NEGUS_PIN_STORE,JSON.stringify({iv:Array.from(iv),data:Array.from(new Uint8Array(encrypted))}));
+}
+async function negusRestorePin(){
+ try{
+  const raw=localStorage.getItem(NEGUS_PIN_STORE);if(!raw)return;
+  const saved=JSON.parse(raw),key=await negusGetPinKey(false);if(!key)return;
+  const plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:new Uint8Array(saved.iv)},key,new Uint8Array(saved.data));
+  const field=document.getElementById('negusChatPin');if(field&&!field.value)field.value=new TextDecoder().decode(plain);
+ }catch(error){console.warn('Saved NEGUS PIN could not be restored:',error);}
+}
+async function negusForgetSavedPin(){
+ try{localStorage.removeItem(NEGUS_PIN_STORE);const db=await negusOpenPinDB();await new Promise(resolve=>{const tx=db.transaction('keys','readwrite');tx.objectStore('keys').delete('pin-aes');tx.oncomplete=resolve;tx.onerror=resolve;});db.close();}catch(_){}
+ const field=document.getElementById('negusChatPin');if(field)field.value='';
+ const status=document.getElementById('negusPriceAlertStatus');if(status)status.textContent='Saved PIN cleared from this device.';
+}
+
 let negusActivePriceAlert=null;
 try{
  const saved=localStorage.getItem('negus_active_price_alert');
@@ -1354,6 +1396,7 @@ async function armNegusPriceAlert(){
   const response=await fetch('https://negus-ai-assistant.vercel.app/api/price-alert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accessPin:pin,subscriptionId:sub.id,above,below})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||data.ok!==true)throw new Error(data.error||('Server returned HTTP '+response.status));
+  try{await negusRememberPin(pin);}catch(saveError){console.warn('PIN was not saved on this device:',saveError);}
   alert.subscriptionId=sub.id;
   negusActivePriceAlert=alert;
   try{localStorage.setItem('negus_active_price_alert',JSON.stringify(alert));}catch(_){}
@@ -3194,6 +3237,8 @@ function negusResetChat(){
   const input=document.getElementById('negusChatInput');if(input)input.value='';
   const status=document.getElementById('negusChatStatus');if(status)status.textContent='New conversation ready.';
 }
+
+negusRestorePin();
 
 document.getElementById('negusChatImage')?.addEventListener('change',async function(){
   const file=this.files&&this.files[0];if(!file)return;
