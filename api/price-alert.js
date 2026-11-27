@@ -39,7 +39,7 @@ module.exports = async function handler(req, res) {
   const sid = typeof body.subscriptionId === 'string' ? body.subscriptionId : '';
   if (!/^[A-Za-z0-9-]{20,80}$/.test(sid)) return res.status(400).json({ error: 'Invalid OneSignal subscription ID.' });
   try {
-    const url = `${SUPABASE_URL.replace(/\\/$/, '')}/rest/v1/price_alerts`;
+    const url = `${SUPABASE_URL.replace(/\/$/, '')}/rest/v1/price_alerts`;
     if (req.method === 'DELETE') {
       await db(`${url}?id=eq.${encodeURIComponent(sid)}`, { method: 'PATCH', headers: { Prefer: 'return=minimal' }, body: JSON.stringify({ is_armed: false, updated_at: new Date().toISOString() }) });
       return res.status(200).json({ ok: true });
