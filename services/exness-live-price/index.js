@@ -90,7 +90,7 @@ async function loadAlerts() {
 async function sendAlert(row, direction, target, price) {
   const sid = String(row.onesignal_subscription_id || "");
   if (!sid) throw new Error(`Armed alert ${row.id} has no OneSignal subscription ID.`);
-  const key = `negus-exness-live-${row.id}-${direction}-${target}`;
+  const key = `negus-exness-live-${row.id}-${direction}-${target}-${Math.floor(Date.now() / 1000)}`;
   const response = await fetch("https://api.onesignal.com/notifications?c=push", {
     method: "POST",
     headers: { Authorization: `Key ${ONESIGNAL_REST_API_KEY}`, "Content-Type": "application/json", Accept: "application/json" },
