@@ -1,0 +1,26 @@
+services:
+  - type: worker
+    name: negus-exness-live-price
+    runtime: node
+    plan: starter
+    region: singapore
+    rootDir: services/exness-live-price
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: EXN_API_KEY
+        sync: false
+      - key: EXN_PRIVATE_KEY
+        sync: false
+      - key: EXN_ACCOUNT_ID
+        sync: false
+      - key: EXN_DISCOVERY_BASE_URL
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: ONESIGNAL_APP_ID
+        sync: false
+      - key: ONESIGNAL_REST_API_KEY
+        sync: false
