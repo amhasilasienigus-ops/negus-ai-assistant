@@ -1329,7 +1329,7 @@ function renderNegusPriceAlertStatus(message){
  const el=document.getElementById('negusPriceAlertStatus');
  if(el)el.textContent=message;
 }
-function armNegusPriceAlert(){
+async function armNegusPriceAlert(){
  const aboveRaw=document.getElementById('negusPriceAbove')?.value?.trim()||'';
  const belowRaw=document.getElementById('negusPriceBelow')?.value?.trim()||'';
  const above=aboveRaw===''?null:Number(aboveRaw);
@@ -1337,19 +1337,42 @@ function armNegusPriceAlert(){
  if(above===null&&below===null){renderNegusPriceAlertStatus('ERROR — ቢያንስ አንድ የዋጋ ቁጥር አስገባ።');return;}
  if((above!==null&&(!Number.isFinite(above)||above<=0))||(below!==null&&(!Number.isFinite(below)||below<=0))){renderNegusPriceAlertStatus('ERROR — የገባኸው የዋጋ ቁጥር ትክክል አይደለም።');return;}
  if(above!==null&&below!==null&&above<=below){renderNegusPriceAlertStatus('ERROR — የላይኛው ዋጋ ከታችኛው ዋጋ መብለጥ አለበት።');return;}
- negusActivePriceAlert={above:above===null?null:Number(above.toFixed(5)),below:below===null?null:Number(below.toFixed(5)),createdAt:Date.now(),id:String(Date.now())};
- try{localStorage.setItem('negus_active_price_alert',JSON.stringify(negusActivePriceAlert));}catch(_){}
- const parts=[];
- if(negusActivePriceAlert.above!==null)parts.push('ወደላይ ≥ '+negusActivePriceAlert.above.toFixed(5));
- if(negusActivePriceAlert.below!==null)parts.push('ወደታች ≤ '+negusActivePriceAlert.below.toFixed(5));
- renderNegusPriceAlertStatus('ACTIVE — '+parts.join('  |  ')+' · ከሁለቱ አንዱን እስኪነካ ይጠብቃል።');
+ const pin=(document.getElementById('negusChatPin')?.value||'').trim();
+ if(!pin){renderNegusPriceAlertStatus('BACKGROUND ALERT ለማስቀመጥ ከላይ ያለውን NEGUS AI Access PIN አስገባ።');document.getElementById('negusChatPin')?.focus();return;}
+ renderNegusPriceAlertStatus('Saving background alert…');
+ try{
+  const OneSignal=await window.negusOneSignalReady;
+  const sub=OneSignal&&OneSignal.User&&OneSignal.User.PushSubscription;
+  if(!sub||!sub.optedIn||!sub.id)throw new Error('OneSignal subscription is not ACTIVE on this device.');
+  const response=await fetch('https://negus-ai-assistant.vercel.app/api/price-alert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accessPin:pin,subscriptionId:sub.id,above,below})});
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok||data.ok!==true)throw new Error(data.error||('Server returned HTTP '+response.status));
+  negusActivePriceAlert={above:above===null?null:Number(above.toFixed(5)),below:below===null?null:Number(below.toFixed(5)),createdAt:Date.now(),id:String(Date.now()),subscriptionId:sub.id};
+  try{localStorage.setItem('negus_active_price_alert',JSON.stringify(negusActivePriceAlert));}catch(_){}
+  const parts=[];
+  if(negusActivePriceAlert.above!==null)parts.push('ወደላይ ≥ '+negusActivePriceAlert.above.toFixed(5));
+  if(negusActivePriceAlert.below!==null)parts.push('ወደታች ≤ '+negusActivePriceAlert.below.toFixed(5));
+  renderNegusPriceAlertStatus('BACKGROUND ACTIVE — '+parts.join('  |  ')+' · ስልኩ ተቆልፎም በ5 ደቂቃ የGitHub ምርመራ ይቆጣጠራል።');
+ }catch(error){
+  renderNegusPriceAlertStatus('BACKGROUND SAVE FAILED — '+String(error?.message||error)+' · የአካባቢው ማንቂያ አልተሰራም።');
+ }
 }
-function cancelNegusPriceAlert(){
+async function cancelNegusPriceAlert(){
+ const oldAlert=negusActivePriceAlert;
  negusActivePriceAlert=null;
  try{localStorage.removeItem('negus_active_price_alert');}catch(_){}
  const above=document.getElementById('negusPriceAbove'),below=document.getElementById('negusPriceBelow');
  if(above)above.value='';if(below)below.value='';
- renderNegusPriceAlertStatus('CANCELLED — no active price alerts.');
+ if(oldAlert?.subscriptionId){
+  try{
+   const pin=(document.getElementById('negusChatPin')?.value||'').trim();
+   if(!pin)throw new Error('Access PIN አስገባ።');
+   const response=await fetch('https://negus-ai-assistant.vercel.app/api/price-alert',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({accessPin:pin,subscriptionId:oldAlert.subscriptionId})});
+   const data=await response.json().catch(()=>({}));
+   if(!response.ok||data.ok!==true)throw new Error(data.error||('HTTP '+response.status));
+   renderNegusPriceAlertStatus('CANCELLED — background price alert stopped.');
+  }catch(error){renderNegusPriceAlertStatus('LOCAL ALERT CLEARED; BACKGROUND CANCEL FAILED — '+String(error?.message||error));}
+ }else renderNegusPriceAlertStatus('CANCELLED — no active local price alert.');
 }
 async function checkNegusPriceAlert(q){
  const alert=negusActivePriceAlert;
