@@ -1317,7 +1317,7 @@ try{
   const parsed=JSON.parse(saved);
   if(parsed&&typeof parsed==='object'){
    if(Number.isFinite(Number(parsed.above))||Number.isFinite(Number(parsed.below))){
-    negusActivePriceAlert={above:Number.isFinite(Number(parsed.above))&&Number(parsed.above)>0?Number(parsed.above):null,below:Number.isFinite(Number(parsed.below))&&Number(parsed.below)>0?Number(parsed.below):null,id:parsed.id||String(Date.now())};
+    negusActivePriceAlert={above:Number.isFinite(Number(parsed.above))&&Number(parsed.above)>0?Number(parsed.above):null,below:Number.isFinite(Number(parsed.below))&&Number(parsed.below)>0?Number(parsed.below):null,id:parsed.id||String(Date.now()),subscriptionId:parsed.subscriptionId||null};
    }else if(Number.isFinite(Number(parsed.target))&&['above','below'].includes(parsed.direction)){
     negusActivePriceAlert={above:parsed.direction==='above'?Number(parsed.target):null,below:parsed.direction==='below'?Number(parsed.target):null,id:parsed.id||String(Date.now())};
    }
