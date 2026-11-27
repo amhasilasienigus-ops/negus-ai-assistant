@@ -1337,9 +1337,16 @@ async function armNegusPriceAlert(){
  if(above===null&&below===null){renderNegusPriceAlertStatus('ERROR — ቢያንስ አንድ የዋጋ ቁጥር አስገባ።');return;}
  if((above!==null&&(!Number.isFinite(above)||above<=0))||(below!==null&&(!Number.isFinite(below)||below<=0))){renderNegusPriceAlertStatus('ERROR — የገባኸው የዋጋ ቁጥር ትክክል አይደለም።');return;}
  if(above!==null&&below!==null&&above<=below){renderNegusPriceAlertStatus('ERROR — የላይኛው ዋጋ ከታችኛው ዋጋ መብለጥ አለበት።');return;}
+ // Preserve the original foreground alert first; background setup must never block it.
+ const alert={above:above===null?null:Number(above.toFixed(5)),below:below===null?null:Number(below.toFixed(5)),createdAt:Date.now(),id:String(Date.now()),subscriptionId:null};
+ negusActivePriceAlert=alert;
+ try{localStorage.setItem('negus_active_price_alert',JSON.stringify(alert));}catch(_){}
+ const parts=[];
+ if(alert.above!==null)parts.push('ወደላይ ≥ '+alert.above.toFixed(5));
+ if(alert.below!==null)parts.push('ወደታች ≤ '+alert.below.toFixed(5));
  const pin=(document.getElementById('negusChatPin')?.value||'').trim();
- if(!pin){renderNegusPriceAlertStatus('BACKGROUND ALERT ለማስቀመጥ ከላይ ያለውን NEGUS AI Access PIN አስገባ።');document.getElementById('negusChatPin')?.focus();return;}
- renderNegusPriceAlertStatus('Saving background alert…');
+ if(!pin){renderNegusPriceAlertStatus('LOCAL ACTIVE — '+parts.join('  |  ')+' · Chrome ገጹ ክፍት ሲሆን ይከታተላል። ስልኩ ተቆልፎ ለሚሠራው BACKGROUND ማንቂያ Access PIN ያስፈልጋል።');return;}
+ renderNegusPriceAlertStatus('LOCAL ACTIVE — Background connection እየተሞከረ ነው…');
  try{
   const OneSignal=await window.negusOneSignalReady;
   const sub=OneSignal&&OneSignal.User&&OneSignal.User.PushSubscription;
@@ -1347,14 +1354,12 @@ async function armNegusPriceAlert(){
   const response=await fetch('https://negus-ai-assistant.vercel.app/api/price-alert',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accessPin:pin,subscriptionId:sub.id,above,below})});
   const data=await response.json().catch(()=>({}));
   if(!response.ok||data.ok!==true)throw new Error(data.error||('Server returned HTTP '+response.status));
-  negusActivePriceAlert={above:above===null?null:Number(above.toFixed(5)),below:below===null?null:Number(below.toFixed(5)),createdAt:Date.now(),id:String(Date.now()),subscriptionId:sub.id};
-  try{localStorage.setItem('negus_active_price_alert',JSON.stringify(negusActivePriceAlert));}catch(_){}
-  const parts=[];
-  if(negusActivePriceAlert.above!==null)parts.push('ወደላይ ≥ '+negusActivePriceAlert.above.toFixed(5));
-  if(negusActivePriceAlert.below!==null)parts.push('ወደታች ≤ '+negusActivePriceAlert.below.toFixed(5));
-  renderNegusPriceAlertStatus('BACKGROUND ACTIVE — '+parts.join('  |  ')+' · ስልኩ ተቆልፎም በ5 ደቂቃ የGitHub ምርመራ ይቆጣጠራል።');
+  alert.subscriptionId=sub.id;
+  negusActivePriceAlert=alert;
+  try{localStorage.setItem('negus_active_price_alert',JSON.stringify(alert));}catch(_){}
+  renderNegusPriceAlertStatus('LOCAL + BACKGROUND ACTIVE — '+parts.join('  |  ')+' · 5 ደቂቃ የGitHub ምርመራ።');
  }catch(error){
-  renderNegusPriceAlertStatus('BACKGROUND SAVE FAILED — '+String(error?.message||error)+' · የአካባቢው ማንቂያ አልተሰራም።');
+  renderNegusPriceAlertStatus('LOCAL ACTIVE — '+parts.join('  |  ')+' · BACKGROUND FAILED: '+String(error?.message||error)+' · ገጹ ክፍት ሲሆን ብቻ ይከታተላል።');
  }
 }
 async function cancelNegusPriceAlert(){
